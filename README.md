@@ -4,7 +4,7 @@
 </p>
 <br>
 <div align="center">
-    <i>An EVM Linux-powered rollup as a launchpad for crowdfunding with collateralized tokenization of receivables</i>
+    <i>An EVM Linux-powered rollup as a launchpad for crowdfundings</i>
 </div>
 <div align="center">
 <b>Debt issuance through crowdfunding with collateralized tokenization of receivables, tailored to the needs of the creators economy market</b>
