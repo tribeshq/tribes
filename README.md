@@ -4,10 +4,10 @@
 </p>
 <br>
 <div align="center">
-    <i>The new frontier of financial services for the creators' economy</i>
+    <i>An EVM Linux-powered rollup as a launchpad for crowdfunding with collateralized tokenization of receivables</i>
 </div>
 <div align="center">
-<b>Debt issuance through crowdfunding w/ collateralized tokenization of receivables</b>
+<b>Debt issuance through crowdfunding with collateralized tokenization of receivables, tailored to the needs of the creators economy market</b>
 </div>
 <br>
 <p align="center">
