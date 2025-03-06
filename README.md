@@ -7,7 +7,7 @@
     <i>An EVM Linux-powered rollup as a launchpad for crowdfundings</i>
 </div>
 <div align="center">
-<b>Debt issuance through crowdfunding with collateralized tokenization of receivables, tailored to the needs of the creators economy market</b>
+<b>Debt issuance through crowdfunding with collateralized tokenization of receivables</b>
 </div>
 <br>
 <p align="center">
