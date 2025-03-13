@@ -153,26 +153,6 @@ A crowdfunding platform designed for prominent content creators, enabling them t
          --env=ROLLUP_HTTP_SERVER_URL=http://10.0.2.2:5004 -- /var/opt/cartesi-app/app
    ```
 
-3. Host mode:
-
-   2.1 Start the development mode:
-
-   ```sh
-   nonodo
-   ```
-
-   2.2 Install the tribes rollup package:
-
-   ```sh
-   go install github.com/tribeshq/tribes/cmd/tribes-rollup@latest
-   ```
-
-   2.3 Running from the package:
-
-   ```sh
-   tribes-rollup --help # Using the flag --help to list all commands available
-   ```
-
 ###  Development
 
 1. Run development node:
