@@ -1,11 +1,13 @@
 module github.com/tribeshq/tribes
 
 go 1.22.5
+toolchain go1.24.1
 
 require (
 	github.com/ethereum/go-ethereum v1.13.15
 	github.com/google/wire v0.6.0
 	github.com/holiman/uint256 v1.2.4
+	github.com/lmittmann/tint v1.0.3
 	github.com/rollmelette/rollmelette v0.2.1-0.20250430120334-a537c896aa7f
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.9.0
@@ -34,7 +36,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/lmittmann/tint v1.0.3 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
@@ -48,11 +49,11 @@ require (
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8 // indirect
 	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
