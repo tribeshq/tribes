@@ -17,7 +17,7 @@ type SettleCrowdfundingInputDTO struct {
 type SettleCrowdfundingOutputDTO struct {
 	Id                  uint                `json:"id"`
 	Token               custom_type.Address `json:"token"`
-	Amount              *uint256.Int        `json:"amount"`
+	Collateral          *uint256.Int        `json:"collateral"`
 	Creator             custom_type.Address `json:"creator"`
 	DebtIssued          *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
@@ -69,7 +69,7 @@ func (uc *SettleCrowdfundingUseCase) Execute(
 	}
 
 	if custom_type.Address(erc20Deposit.Token) != stablecoin.Address {
-		return nil, fmt.Errorf("token deposit is not the stablecoin %v, cannot settle crowdfunding", stablecoin.Address)
+		return nil, fmt.Errorf("token deposit is not the stablecoin %v", stablecoin.Address)
 	}
 
 	crowdfunding, err := uc.CrowdfundingRepository.FindCrowdfundingById(ctx, input.CrowdfundingId)
@@ -77,54 +77,44 @@ func (uc *SettleCrowdfundingUseCase) Execute(
 		return nil, fmt.Errorf("error finding crowdfunding campaign: %w", err)
 	}
 
-	if metadata.BlockTimestamp > crowdfunding.MaturityAt {
-		return nil, fmt.Errorf("the maturity date of the crowdfunding campaign has passed")
+	if err := uc.validate(crowdfunding, erc20Deposit, metadata); err != nil {
+		return nil, err
 	}
 
-	if crowdfunding.State == entity.CrowdfundingStateSettled {
-		return nil, fmt.Errorf("crowdfunding campaign already settled")
-	}
-
-	if crowdfunding.State != entity.CrowdfundingStateClosed {
-		return nil, fmt.Errorf("crowdfunding campaign not closed")
-	}
-
-	if erc20Deposit.Amount.Cmp(crowdfunding.TotalObligation.ToBig()) < 0 {
-		return nil, fmt.Errorf("deposit amount is lower than the total obligation (sum of amount and interest of all orders)")
-	}
-
+	// Update orders
 	for _, order := range crowdfunding.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
 			order.State = entity.OrderStateSettled
-			_, err := uc.OrderRepository.UpdateOrder(ctx, order)
-			if err != nil {
+			order.UpdatedAt = metadata.BlockTimestamp
+			if _, err := uc.OrderRepository.UpdateOrder(ctx, order); err != nil {
 				return nil, fmt.Errorf("error updating order: %w", err)
 			}
 		}
 	}
 
+	// Update crowdfunding
 	crowdfunding.State = entity.CrowdfundingStateSettled
 	crowdfunding.UpdatedAt = metadata.BlockTimestamp
 	res, err := uc.CrowdfundingRepository.UpdateCrowdfunding(ctx, crowdfunding)
 	if err != nil {
-		return nil, fmt.Errorf("error updating crowdfunding campaign: %w", err)
+		return nil, fmt.Errorf("error updating crowdfunding: %w", err)
 	}
 
+	// Update creator
 	creator, err := uc.UserRepository.FindUserByAddress(ctx, crowdfunding.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}
 
 	creator.DebtIssuanceLimit = new(uint256.Int).Sub(creator.DebtIssuanceLimit, crowdfunding.DebtIssued)
-	_, err = uc.UserRepository.UpdateUser(ctx, creator)
-	if err != nil {
-		return nil, fmt.Errorf("error updating creator's debt issuance limit: %w", err)
+	if _, err := uc.UserRepository.UpdateUser(ctx, creator); err != nil {
+		return nil, fmt.Errorf("error updating creator debt limit: %w", err)
 	}
 
 	return &SettleCrowdfundingOutputDTO{
 		Id:                  res.Id,
 		Token:               res.Token,
-		Amount:              res.Amount,
+		Collateral:          res.Collateral,
 		Creator:             res.Creator,
 		DebtIssued:          res.DebtIssued,
 		MaxInterestRate:     res.MaxInterestRate,
@@ -137,4 +127,28 @@ func (uc *SettleCrowdfundingUseCase) Execute(
 		CreatedAt:           res.CreatedAt,
 		UpdatedAt:           res.UpdatedAt,
 	}, nil
+}
+
+func (uc *SettleCrowdfundingUseCase) validate(
+	crowdfunding *entity.Crowdfunding,
+	deposit *rollmelette.ERC20Deposit,
+	metadata rollmelette.Metadata,
+) error {
+	if metadata.BlockTimestamp > crowdfunding.MaturityAt {
+		return fmt.Errorf("the maturity date of the crowdfunding campaign has passed")
+	}
+
+	if crowdfunding.State == entity.CrowdfundingStateSettled {
+		return fmt.Errorf("crowdfunding campaign already settled")
+	}
+
+	if crowdfunding.State != entity.CrowdfundingStateClosed {
+		return fmt.Errorf("crowdfunding campaign not closed")
+	}
+
+	if deposit.Amount.Cmp(crowdfunding.TotalObligation.ToBig()) < 0 {
+		return fmt.Errorf("deposit amount is lower than the total obligation")
+	}
+
+	return nil
 }

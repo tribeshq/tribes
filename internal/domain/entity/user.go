@@ -51,13 +51,13 @@ func NewUser(role string, investmentLimit *uint256.Int, debtIssuanceLimit *uint2
 		Address:           address,
 		CreatedAt:         created_at,
 	}
-	if err := user.Validate(); err != nil {
+	if err := user.validate(); err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *User) Validate() error {
+func (u *User) validate() error {
 	if u.Role == "" {
 		return fmt.Errorf("%w: role cannot be empty", ErrInvalidUser)
 	}

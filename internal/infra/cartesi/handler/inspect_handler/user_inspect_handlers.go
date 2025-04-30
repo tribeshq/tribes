@@ -75,10 +75,7 @@ func (h *UserInspectHandlers) BalanceHandler(ctx context.Context, env rollmelett
 
 	switch user.Role {
 	case string(entity.UserRoleAdmin):
-		appAddress, isSet := env.AppAddress()
-		if !isSet {
-			return fmt.Errorf("no application address defined yet, contact the Tribes support")
-		}
+		appAddress := env.AppAddress()
 		balances := make(map[string]string)
 		for _, contract := range contracts {
 			balances[contract.Symbol] = env.ERC20BalanceOf(common.Address(contract.Address), appAddress).String()

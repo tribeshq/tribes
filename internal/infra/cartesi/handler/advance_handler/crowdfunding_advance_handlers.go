@@ -38,140 +38,175 @@ func NewCrowdfundingAdvanceHandlers(
 }
 
 func (h *CrowdfundingAdvanceHandlers) CreateCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	// TODO: remove this check when update to V2
-	appAddress, isSet := env.AppAddress()
-	if !isSet {
-		return fmt.Errorf("no application address defined yet, contact the Tribes support")
-	}
-	var input *crowdfunding_usecase.CreateCrowdfundingInputDTO
+	var input crowdfunding_usecase.CreateCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
 	ctx := context.Background()
-	createCrowdfunding := crowdfunding_usecase.NewCreateCrowdfundingUseCase(h.UserRepository, h.ContractRepository, h.SocialAccountRepository, h.CrowdfundingRepository)
-	res, err := createCrowdfunding.Execute(ctx, input, deposit, metadata)
+	createCrowdfunding := crowdfunding_usecase.NewCreateCrowdfundingUseCase(
+		h.UserRepository,
+		h.ContractRepository,
+		h.SocialAccountRepository,
+		h.CrowdfundingRepository,
+	)
+
+	res, err := createCrowdfunding.Execute(ctx, &input, deposit, metadata)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create crowdfunding: %w", err)
 	}
+
+	erc20Deposit := deposit.(*rollmelette.ERC20Deposit)
 	if err := env.ERC20Transfer(
-		deposit.(*rollmelette.ERC20Deposit).Token,
-		deposit.(*rollmelette.ERC20Deposit).Sender,
-		appAddress,
-		deposit.(*rollmelette.ERC20Deposit).Amount,
+		erc20Deposit.Token,
+		erc20Deposit.Sender,
+		env.AppAddress(),
+		erc20Deposit.Amount,
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to transfer ERC20: %w", err)
 	}
+
 	crowdfunding, err := json.Marshal(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal response: %w", err)
 	}
+
 	env.Notice(append([]byte("crowdfunding created - "), crowdfunding...))
 	return nil
 }
 
 func (h *CrowdfundingAdvanceHandlers) CloseCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	// TODO: remove this check when update to V2
-	appAddress, isSet := env.AppAddress()
-	if !isSet {
-		return fmt.Errorf("no application address defined yet, contact Tribes support")
+	var input crowdfunding_usecase.CloseCrowdfundingInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
 
-	var input *crowdfunding_usecase.CloseCrowdfundingInputDTO
-	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
-	}
 	ctx := context.Background()
 	closeCrowdfunding := crowdfunding_usecase.NewCloseCrowdfundingUseCase(h.CrowdfundingRepository, h.OrderRepository)
-	res, err := closeCrowdfunding.Execute(ctx, input, metadata)
+	res, err := closeCrowdfunding.Execute(ctx, &input, metadata)
 	if err != nil && res == nil {
-		return err
+		return fmt.Errorf("failed to close crowdfunding: %w", err)
 	}
 
+	// Find stablecoin contract once
 	findContractBySymbol := contract_usecase.NewFindContractBySymbolUseCase(h.ContractRepository)
 	stablecoin, err := findContractBySymbol.Execute(ctx, &contract_usecase.FindContractBySymbolInputDTO{
 		Symbol: "STABLECOIN",
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find stablecoin contract: %w", err)
 	}
 
-	// Return the funds to investors with rejected orders
+	// Reuse variables for calculations
+	quotes := new(uint256.Int)
+	stablecoinAddr := common.Address(stablecoin.Address)
+	tokenAddr := common.Address(res.Token)
+
+	// Process orders
 	for _, order := range res.Orders {
 		if order.State == entity.OrderStateRejected {
 			if err = env.ERC20Transfer(
-				common.Address(stablecoin.Address),
-				appAddress,
+				stablecoinAddr,
+				env.AppAddress(),
 				common.Address(order.Investor),
 				order.Amount.ToBig(),
 			); err != nil {
-				return err
+				return fmt.Errorf("failed to transfer rejected order: %w", err)
 			}
 		} else {
-			quotes := new(uint256.Int).Div(new(uint256.Int).Mul(res.Amount, order.Amount), res.DebtIssued)
+			// Calculate quotes
+			quotes.Mul(res.Collateral, order.Amount)
+			quotes.Div(quotes, res.DebtIssued)
+
 			if err = env.ERC20Transfer(
-				common.Address(res.Token),
-				appAddress,
+				tokenAddr,
+				env.AppAddress(),
 				common.Address(order.Investor),
 				quotes.ToBig(),
 			); err != nil {
-				return err
+				return fmt.Errorf("failed to transfer accepted order: %w", err)
 			}
 		}
 	}
 
+	// Transfer debt issued to creator
 	if err = env.ERC20Transfer(
-		common.Address(stablecoin.Address),
-		appAddress,
+		stablecoinAddr,
+		env.AppAddress(),
 		common.Address(res.Creator),
 		res.DebtIssued.ToBig(),
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to transfer debt issued: %w", err)
 	}
 
 	crowdfunding, err := json.Marshal(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal response: %w", err)
 	}
+
 	env.Notice(append([]byte(fmt.Sprintf("crowdfunding %v - ", res.State)), crowdfunding...))
 	return nil
 }
 
 func (h *CrowdfundingAdvanceHandlers) SettleCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input *crowdfunding_usecase.SettleCrowdfundingInputDTO
+	var input crowdfunding_usecase.SettleCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
 	ctx := context.Background()
-	settleCrowdfunding := crowdfunding_usecase.NewSettleCrowdfundingUseCase(h.UserRepository, h.CrowdfundingRepository, h.ContractRepository, h.OrderRepository)
-	res, err := settleCrowdfunding.Execute(ctx, input, deposit, metadata)
+	settleCrowdfunding := crowdfunding_usecase.NewSettleCrowdfundingUseCase(
+		h.UserRepository,
+		h.CrowdfundingRepository,
+		h.ContractRepository,
+		h.OrderRepository,
+	)
+
+	res, err := settleCrowdfunding.Execute(ctx, &input, deposit, metadata)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to settle crowdfunding: %w", err)
 	}
-	crowdfunding, err := json.Marshal(res)
-	if err != nil {
-		return err
-	}
+
+	// Find stablecoin contract once
 	findContractBySymbol := contract_usecase.NewFindContractBySymbolUseCase(h.ContractRepository)
 	contract, err := findContractBySymbol.Execute(ctx, &contract_usecase.FindContractBySymbolInputDTO{
 		Symbol: "STABLECOIN",
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find stablecoin contract: %w", err)
 	}
+
+	// Reuse variables for calculations
+	interest := new(uint256.Int)
+	contractAddr := common.Address(contract.Address)
+	creatorAddr := common.Address(res.Creator)
+
+	// Process settled orders
 	for _, order := range res.Orders {
 		if order.State == entity.OrderStateSettled {
-			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
+			// Calculate interest
+			interest.Mul(order.Amount, order.InterestRate)
 			interest.Div(interest, uint256.NewInt(100))
+
+			// Calculate total payment
+			totalPayment := new(uint256.Int).Add(order.Amount, interest)
+
 			if err := env.ERC20Transfer(
-				common.Address(contract.Address),
-				common.Address(res.Creator),
+				contractAddr,
+				creatorAddr,
 				common.Address(order.Investor),
-				new(uint256.Int).Add(order.Amount, interest).ToBig(),
+				totalPayment.ToBig(),
 			); err != nil {
-				return err
+				return fmt.Errorf("failed to transfer settled order: %w", err)
 			}
 		}
 	}
+
+	crowdfunding, err := json.Marshal(res)
+	if err != nil {
+		return fmt.Errorf("failed to marshal response: %w", err)
+	}
+
 	env.Notice(append([]byte("crowdfunding settled - "), crowdfunding...))
 	return nil
 }
@@ -179,37 +214,42 @@ func (h *CrowdfundingAdvanceHandlers) SettleCrowdfundingHandler(env rollmelette.
 func (h *CrowdfundingAdvanceHandlers) UpdateCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.UpdateCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
 	ctx := context.Background()
 	updateCrowdfunding := crowdfunding_usecase.NewUpdateCrowdfundingUseCase(h.CrowdfundingRepository)
 	res, err := updateCrowdfunding.Execute(ctx, input, metadata)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update crowdfunding: %w", err)
 	}
+
 	crowdfunding, err := json.Marshal(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal response: %w", err)
 	}
+
 	env.Notice(append([]byte("crowdfunding updated - "), crowdfunding...))
 	return nil
 }
 
 func (h *CrowdfundingAdvanceHandlers) DeleteCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input *crowdfunding_usecase.DeleteCrowdfundingInputDTO
+	var input crowdfunding_usecase.DeleteCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
 	ctx := context.Background()
 	deleteCrowdfunding := crowdfunding_usecase.NewDeleteCrowdfundingUseCase(h.CrowdfundingRepository)
-	err := deleteCrowdfunding.Execute(ctx, input)
-	if err != nil {
-		return err
+	if err := deleteCrowdfunding.Execute(ctx, &input); err != nil {
+		return fmt.Errorf("failed to delete crowdfunding: %w", err)
 	}
+
 	crowdfunding, err := json.Marshal(input)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal input: %w", err)
 	}
+
 	env.Notice(append([]byte("crowdfunding deleted - "), crowdfunding...))
 	return nil
 }

@@ -18,7 +18,12 @@ type OrderAdvanceHandlers struct {
 	ContractRepository     entity.ContractRepository
 }
 
-func NewOrderAdvanceHandlers(userRepository entity.UserRepository, orderRepository entity.OrderRepository, contractRepository entity.ContractRepository, crowdfundingRepository entity.CrowdfundingRepository) *OrderAdvanceHandlers {
+func NewOrderAdvanceHandlers(
+	userRepository entity.UserRepository,
+	orderRepository entity.OrderRepository,
+	contractRepository entity.ContractRepository,
+	crowdfundingRepository entity.CrowdfundingRepository,
+) *OrderAdvanceHandlers {
 	return &OrderAdvanceHandlers{
 		UserRepository:         userRepository,
 		OrderRepository:        orderRepository,
@@ -28,33 +33,43 @@ func NewOrderAdvanceHandlers(userRepository entity.UserRepository, orderReposito
 }
 
 func (h *OrderAdvanceHandlers) CreateOrderHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	// TODO: remove this check when update to V2
-	appAddress, isSet := env.AppAddress()
-	if !isSet {
-		return fmt.Errorf("no application address defined yet, contact the Tribes support")
-	}
 	var input order_usecase.CreateOrderInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w, payload: %s", err, string(payload))
 	}
+
 	ctx := context.Background()
-	createOrder := order_usecase.NewCreateOrderUseCase(h.UserRepository, h.OrderRepository, h.ContractRepository, h.CrowdfundingRepository)
+	createOrder := order_usecase.NewCreateOrderUseCase(
+		h.UserRepository,
+		h.OrderRepository,
+		h.ContractRepository,
+		h.CrowdfundingRepository,
+	)
+
 	res, err := createOrder.Execute(ctx, &input, deposit, metadata)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create order: %w", err)
 	}
+
+	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
+	if !ok {
+		return fmt.Errorf("invalid deposit type, expected ERC20Deposit")
+	}
+
 	if err := env.ERC20Transfer(
-		deposit.(*rollmelette.ERC20Deposit).Token,
-		deposit.(*rollmelette.ERC20Deposit).Sender,
-		appAddress,
-		deposit.(*rollmelette.ERC20Deposit).Amount,
+		erc20Deposit.Token,
+		erc20Deposit.Sender,
+		env.AppAddress(),
+		erc20Deposit.Amount,
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to transfer ERC20: %w", err)
 	}
+
 	order, err := json.Marshal(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal response: %w", err)
 	}
+
 	env.Notice(append([]byte("order created - "), order...))
 	return nil
 }
@@ -62,35 +77,40 @@ func (h *OrderAdvanceHandlers) CreateOrderHandler(env rollmelette.Env, metadata 
 func (h *OrderAdvanceHandlers) CancelOrderHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input order_usecase.CancelOrderInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
 	ctx := context.Background()
-	cancelOrder := order_usecase.NewCancelOrderUseCase(h.UserRepository, h.OrderRepository, h.CrowdfundingRepository)
+	cancelOrder := order_usecase.NewCancelOrderUseCase(
+		h.UserRepository,
+		h.OrderRepository,
+		h.CrowdfundingRepository,
+	)
+
 	res, err := cancelOrder.Execute(ctx, &input, metadata)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to cancel order: %w", err)
 	}
-	// TODO: remove this check when update to V2
-	appAddress, isSet := env.AppAddress()
-	if !isSet {
-		return fmt.Errorf("no application address defined yet, contact the Tribes support")
-	}
+
 	contract, err := h.ContractRepository.FindContractBySymbol(ctx, "STABLECOIN")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find stablecoin contract: %w", err)
 	}
+
 	if err := env.ERC20Transfer(
 		common.Address(contract.Address),
-		appAddress,
+		env.AppAddress(),
 		metadata.MsgSender,
 		res.Amount.ToBig(),
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to transfer ERC20: %w", err)
 	}
+
 	order, err := json.Marshal(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal response: %w", err)
 	}
+
 	env.Notice(append([]byte("order canceled - "), order...))
 	return nil
 }

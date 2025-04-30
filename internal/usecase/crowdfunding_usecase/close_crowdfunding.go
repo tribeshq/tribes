@@ -18,7 +18,7 @@ type CloseCrowdfundingInputDTO struct {
 type CloseCrowdfundingOutputDTO struct {
 	Id                  uint                `json:"id"`
 	Token               custom_type.Address `json:"token,omitempty"`
-	Amount              *uint256.Int        `json:"amount,omitempty"`
+	Collateral              *uint256.Int        `json:"collateral,omitempty"`
 	Creator             custom_type.Address `json:"creator,omitempty"`
 	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty"`
 	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty"`
@@ -81,9 +81,13 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 		return orders[i].InterestRate.Cmp(orders[j].InterestRate) < 0
 	})
 
+	// Reuse variables to reduce allocations
 	debtIssuedRemaining := new(uint256.Int).Set(ongoingCrowdfunding.DebtIssued)
 	totalCollected := uint256.NewInt(0)
 	totalObligation := uint256.NewInt(0)
+	twoThirdsTarget := uint256.NewInt(0)
+	acceptedAmount := uint256.NewInt(0)
+	rejectedAmount := uint256.NewInt(0)
 
 	for _, order := range orders {
 		if debtIssuedRemaining.IsZero() {
@@ -101,8 +105,9 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 			order.UpdatedAt = metadata.BlockTimestamp
 			totalCollected.Add(totalCollected, order.Amount)
 
+			// Calculate interest and obligation for this order
 			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
-			interest.Div(interest, uint256.NewInt(100)) // Interest = (amount * rate) / 100
+			interest.Div(interest, uint256.NewInt(100))
 			orderObligation := new(uint256.Int).Add(order.Amount, interest)
 			totalObligation.Add(totalObligation, orderObligation)
 
@@ -113,16 +118,18 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 
 			debtIssuedRemaining.Sub(debtIssuedRemaining, order.Amount)
 		} else {
-			acceptedAmount := new(uint256.Int).Set(debtIssuedRemaining)
-			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptedAmount)
+			// Partially accept order
+			acceptedAmount.Set(debtIssuedRemaining)
+			rejectedAmount.Sub(order.Amount, acceptedAmount)
 
 			order.Amount = acceptedAmount
 			order.State = entity.OrderStatePartiallyAccepted
 			order.UpdatedAt = metadata.BlockTimestamp
 			totalCollected.Add(totalCollected, acceptedAmount)
 
+			// Calculate interest and obligation for the accepted portion
 			interest := new(uint256.Int).Mul(acceptedAmount, order.InterestRate)
-			interest.Div(interest, uint256.NewInt(100)) // Interest = (amount * rate) / 100
+			interest.Div(interest, uint256.NewInt(100))
 			orderObligation := new(uint256.Int).Add(acceptedAmount, interest)
 			totalObligation.Add(totalObligation, orderObligation)
 
@@ -131,6 +138,7 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 				return nil, err
 			}
 
+			// Create rejected part
 			_, err = u.OrderRepository.CreateOrder(ctx, &entity.Order{
 				CrowdfundingId: order.CrowdfundingId,
 				Investor:       order.Investor,
@@ -148,7 +156,8 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 		}
 	}
 
-	twoThirdsTarget := new(uint256.Int).Mul(ongoingCrowdfunding.DebtIssued, uint256.NewInt(2))
+	// Check funding threshold
+	twoThirdsTarget.Mul(ongoingCrowdfunding.DebtIssued, uint256.NewInt(2))
 	twoThirdsTarget.Div(twoThirdsTarget, uint256.NewInt(3))
 	if totalCollected.Lt(twoThirdsTarget) {
 		// Cancel crowdfunding and mark all orders as rejected
@@ -171,6 +180,7 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 		return nil, fmt.Errorf("crowdfunding canceled due to insufficient funds collected")
 	}
 
+	// Update crowdfunding state
 	ongoingCrowdfunding.State = entity.CrowdfundingStateClosed
 	ongoingCrowdfunding.TotalObligation = totalObligation
 	ongoingCrowdfunding.UpdatedAt = metadata.BlockTimestamp
@@ -182,7 +192,7 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 	return &CloseCrowdfundingOutputDTO{
 		Id:                  res.Id,
 		Token:               res.Token,
-		Amount:              res.Amount,
+		Collateral:              res.Collateral,
 		Creator:             res.Creator,
 		DebtIssued:          res.DebtIssued,
 		MaxInterestRate:     res.MaxInterestRate,

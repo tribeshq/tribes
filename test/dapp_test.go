@@ -59,42 +59,39 @@ func (s *DAppSuite) TestItCreatedCrowdfundingAndSettle() {
 	investor04 := common.HexToAddress("0x0000000000000000000000000000000000000004")
 	investor05 := common.HexToAddress("0x0000000000000000000000000000000000000005")
 
-	appAddressResult := s.tester.RelayAppAddress(common.HexToAddress("0xdadadadadadadadadadadadadadadadadadadada"))
-	s.Nil(appAddressResult.Err)
-
 	baseTime := time.Now().Unix()
 
 	// Create users
-	createUserInput := []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"creator"}}`, creator))
 	result := s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"qualified_investor"}}`, investor01))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"qualified_investor"}}`, investor01))
 	result = s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"qualified_investor"}}`, investor02))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"qualified_investor"}}`, investor02))
 	result = s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
 	result = s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
 	result = s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"createUser","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"create_user","payload":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
 	result = s.tester.Advance(admin, createUserInput)
 	s.Len(result.Notices, 1)
 
 	// Create contracts
-	createContractInput := []byte(`{"path":"createContract","payload":{"symbol":"STABLECOIN","address":"0x0000000000000000000000000000000000000008"}}`)
+	createContractInput := []byte(`{"path":"create_contract","payload":{"symbol":"STABLECOIN","address":"0x0000000000000000000000000000000000000008"}}`)
 	result = s.tester.Advance(admin, createContractInput)
 	s.Len(result.Notices, 1)
 
-	createContractInput = []byte(`{"path":"createContract","payload":{"symbol":"PINK","address":"0x0000000000000000000000000000000000000009"}}`)
+	createContractInput = []byte(`{"path":"create_contract","payload":{"symbol":"PINK","address":"0x0000000000000000000000000000000000000009"}}`)
 	result = s.tester.Advance(admin, createContractInput)
 	s.Len(result.Notices, 1)
 
@@ -103,48 +100,48 @@ func (s *DAppSuite) TestItCreatedCrowdfundingAndSettle() {
 	maturityAt := baseTime + 10
 
 	// Create crowdfunding
-	createCrowdfundingInput := []byte(fmt.Sprintf(`{"path":"createCrowdfunding","payload":{"max_interest_rate":"10", "debt_issued":"100000", "fundraising_duration":10, "closes_at":%d,"maturity_at":%d}}`, closesAt, maturityAt))
+	createCrowdfundingInput := []byte(fmt.Sprintf(`{"path":"create_crowdfunding","payload":{"max_interest_rate":"10", "debt_issued":"100000", "fundraising_duration":10, "closes_at":%d,"maturity_at":%d}}`, closesAt, maturityAt))
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000009"), creator, big.NewInt(10000), createCrowdfundingInput)
 	s.Len(result.Notices, 1)
 
 	// Update crowdfunding state to ongoing
-	updateCrowdfundingInput := []byte(`{"path":"updateCrowdfunding","payload":{"id":1,"state":"ongoing"}}`)
+	updateCrowdfundingInput := []byte(`{"path":"update_crowdfunding","payload":{"id":1,"state":"ongoing"}}`)
 	result = s.tester.Advance(admin, updateCrowdfundingInput)
 	s.Len(result.Notices, 1)
 
 	orderCreatedAt := baseTime
 
 	// Investors create orders
-	createOrderInput := []byte(`{"path": "createOrder", "payload": {"crowdfunding_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "create_order", "payload": {"crowdfunding_id":1,"interest_rate":"9"}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor01, big.NewInt(60000), createOrderInput)
 	s.Len(result.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "createOrder", "payload": {"crowdfunding_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "create_order", "payload": {"crowdfunding_id":1,"interest_rate":"8"}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor02, big.NewInt(52000), createOrderInput)
 	s.Len(result.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "createOrder", "payload": {"crowdfunding_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "create_order", "payload": {"crowdfunding_id":1,"interest_rate":"4"}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor03, big.NewInt(2000), createOrderInput)
 	s.Len(result.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "createOrder", "payload": {"crowdfunding_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "create_order", "payload": {"crowdfunding_id":1,"interest_rate":"6"}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor04, big.NewInt(3000), createOrderInput)
 	s.Len(result.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "createOrder", "payload": {"crowdfunding_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "create_order", "payload": {"crowdfunding_id":1,"interest_rate":"4"}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor05, big.NewInt(400), createOrderInput)
 	s.Len(result.Notices, 1)
 
 	time.Sleep(5 * time.Second)
 
-	closeCrowdfundingInput := []byte(fmt.Sprintf(`{"path": "closeCrowdfunding", "payload": {"creator": "%s"}}`, creator))
+	closeCrowdfundingInput := []byte(fmt.Sprintf(`{"path": "close_crowdfunding", "payload": {"creator": "%s"}}`, creator))
 	result = s.tester.Advance(admin, closeCrowdfundingInput)
 	s.Len(result.Notices, 1)
 
 	updatedAt := baseTime + 5 // baseTime + sleep duration
 
 	// Expected output for closing crowdfunding
-	expectedOutput := fmt.Sprintf(`crowdfunding closed - {"id":1,"token":"0x0000000000000000000000000000000000000009","amount":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
+	expectedOutput := fmt.Sprintf(`crowdfunding closed - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
 		`{"id":1,"crowdfunding_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"crowdfunding_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"crowdfunding_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -164,14 +161,14 @@ func (s *DAppSuite) TestItCreatedCrowdfundingAndSettle() {
 	s.Equal(expectedOutput, string(result.Notices[0].Payload))
 
 	// Settle crowdfunding before maturity date
-	settleCrowdfundingInput := []byte(`{"path":"settleCrowdfunding", "payload":{"crowdfunding_id":1}}`)
+	settleCrowdfundingInput := []byte(`{"path":"settle_crowdfunding", "payload":{"crowdfunding_id":1}}`)
 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), creator, big.NewInt(108270), settleCrowdfundingInput)
 	s.Len(result.Notices, 1)
 
 	settledAt := updatedAt // baseTime
 
 	// Expected output for settling crowdfunding
-	expectedOutput = fmt.Sprintf(`crowdfunding settled - {"id":1,"token":"0x0000000000000000000000000000000000000009","amount":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
+	expectedOutput = fmt.Sprintf(`crowdfunding settled - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
 		`{"id":1,"crowdfunding_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"crowdfunding_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"crowdfunding_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+

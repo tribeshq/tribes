@@ -22,7 +22,7 @@ type CreateCrowdfundingInputDTO struct {
 type CreateCrowdfundingOutputDTO struct {
 	Id                  uint                `json:"id"`
 	Token               custom_type.Address `json:"token,omitempty"`
-	Amount              *uint256.Int        `json:"amount,omitempty"`
+	Collateral          *uint256.Int        `json:"collateral,omitempty"`
 	Creator             custom_type.Address `json:"creator,omitempty"`
 	DebtIssued          *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
@@ -73,7 +73,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	if metadata.BlockTimestamp >= input.ClosesAt {
 		return nil, fmt.Errorf("%w: creation date cannot be greater than or equal to close date", entity.ErrInvalidCrowdfunding)
 	}
-	
+
 	// TODO: Add this when in prod
 	// if input.FundraisingDuration < 604800 {
 	// 	return nil, fmt.Errorf("%w: fundraising duration must be at least 7 days", entity.ErrInvalidCrowdfunding)
@@ -140,7 +140,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	return &CreateCrowdfundingOutputDTO{
 		Id:                  createdCrowdfunding.Id,
 		Token:               createdCrowdfunding.Token,
-		Amount:              createdCrowdfunding.Amount,
+		Collateral:          createdCrowdfunding.Collateral,
 		Creator:             createdCrowdfunding.Creator,
 		DebtIssued:          createdCrowdfunding.DebtIssued,
 		MaxInterestRate:     createdCrowdfunding.MaxInterestRate,
