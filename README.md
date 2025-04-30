@@ -113,37 +113,37 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 
 1. Production mode:
 
-   1.1 Build rollup from image:
+   1.1 Generate rollup filesystem:
 
    ```sh
-   docker pull ghcr.io/tribeshq/tribes-machine:latest
+   cartesi build
    ```
 
-   1.2 Generate rollup filesystem:
+   1.2 Run validator node:
 
    ```sh
-   cartesi build --from-image ghcr.io/tribeshq/tribes-machine
+   cartesi rollups start
    ```
 
-   1.3 Run validator node:
+   1.3 Deploy application:
 
    ```sh
-   cartesi run
+   cartesi rollups deploy
    ```
 
 2. Unsandboxed mode:
 
-   2.1 Build rollup from image:
+   2.1 Generate rollup filesystem:
 
    ```sh
-   docker pull ghcr.io/tribeshq/tribes-machine:latest
+   cartesi build
    ```
 
-   2.2 Generate rollup filesystem:
+   2.2 Run development node:
 
    ```sh
-   cartesi build --from-image ghcr.io/tribeshq/tribes-machine
-   ```
+   nonodo
+   ``` 
 
    2.3 Start the application inside a Cartesi Machine unsandboxed:
 
@@ -155,7 +155,7 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 
 ###  Development
 
-1. Run development node:
+1. Run development node and application w/ hot reload:
 
    ```sh
    nonodo -- air
