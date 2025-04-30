@@ -36,13 +36,13 @@ func NewContract(symbol string, address custom_type.Address, createdAt int64) (*
 		Address:   address,
 		CreatedAt: createdAt,
 	}
-	if err := contract.Validate(); err != nil {
+	if err := contract.validate(); err != nil {
 		return nil, err
 	}
 	return contract, nil
 }
 
-func (c *Contract) Validate() error {
+func (c *Contract) validate() error {
 	if c.Symbol == "" {
 		return fmt.Errorf("%w: symbol cannot be empty", ErrInvalidContract)
 	}

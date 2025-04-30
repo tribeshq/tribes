@@ -43,13 +43,13 @@ func NewSocialAccount(userID uint, username string, followers uint, platform str
 		Platform:  Platform(platform),
 		CreatedAt: createdAt,
 	}
-	if err := socialAccount.Validate(); err != nil {
+	if err := socialAccount.validate(); err != nil {
 		return nil, err
 	}
 	return socialAccount, nil
 }
 
-func (s *SocialAccount) Validate() error {
+func (s *SocialAccount) validate() error {
 	if s.UserId == 0 {
 		return fmt.Errorf("%w: user ID cannot be zero", ErrInvalidSocialAccount)
 	}

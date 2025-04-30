@@ -37,7 +37,7 @@ type CrowdfundingRepository interface {
 type Crowdfunding struct {
 	Id                  uint                `json:"id" gorm:"primaryKey"`
 	Token               custom_type.Address `json:"token,omitempty" gorm:"type:text;not null"`
-	Amount              *uint256.Int        `json:"amount,omitempty" gorm:"type:text;not null"`
+	Collateral              *uint256.Int        `json:"collateral,omitempty" gorm:"type:text;not null"`
 	Creator             custom_type.Address `json:"creator,omitempty" gorm:"type:text;not null"`
 	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty" gorm:"type:text;not null"`
 	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"type:text;not null"`
@@ -54,7 +54,7 @@ type Crowdfunding struct {
 func NewCrowdfunding(token custom_type.Address, amount *uint256.Int, creator custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, fundraisingDuration int64, closesAt int64, maturityAt int64, createdAt int64) (*Crowdfunding, error) {
 	crowdfunding := &Crowdfunding{
 		Token:               token,
-		Amount:              amount,
+		Collateral:              amount,
 		Creator:             creator,
 		DebtIssued:          debt_issued,
 		MaxInterestRate:     maxInterestRate,
@@ -64,18 +64,18 @@ func NewCrowdfunding(token custom_type.Address, amount *uint256.Int, creator cus
 		MaturityAt:          maturityAt,
 		CreatedAt:           createdAt,
 	}
-	if err := crowdfunding.Validate(); err != nil {
+	if err := crowdfunding.validate(); err != nil {
 		return nil, err
 	}
 	return crowdfunding, nil
 }
 
-func (a *Crowdfunding) Validate() error {
+func (a *Crowdfunding) validate() error {
 	if a.Token == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidCrowdfunding)
 	}
-	if a.Amount.Sign() == 0 {
-		return fmt.Errorf("%w: amount cannot be zero", ErrInvalidCrowdfunding)
+	if a.Collateral.Sign() == 0 {
+		return fmt.Errorf("%w: collateral cannot be zero", ErrInvalidCrowdfunding)
 	}
 	if a.Creator == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid creator address", ErrInvalidCrowdfunding)

@@ -6,7 +6,7 @@ require (
 	github.com/ethereum/go-ethereum v1.13.15
 	github.com/google/wire v0.6.0
 	github.com/holiman/uint256 v1.2.4
-	github.com/rollmelette/rollmelette v0.2.0
+	github.com/rollmelette/rollmelette v0.2.1-0.20250430120334-a537c896aa7f
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.9.0
 	gorm.io/driver/sqlite v1.5.6

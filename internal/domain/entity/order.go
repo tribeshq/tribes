@@ -56,13 +56,13 @@ func NewOrder(crowdfundingId uint, investor custom_type.Address, amount *uint256
 		State:          OrderStatePending,
 		CreatedAt:      createdAt,
 	}
-	if err := order.Validate(); err != nil {
+	if err := order.validate(); err != nil {
 		return nil, err
 	}
 	return order, nil
 }
 
-func (b *Order) Validate() error {
+func (b *Order) validate() error {
 	if b.CrowdfundingId == 0 {
 		return fmt.Errorf("%w: crowdfunding ID cannot be zero", ErrInvalidOrder)
 	}

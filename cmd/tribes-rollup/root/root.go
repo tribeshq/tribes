@@ -64,7 +64,7 @@ const (
 )
 
 var (
-	verbose    bool
+	verbose     bool
 	useMemoryDB bool
 	Cmd         = &cobra.Command{
 		Use:   CMD_NAME,
@@ -171,47 +171,47 @@ func run(cmd *cobra.Command, args []string) {
 func NewDApp(ah *AdvanceHandlers, ih *InspectHandlers, ms *Middlewares) *router.Router {
 	r := router.NewRouter()
 
-	r.HandleAdvance("createContract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.CreateContractHandler, []string{"admin"}))
-	r.HandleAdvance("updateContract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.UpdateContractHandler, []string{"admin"}))
-	r.HandleAdvance("deleteContract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.DeleteContractHandler, []string{"admin"}))
+	r.HandleAdvance("create_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.CreateContractHandler, []string{"admin"}))
+	r.HandleAdvance("update_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.UpdateContractHandler, []string{"admin"}))
+	r.HandleAdvance("delete_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.DeleteContractHandler, []string{"admin"}))
 
-	r.HandleAdvance("createOrder", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CreateOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
-	r.HandleAdvance("cancelOrder", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CancelOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
+	r.HandleAdvance("create_order", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CreateOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
+	r.HandleAdvance("cancel_order", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CancelOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
 
-	r.HandleAdvance("createCrowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.CreateCrowdfundingHandler, []string{"creator"}))
-	r.HandleAdvance("deleteCrowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.DeleteCrowdfundingHandler, []string{"admin"}))
-	r.HandleAdvance("updateCrowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.UpdateCrowdfundingHandler, []string{"admin"}))
-	r.HandleAdvance("closeCrowdfunding", ah.CrowdfundingAdvanceHandlers.CloseCrowdfundingHandler)
-	r.HandleAdvance("settleCrowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.SettleCrowdfundingHandler, []string{"creator"}))
+	r.HandleAdvance("create_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.CreateCrowdfundingHandler, []string{"creator"}))
+	r.HandleAdvance("delete_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.DeleteCrowdfundingHandler, []string{"admin"}))
+	r.HandleAdvance("update_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.UpdateCrowdfundingHandler, []string{"admin"}))
+	r.HandleAdvance("close_crowdfunding", ah.CrowdfundingAdvanceHandlers.CloseCrowdfundingHandler)
+	r.HandleAdvance("settle_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.SettleCrowdfundingHandler, []string{"creator"}))
 
-	r.HandleAdvance("createUser", ms.RBAC.Middleware(ah.UserAdvanceHandlers.CreateUserHandler, []string{"admin"}))
-	r.HandleAdvance("updateUser", ms.RBAC.Middleware(ah.UserAdvanceHandlers.UpdateUserHandler, []string{"admin"}))
-	r.HandleAdvance("deleteUser", ms.RBAC.Middleware(ah.UserAdvanceHandlers.DeleteUserHandler, []string{"admin"}))
+	r.HandleAdvance("create_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.CreateUserHandler, []string{"admin"}))
+	r.HandleAdvance("update_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.UpdateUserHandler, []string{"admin"}))
+	r.HandleAdvance("delete_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.DeleteUserHandler, []string{"admin"}))
 	r.HandleAdvance("withdraw", ah.UserAdvanceHandlers.WithdrawHandler)
 
-	r.HandleAdvance("createSocialAccount", ms.RBAC.Middleware(ah.SocialAccountsHandlers.CreateSocialAccountHandler, []string{"admin"}))
-	r.HandleAdvance("deleteSocialAccount", ms.RBAC.Middleware(ah.SocialAccountsHandlers.DeleteSocialAccountHandler, []string{"admin"}))
+	r.HandleAdvance("create_social_account", ms.RBAC.Middleware(ah.SocialAccountsHandlers.CreateSocialAccountHandler, []string{"admin"}))
+	r.HandleAdvance("delete_social_account", ms.RBAC.Middleware(ah.SocialAccountsHandlers.DeleteSocialAccountHandler, []string{"admin"}))
 
-	r.HandleInspect("crowdfunding", ih.CrowdfundingInspectHandlers.FindAllCrowdfundingsHandler)
-	r.HandleInspect("crowdfunding/{id}", ih.CrowdfundingInspectHandlers.FindCrowdfundingByIdHandler)
-	r.HandleInspect("crowdfunding/creator/{address}", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByCreatorHandler)
-	r.HandleInspect("crowdfunding/investor/{address}", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestorHandler)
+	r.HandleInspect("find_crowdfunding", ih.CrowdfundingInspectHandlers.FindAllCrowdfundingsHandler)
+	r.HandleInspect("find_crowdfunding_by_id", ih.CrowdfundingInspectHandlers.FindCrowdfundingByIdHandler)
+	r.HandleInspect("find_crowdfunding_by_creator", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByCreatorHandler)
+	r.HandleInspect("find_crowdfunding_by_investor", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestorHandler)
 
-	r.HandleInspect("order", ih.OrderInspectHandlers.FindAllOrdersHandler)
-	r.HandleInspect("order/{id}", ih.OrderInspectHandlers.FindOrderByIdHandler)
-	r.HandleInspect("order/investor/{address}", ih.OrderInspectHandlers.FindOrdersByInvestorHandler)
-	r.HandleInspect("order/crowdfunding/{id}", ih.OrderInspectHandlers.FindBisdByCrowdfundingIdHandler)
+	r.HandleInspect("find_order", ih.OrderInspectHandlers.FindAllOrdersHandler)
+	r.HandleInspect("find_order_by_id", ih.OrderInspectHandlers.FindOrderByIdHandler)
+	r.HandleInspect("find_order_by_investor", ih.OrderInspectHandlers.FindOrdersByInvestorHandler)
+	r.HandleInspect("find_order_by_crowdfunding", ih.OrderInspectHandlers.FindBisdByCrowdfundingIdHandler)
 
-	r.HandleInspect("contract", ih.ContractInspectHandlers.FindAllContractsHandler)
-	r.HandleInspect("contract/{symbol}", ih.ContractInspectHandlers.FindContractBySymbolHandler)
-	r.HandleInspect("contract/{address}", ih.ContractInspectHandlers.FindContractByAddressHandler)
+	r.HandleInspect("find_contract", ih.ContractInspectHandlers.FindAllContractsHandler)
+	r.HandleInspect("find_contract_by_symbol", ih.ContractInspectHandlers.FindContractBySymbolHandler)
+	r.HandleInspect("find_contract_by_address", ih.ContractInspectHandlers.FindContractByAddressHandler)
 
-	r.HandleInspect("user", ih.UserInspectHandlers.FindAllUsersHandler)
-	r.HandleInspect("user/{address}", ih.UserInspectHandlers.FindUserByAddressHandler)
-	r.HandleInspect("balance/{address}", ih.UserInspectHandlers.BalanceHandler)
+	r.HandleInspect("find_all_users", ih.UserInspectHandlers.FindAllUsersHandler)
+	r.HandleInspect("find_user_by_address", ih.UserInspectHandlers.FindUserByAddressHandler)
+	r.HandleInspect("find_balance_by_address", ih.UserInspectHandlers.BalanceHandler)
 
-	r.HandleInspect("social/{id}", ih.SocialAccountHandlers.FindSocialAccountById)
-	r.HandleInspect("social/user/{id}", ih.SocialAccountHandlers.FindSocialAccountsByUserId)
+	r.HandleInspect("find_social_account_by_id", ih.SocialAccountHandlers.FindSocialAccountById)
+	r.HandleInspect("find_social_account_by_user", ih.SocialAccountHandlers.FindSocialAccountsByUserId)
 
 	return r
 }
