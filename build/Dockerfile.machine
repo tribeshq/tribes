@@ -35,7 +35,7 @@ EOF
 
 ################################################################################
 # stage to build FFI library for R0VM libraries
-FROM base-cross AS r0vm-deps-build
+FROM base-cross AS r0vm-deps-build-stage
 ARG APP_NAME
 
 WORKDIR /app
@@ -107,7 +107,7 @@ apt-get install -y --no-install-recommends \
     g++-riscv64-linux-gnu
 EOF
 
-ARG GOVERSION=1.22.5
+ARG GOVERSION=1.23.0
 
 WORKDIR /opt/build
 
@@ -120,7 +120,7 @@ ENV CGO_ENABLED=1
 ENV CC=riscv64-linux-gnu-gcc
 ENV PATH=/usr/local/go/bin:${PATH}
 
-COPY --from=r0vm-deps-build /usr/lib/lib${APP_NAME}.a /usr/lib/
+COPY --from=r0vm-deps-build-stage /usr/lib/lib${APP_NAME}.a /usr/lib/
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.

@@ -35,3 +35,8 @@ coverage: test
 state:
 	@chmod +x ./tools/state.sh
 	@./tools/state.sh
+
+.PHONY: state-dev
+state-dev:
+	@chmod +x ./tools/state-dev.sh
+	@./tools/state-dev.sh

@@ -18,7 +18,7 @@ type CloseCrowdfundingInputDTO struct {
 type CloseCrowdfundingOutputDTO struct {
 	Id                  uint                `json:"id"`
 	Token               custom_type.Address `json:"token,omitempty"`
-	Collateral              *uint256.Int        `json:"collateral,omitempty"`
+	Collateral          *uint256.Int        `json:"collateral,omitempty"`
 	Creator             custom_type.Address `json:"creator,omitempty"`
 	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty"`
 	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty"`
@@ -192,7 +192,7 @@ func (u *CloseCrowdfundingUseCase) Execute(ctx context.Context, input *CloseCrow
 	return &CloseCrowdfundingOutputDTO{
 		Id:                  res.Id,
 		Token:               res.Token,
-		Collateral:              res.Collateral,
+		Collateral:          res.Collateral,
 		Creator:             res.Creator,
 		DebtIssued:          res.DebtIssued,
 		MaxInterestRate:     res.MaxInterestRate,
