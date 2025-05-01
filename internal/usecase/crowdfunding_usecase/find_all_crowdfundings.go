@@ -39,7 +39,7 @@ func (f *FindAllCrowdfundingsUseCase) Execute(ctx context.Context) (*FindAllCrow
 		output[i] = &FindCrowdfundingOutputDTO{
 			Id:                  crowdfunding.Id,
 			Token:               crowdfunding.Token,
-			Collateral:              crowdfunding.Collateral,
+			Collateral:          crowdfunding.Collateral,
 			Creator:             crowdfunding.Creator,
 			DebtIssued:          crowdfunding.DebtIssued,
 			MaxInterestRate:     crowdfunding.MaxInterestRate,

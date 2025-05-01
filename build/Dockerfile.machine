@@ -107,7 +107,7 @@ apt-get install -y --no-install-recommends \
     g++-riscv64-linux-gnu
 EOF
 
-ARG GOVERSION=1.22.5
+ARG GOVERSION=1.23.0
 
 WORKDIR /opt/build
 
@@ -121,6 +121,7 @@ ENV CC=riscv64-linux-gnu-gcc
 ENV PATH=/usr/local/go/bin:${PATH}
 
 COPY --from=r0vm-deps-build /usr/lib/lib${APP_NAME}.a /usr/lib/
+COPY rollmelette ./rollmelette
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.

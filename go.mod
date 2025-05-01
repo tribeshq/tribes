@@ -1,14 +1,15 @@
 module github.com/tribeshq/tribes
 
-go 1.22.5
-toolchain go1.24.1
+go 1.23.0
+
+toolchain go1.23.8
 
 require (
 	github.com/ethereum/go-ethereum v1.13.15
 	github.com/google/wire v0.6.0
 	github.com/holiman/uint256 v1.2.4
 	github.com/lmittmann/tint v1.0.3
-	github.com/rollmelette/rollmelette v0.2.1-0.20250430120334-a537c896aa7f
+	github.com/rollmelette/rollmelette v0.0.0-20250501120833-e68c5b49ca44
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.9.0
 	gorm.io/driver/sqlite v1.5.6
