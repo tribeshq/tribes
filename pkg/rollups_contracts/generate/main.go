@@ -8,12 +8,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/accounts/abi/abigen"
 )
 
-const rollupsContractsUrl = "https://registry.npmjs.org/@cartesi/rollups/-/rollups-1.4.0.tgz"
-const baseContractsPath = "package/export/artifacts/contracts/"
+const rollupsContractsUrl = "https://registry.npmjs.org/@cartesi/rollups/-/rollups-2.0.0-rc.18.tgz"
+const baseContractsPath = "package/out/"
 const bindingPkg = "rollups_contracts"
 
 type contractBinding struct {
@@ -24,23 +25,30 @@ type contractBinding struct {
 
 var bindings = []contractBinding{
 	{
-		jsonPath:        baseContractsPath + "inputs/InputBox.sol/InputBox.json",
-		custom_typeName: "InputBox",
-		outFile:         "./pkg/rollups_contracts/input_box.go",
+		jsonPath:        baseContractsPath + "IInputBox.sol/IInputBox.json",
+		custom_typeName: "IInputBox",
+		outFile:         "iinputbox.go",
 	},
 	{
-		jsonPath:        baseContractsPath + "dapp/CartesiDApp.sol/CartesiDApp.json",
-		custom_typeName: "CartesiDApp",
-		outFile:         "./pkg/rollups_contracts/cartesi_dapp.go",
+		jsonPath:        baseContractsPath + "IApplication.sol/IApplication.json",
+		custom_typeName: "IApplication",
+		outFile:         "iapplication.go",
 	},
 	{
-		jsonPath:        baseContractsPath + "portals/ERC20Portal.sol/ERC20Portal.json",
-		custom_typeName: "ERC20Portal",
-		outFile:         "./pkg/rollups_contracts/erc20_portal.go",
+		jsonPath:        baseContractsPath + "IERC20Portal.sol/IERC20Portal.json",
+		custom_typeName: "IERC20Portal",
+		outFile:         "ierc20portal.go",
 	},
 }
 
 func main() {
+	// Get the current working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Failed to get current working directory: %v", err)
+	}
+	log.Printf("Current working directory: %s", cwd)
+
 	contractsZip := downloadContracts(rollupsContractsUrl)
 	defer contractsZip.Close()
 	contractsTar := unzip(contractsZip)
@@ -128,10 +136,23 @@ func generateBinding(b contractBinding, content []byte) {
 		libs         = make(map[string]string)
 		aliases      = make(map[string]string)
 	)
-	code, err := bind.Bind(custom_types, abis, bins, sigs, bindingPkg, bind.LangGo, libs, aliases)
+	code, err := abigen.Bind(custom_types, abis, bins, sigs, bindingPkg, libs, aliases)
 	checkErr("generate binding", err)
+
+	// Get the absolute path for the output file
+	absPath, err := filepath.Abs(b.outFile)
+	if err != nil {
+		log.Fatalf("Failed to get absolute path for %s: %v", b.outFile, err)
+	}
+	log.Printf("Generating binding to: %s", absPath)
+
+	// Ensure the output directory exists
+	dirPath := filepath.Dir(absPath)
+	err = os.MkdirAll(dirPath, os.ModePerm)
+	checkErr("create directory '"+dirPath+"' for output file '"+absPath+"'", err)
+
 	const fileMode = 0600
-	err = os.WriteFile(b.outFile, []byte(code), fileMode)
-	checkErr("write binding file", err)
-	log.Print("generated binding ", b.outFile)
+	err = os.WriteFile(absPath, []byte(code), fileMode)
+	checkErr("write binding file '"+absPath+"'", err)
+	log.Print("generated binding ", absPath)
 }
