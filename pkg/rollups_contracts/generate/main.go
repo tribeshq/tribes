@@ -17,26 +17,26 @@ const baseContractsPath = "package/export/artifacts/contracts/"
 const bindingPkg = "rollups_contracts"
 
 type contractBinding struct {
-	jsonPath string
+	jsonPath        string
 	custom_typeName string
-	outFile  string
+	outFile         string
 }
 
 var bindings = []contractBinding{
 	{
-		jsonPath: baseContractsPath + "inputs/InputBox.sol/InputBox.json",
+		jsonPath:        baseContractsPath + "inputs/InputBox.sol/InputBox.json",
 		custom_typeName: "InputBox",
-		outFile:  "./pkg/rollups_contracts/input_box.go",
+		outFile:         "./pkg/rollups_contracts/input_box.go",
 	},
 	{
-		jsonPath: baseContractsPath + "dapp/CartesiDApp.sol/CartesiDApp.json",
+		jsonPath:        baseContractsPath + "dapp/CartesiDApp.sol/CartesiDApp.json",
 		custom_typeName: "CartesiDApp",
-		outFile:  "./pkg/rollups_contracts/cartesi_dapp.go",
+		outFile:         "./pkg/rollups_contracts/cartesi_dapp.go",
 	},
 	{
-		jsonPath: baseContractsPath + "portals/ERC20Portal.sol/ERC20Portal.json",
+		jsonPath:        baseContractsPath + "portals/ERC20Portal.sol/ERC20Portal.json",
 		custom_typeName: "ERC20Portal",
-		outFile:  "./pkg/rollups_contracts/erc20_portal.go",
+		outFile:         "./pkg/rollups_contracts/erc20_portal.go",
 	},
 }
 
@@ -121,12 +121,12 @@ func getAbi(rawJson []byte) []byte {
 // Generate the Go bindings for the contracts.
 func generateBinding(b contractBinding, content []byte) {
 	var (
-		sigs    []map[string]string
-		abis    = []string{string(getAbi(content))}
-		bins    = []string{""}
-		custom_types   = []string{b.custom_typeName}
-		libs    = make(map[string]string)
-		aliases = make(map[string]string)
+		sigs         []map[string]string
+		abis         = []string{string(getAbi(content))}
+		bins         = []string{""}
+		custom_types = []string{b.custom_typeName}
+		libs         = make(map[string]string)
+		aliases      = make(map[string]string)
 	)
 	code, err := bind.Bind(custom_types, abis, bins, sigs, bindingPkg, bind.LangGo, libs, aliases)
 	checkErr("generate binding", err)

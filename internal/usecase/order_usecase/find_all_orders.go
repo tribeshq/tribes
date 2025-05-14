@@ -6,9 +6,7 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-
 type FindAllOrdersOutputDTO []*FindOrderOutputDTO
-
 
 type FindAllOrdersUseCase struct {
 	OrderRepository repository.OrderRepository

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -26,6 +27,9 @@ func (r *SQLiteRepository) Close() error {
 }
 
 func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, error) {
+	// Remove sqlite:// prefix if present
+	dbPath := strings.TrimPrefix(conn, "sqlite://")
+
 	// Configure GORM logger
 	gormLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
@@ -37,12 +41,11 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 		},
 	)
 
-	// Open SQLite database
-	db, err := gorm.Open(sqlite.Open(conn), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
 		Logger: gormLogger,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, err
 	}
 
 	// Auto-migrate schema

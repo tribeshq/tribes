@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +39,7 @@ func (r *SQLiteRepository) FindAllCrowdfundings(ctx context.Context) ([]*entity.
 	return crowdfundings, nil
 }
 
-func (r *SQLiteRepository) FindCrowdfundingsByInvestor(ctx context.Context, investor type.Address) ([]*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindCrowdfundingsByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Crowdfunding, error) {
 	var crowdfundings []*entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Joins("JOIN orders ON orders.crowdfunding_id = crowdfundings.id").
@@ -51,7 +51,7 @@ func (r *SQLiteRepository) FindCrowdfundingsByInvestor(ctx context.Context, inve
 	return crowdfundings, nil
 }
 
-func (r *SQLiteRepository) FindCrowdfundingsByCreator(ctx context.Context, creator type.Address) ([]*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindCrowdfundingsByCreator(ctx context.Context, creator custom_type.Address) ([]*entity.Crowdfunding, error) {
 	var crowdfundings []*entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Where("creator = ?", creator).

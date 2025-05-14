@@ -6,11 +6,9 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-
 type DeleteOrderInputDTO struct {
 	Id uint `json:"id"`
 }
-
 
 type DeleteOrderUseCase struct {
 	OrderRepository repository.OrderRepository
