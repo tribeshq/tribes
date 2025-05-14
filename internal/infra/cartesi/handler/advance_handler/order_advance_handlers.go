@@ -7,22 +7,22 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/order_usecase"
 )
 
 type OrderAdvanceHandlers struct {
-	UserRepository         entity.UserRepository
-	OrderRepository        entity.OrderRepository
-	CrowdfundingRepository entity.CrowdfundingRepository
-	ContractRepository     entity.ContractRepository
+	UserRepository         repository.UserRepository
+	OrderRepository        repository.OrderRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
+	ContractRepository     repository.ContractRepository
 }
 
 func NewOrderAdvanceHandlers(
-	userRepository entity.UserRepository,
-	orderRepository entity.OrderRepository,
-	contractRepository entity.ContractRepository,
-	crowdfundingRepository entity.CrowdfundingRepository,
+	userRepository repository.UserRepository,
+	orderRepository repository.OrderRepository,
+	contractRepository repository.ContractRepository,
+	crowdfundingRepository repository.CrowdfundingRepository,
 ) *OrderAdvanceHandlers {
 	return &OrderAdvanceHandlers{
 		UserRepository:         userRepository,
@@ -32,7 +32,7 @@ func NewOrderAdvanceHandlers(
 	}
 }
 
-func (h *OrderAdvanceHandlers) CreateOrderHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *OrderAdvanceHandlers) CreateOrder(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input order_usecase.CreateOrderInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w, payload: %s", err, string(payload))
@@ -53,7 +53,7 @@ func (h *OrderAdvanceHandlers) CreateOrderHandler(env rollmelette.Env, metadata 
 
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
-		return fmt.Errorf("invalid deposit type, expected ERC20Deposit")
+		return fmt.Errorf("invalid deposit custom_type, expected ERC20Deposit")
 	}
 
 	if err := env.ERC20Transfer(
@@ -74,7 +74,7 @@ func (h *OrderAdvanceHandlers) CreateOrderHandler(env rollmelette.Env, metadata 
 	return nil
 }
 
-func (h *OrderAdvanceHandlers) CancelOrderHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *OrderAdvanceHandlers) CancelOrder(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input order_usecase.CancelOrderInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)

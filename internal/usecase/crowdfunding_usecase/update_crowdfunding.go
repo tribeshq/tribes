@@ -6,6 +6,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -38,10 +39,10 @@ type UpdateCrowdfundingOutputDTO struct {
 }
 
 type UpdateCrowdfundingUsecase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewUpdateCrowdfundingUseCase(crowdfundingRepository entity.CrowdfundingRepository) *UpdateCrowdfundingUsecase {
+func NewUpdateCrowdfundingUseCase(crowdfundingRepository repository.CrowdfundingRepository) *UpdateCrowdfundingUsecase {
 	return &UpdateCrowdfundingUsecase{
 		CrowdfundingRepository: crowdfundingRepository,
 	}

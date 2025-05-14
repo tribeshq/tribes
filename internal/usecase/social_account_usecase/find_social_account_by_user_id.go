@@ -3,26 +3,26 @@ package social_account_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-type FindSocialAccountByUserIdInputDTO struct {
+type FindSocialAccountsByUserIdInputDTO struct {
 	UserId uint `json:"user_id"`
 }
 
 type FindSocialAccountsByUserIdOutputDTO []*FindSocialAccountOutputDTO
 
 type FindSocialAccountsByUserIdUseCase struct {
-	SocialAccountRepository entity.SocialAccountRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewFindSocialAccountsByUserIdUseCase(socialAccountRepository entity.SocialAccountRepository) *FindSocialAccountsByUserIdUseCase {
+func NewFindSocialAccountsByUserIdUseCase(socialAccountRepository repository.SocialAccountRepository) *FindSocialAccountsByUserIdUseCase {
 	return &FindSocialAccountsByUserIdUseCase{
 		SocialAccountRepository: socialAccountRepository,
 	}
 }
 
-func (s *FindSocialAccountsByUserIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByUserIdInputDTO) (*FindSocialAccountsByUserIdOutputDTO, error) {
+func (s *FindSocialAccountsByUserIdUseCase) Execute(ctx context.Context, input *FindSocialAccountsByUserIdInputDTO) (*FindSocialAccountsByUserIdOutputDTO, error) {
 	socialAccounts, err := s.SocialAccountRepository.FindSocialAccountsByUserId(ctx, input.UserId)
 	if err != nil {
 		return nil, err

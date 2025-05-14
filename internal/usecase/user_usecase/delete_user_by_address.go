@@ -3,7 +3,7 @@ package user_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -12,10 +12,10 @@ type DeleteUserInputDTO struct {
 }
 
 type DeleteUserUseCase struct {
-	UserRepository entity.UserRepository
+	UserRepository repository.UserRepository
 }
 
-func NewDeleteUserUseCase(userRepository entity.UserRepository) *DeleteUserUseCase {
+func NewDeleteUserUseCase(userRepository repository.UserRepository) *DeleteUserUseCase {
 	return &DeleteUserUseCase{
 		UserRepository: userRepository,
 	}

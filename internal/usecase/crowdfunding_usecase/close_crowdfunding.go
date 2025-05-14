@@ -8,6 +8,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -33,11 +34,11 @@ type CloseCrowdfundingOutputDTO struct {
 }
 
 type CloseCrowdfundingUseCase struct {
-	OrderRepository        entity.OrderRepository
-	CrowdfundingRepository entity.CrowdfundingRepository
+	OrderRepository        repository.OrderRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewCloseCrowdfundingUseCase(crowdfundingRepository entity.CrowdfundingRepository, orderRepository entity.OrderRepository) *CloseCrowdfundingUseCase {
+func NewCloseCrowdfundingUseCase(crowdfundingRepository repository.CrowdfundingRepository, orderRepository repository.OrderRepository) *CloseCrowdfundingUseCase {
 	return &CloseCrowdfundingUseCase{
 		OrderRepository:        orderRepository,
 		CrowdfundingRepository: crowdfundingRepository,

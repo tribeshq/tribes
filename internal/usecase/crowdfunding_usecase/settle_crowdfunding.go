@@ -7,6 +7,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -32,17 +33,17 @@ type SettleCrowdfundingOutputDTO struct {
 }
 
 type SettleCrowdfundingUseCase struct {
-	UserRepository         entity.UserRepository
-	ContractRepository     entity.ContractRepository
-	CrowdfundingRepository entity.CrowdfundingRepository
-	OrderRepository        entity.OrderRepository
+	UserRepository         repository.UserRepository
+	ContractRepository     repository.ContractRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
+	OrderRepository        repository.OrderRepository
 }
 
 func NewSettleCrowdfundingUseCase(
-	userRepository entity.UserRepository,
-	crowdfundingRepository entity.CrowdfundingRepository,
-	contractRepository entity.ContractRepository,
-	orderRepository entity.OrderRepository,
+	userRepository repository.UserRepository,
+	crowdfundingRepository repository.CrowdfundingRepository,
+	contractRepository repository.ContractRepository,
+	orderRepository repository.OrderRepository,
 ) *SettleCrowdfundingUseCase {
 	return &SettleCrowdfundingUseCase{
 		UserRepository:         userRepository,
@@ -60,7 +61,7 @@ func (uc *SettleCrowdfundingUseCase) Execute(
 ) (*SettleCrowdfundingOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
-		return nil, fmt.Errorf("invalid deposit type: %T", deposit)
+		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
 	stablecoin, err := uc.ContractRepository.FindContractBySymbol(ctx, "STABLECOIN")

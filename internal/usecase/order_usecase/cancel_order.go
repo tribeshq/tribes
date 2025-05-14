@@ -6,7 +6,7 @@ import (
 
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -26,12 +26,12 @@ type CancelOrderOutputDTO struct {
 }
 
 type CancelOrderUseCase struct {
-	UserRepository         entity.UserRepository
-	OrderRepository        entity.OrderRepository
-	CrowdfundingRepository entity.CrowdfundingRepository
+	UserRepository         repository.UserRepository
+	OrderRepository        repository.OrderRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewCancelOrderUseCase(userRepository entity.UserRepository, orderRepository entity.OrderRepository, crowdfundingRepository entity.CrowdfundingRepository) *CancelOrderUseCase {
+func NewCancelOrderUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository, crowdfundingRepository repository.CrowdfundingRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
 		UserRepository:         userRepository,
 		OrderRepository:        orderRepository,

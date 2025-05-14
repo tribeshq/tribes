@@ -7,6 +7,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -35,17 +36,17 @@ type CreateCrowdfundingOutputDTO struct {
 }
 
 type CreateCrowdfundingUseCase struct {
-	UserRepository          entity.UserRepository
-	ContractRepository      entity.ContractRepository
-	SocialAccountRepository entity.SocialAccountRepository
-	CrowdfundingRepository  entity.CrowdfundingRepository
+	UserRepository          repository.UserRepository
+	ContractRepository      repository.ContractRepository
+	SocialAccountRepository repository.SocialAccountRepository
+	CrowdfundingRepository  repository.CrowdfundingRepository
 }
 
 func NewCreateCrowdfundingUseCase(
-	userRepository entity.UserRepository,
-	contractRepository entity.ContractRepository,
-	socialRepository entity.SocialAccountRepository,
-	crowdfundingRepository entity.CrowdfundingRepository,
+	userRepository repository.UserRepository,
+	contractRepository repository.ContractRepository,
+	socialRepository repository.SocialAccountRepository,
+	crowdfundingRepository repository.CrowdfundingRepository,
 ) *CreateCrowdfundingUseCase {
 	return &CreateCrowdfundingUseCase{
 		UserRepository:          userRepository,
@@ -58,7 +59,7 @@ func NewCreateCrowdfundingUseCase(
 func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCrowdfundingInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateCrowdfundingOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
-		return nil, fmt.Errorf("invalid deposit type: %T", deposit)
+		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
 	if input.DebtIssued.Cmp(uint256.NewInt(15000000)) > 0 {

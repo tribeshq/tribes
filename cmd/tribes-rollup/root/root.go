@@ -1,17 +1,3 @@
-package root
-
-import (
-	"log/slog"
-	"os"
-	"time"
-
-	"github.com/rollmelette/rollmelette"
-	"github.com/spf13/cobra"
-	"github.com/tribeshq/tribes/configs"
-	"github.com/tribeshq/tribes/pkg/router"
-	"gorm.io/gorm"
-)
-
 // *************************************************************************************
 // *                           PLATFORM FUNCTIONAL REQUIREMENTS                        *
 // *************************************************************************************
@@ -57,17 +43,28 @@ import (
 //    9.1 Fulfill CVM registration requirements, including a minimum capital of R$ 200,000.
 //    9.2 Develop a code of conduct addressing conflicts of interest for partners and administrators.
 
-// *************************************************************************************
+package root
+
+import (
+	"log/slog"
+	"os"
+	"time"
+
+	"github.com/rollmelette/rollmelette"
+	"github.com/spf13/cobra"
+	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
+	"github.com/tribeshq/tribes/internal/infra/repository/factory"
+	"github.com/tribeshq/tribes/pkg/rollups_router"
+)
 
 const (
-	CMD_NAME = "tribes-rollup"
+	CMD_NAME = "rollup"
 )
 
 var (
-	verbose     bool
 	useMemoryDB bool
 	Cmd         = &cobra.Command{
-		Use:   CMD_NAME,
+		Use:   "tribes-" + CMD_NAME,
 		Short: "Runs Tribes Rollup",
 		Long:  `Debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
 		Run:   run,
@@ -75,143 +72,126 @@ var (
 )
 
 func init() {
-	Cmd.Flags().BoolVar(&verbose, "verbose", false, "Show detailed logs")
-
 	Cmd.PersistentFlags().BoolVar(
 		&useMemoryDB,
 		"memory-db",
 		false,
 		"Use in-memory SQLite database instead of persistent",
 	)
-
-	Cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		if verbose {
-			configs.ConfigureLogger(slog.LevelDebug)
-		} else {
-			configs.ConfigureLogger(slog.LevelInfo)
-		}
-	}
 }
 
 func run(cmd *cobra.Command, args []string) {
 	startTime := time.Now()
 
-	ctx := cmd.Context()
-
-	var db *gorm.DB
-	var err error
-	if useMemoryDB {
-		db, err = configs.SetupSQlite(":memory:")
-		if err != nil {
-			slog.Error("Failed to setup in-memory SQLite database", "error", err)
-			os.Exit(1)
-		}
-		slog.Info("In-memory database initialized")
-	} else {
-		db, err = configs.SetupSQlite("tribes.db")
-		if err != nil {
-			slog.Error("Failed to setup SQLite database", "error", err)
-			os.Exit(1)
-		}
-		slog.Info("Persistent database initialized")
-	}
-
-	sqlDB, err := db.DB()
+	repo, err := factory.NewRepositoryFromConnectionString(
+		cmd.Context(),
+		map[bool]string{true: "sqlite://:memory:", false: "sqlite://tribes.db"}[useMemoryDB],
+	)
 	if err != nil {
-		slog.Error("Failed to get SQL DB from GORM", "error", err)
+		slog.Error("Failed to setup database", "error", err, "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
 		os.Exit(1)
 	}
-	defer sqlDB.Close()
+	slog.Info("Database initialized", "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
 
-	ah, err := NewAdvanceHandlers(db)
+	defer repo.Close()
+	handlers, err := NewHandlers(repo)
 	if err != nil {
-		slog.Error("Failed to initialize advance handlers", "error", err)
+		slog.Error("Failed to initialize handlers", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("Advance handlers initialized")
+	slog.Info("Handlers initialized")
 
-	ih, err := NewInspectHandlers(db)
-	if err != nil {
-		slog.Error("Failed to initialize inspect handlers", "error", err)
-		os.Exit(1)
+	r := rollups_router.NewRouter()
+	r.Use(rollups_router.ErrorHandlingMiddleware)
+	r.Use(rollups_router.ValidationMiddleware)
+	r.Use(rollups_router.LoggingMiddleware)
+
+	rbacFactory := middleware.NewRBACFactory(repo)
+
+	contractGroup := r.Group("contracts")
+	{
+		contractGroup.Use(rbacFactory.AdminOnly())
+		contractGroup.HandleAdvance("create", handlers.ContractAdvanceHandlers.CreateContract)
+		contractGroup.HandleAdvance("update", handlers.ContractAdvanceHandlers.UpdateContract)
+		contractGroup.HandleAdvance("delete", handlers.ContractAdvanceHandlers.DeleteContract)
+
+		// Public operations
+		contractGroup.HandleInspect("", handlers.ContractInspectHandlers.FindAllContracts)
+		contractGroup.HandleInspect("symbol/:symbol", handlers.ContractInspectHandlers.FindContractBySymbol)
+		contractGroup.HandleInspect("address/:address", handlers.ContractInspectHandlers.FindContractByAddress)
 	}
-	slog.Info("Inspect handlers initialized")
 
-	ms, err := NewMiddlewares(db)
-	if err != nil {
-		slog.Error("Failed to initialize middlewares", "error", err)
-		os.Exit(1)
+	orderGroup := r.Group("orders")
+	{
+		orderGroup.Use(rbacFactory.InvestorOnly())
+		orderGroup.HandleAdvance("create", handlers.OrderAdvanceHandlers.CreateOrder)
+		orderGroup.HandleAdvance("cancel", handlers.OrderAdvanceHandlers.CancelOrder)
+
+		// Public operations
+		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
+		orderGroup.HandleInspect(":id", handlers.OrderInspectHandlers.FindOrderById)
+		orderGroup.HandleInspect("investor/:address", handlers.OrderInspectHandlers.FindOrdersByInvestor)
+		orderGroup.HandleInspect("crowdfunding/:id", handlers.OrderInspectHandlers.FindBisdByCrowdfundingId)
 	}
-	slog.Info("Middlewares initialized")
 
-	r := NewDApp(ah, ih, ms)
-	slog.Info("Router initialized")
+	crowdfundingGroup := r.Group("crowdfunding")
+	{
+		adminGroup := crowdfundingGroup.Group("admin")
+		adminGroup.Use(rbacFactory.AdminOnly())
+		adminGroup.HandleAdvance("delete", handlers.CrowdfundingAdvanceHandlers.DeleteCrowdfunding)
+		adminGroup.HandleAdvance("update", handlers.CrowdfundingAdvanceHandlers.UpdateCrowdfunding)
+
+		creatorGroup := crowdfundingGroup.Group("creator")
+		creatorGroup.Use(rbacFactory.CreatorOnly())
+		creatorGroup.HandleAdvance("create", handlers.CrowdfundingAdvanceHandlers.CreateCrowdfunding)
+		creatorGroup.HandleAdvance("settle", handlers.CrowdfundingAdvanceHandlers.SettleCrowdfunding)
+
+		// Public operations
+		crowdfundingGroup.HandleAdvance("close", handlers.CrowdfundingAdvanceHandlers.CloseCrowdfunding)
+		crowdfundingGroup.HandleInspect("", handlers.CrowdfundingInspectHandlers.FindAllCrowdfundings)
+		crowdfundingGroup.HandleInspect(":id", handlers.CrowdfundingInspectHandlers.FindCrowdfundingById)
+		crowdfundingGroup.HandleInspect("creator/:address", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByCreator)
+		crowdfundingGroup.HandleInspect("investor/:address", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestor)
+	}
+
+	userGroup := r.Group("users")
+	{
+		userGroup.Use(rbacFactory.AdminOnly())
+		userGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
+		userGroup.HandleAdvance("update", handlers.UserAdvanceHandlers.UpdateUser)
+		userGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
+		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
+
+		// Public operations
+		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
+		userGroup.HandleInspect(":address", handlers.UserInspectHandlers.FindUserByAddress)
+		userGroup.HandleInspect(":address/balance", handlers.UserInspectHandlers.Balance)
+	}
+
+	socialGroup := r.Group("social")
+	{
+		socialGroup.Use(rbacFactory.AdminOnly())
+		socialGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
+		socialGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
+
+		// Public operations
+		socialGroup.HandleInspect(":id", handlers.SocialAccountHandlers.FindSocialAccountById)
+		socialGroup.HandleInspect("user/:userId", handlers.SocialAccountHandlers.FindSocialAccountsByUserId)
+	}
 
 	opts := rollmelette.NewRunOpts()
-	if rollupUrl, isSet := os.LookupEnv("ROLLUP_HTTP_SERVER_URL"); isSet {
-		opts.RollupURL = rollupUrl
-	}
-
 	ready := make(chan struct{}, 1)
 	go func() {
 		select {
 		case <-ready:
 			duration := time.Since(startTime)
 			slog.Info("DApp is ready", "after", duration)
-		case <-ctx.Done():
+		case <-cmd.Context().Done():
 		}
 	}()
 
-	if err := rollmelette.Run(ctx, opts, r); err != nil {
-		slog.Error("Application exited with an error", "error", err)
+	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
+		slog.Error("Failed to run rollmelette", "error", err)
 		os.Exit(1)
 	}
-}
-
-func NewDApp(ah *AdvanceHandlers, ih *InspectHandlers, ms *Middlewares) *router.Router {
-	r := router.NewRouter()
-
-	r.HandleAdvance("create_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.CreateContractHandler, []string{"admin"}))
-	r.HandleAdvance("update_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.UpdateContractHandler, []string{"admin"}))
-	r.HandleAdvance("delete_contract", ms.RBAC.Middleware(ah.ContractAdvanceHandlers.DeleteContractHandler, []string{"admin"}))
-
-	r.HandleAdvance("create_order", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CreateOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
-	r.HandleAdvance("cancel_order", ms.RBAC.Middleware(ah.OrderAdvanceHandlers.CancelOrderHandler, []string{"non_qualified_investor", "qualified_investor"}))
-
-	r.HandleAdvance("create_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.CreateCrowdfundingHandler, []string{"creator"}))
-	r.HandleAdvance("delete_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.DeleteCrowdfundingHandler, []string{"admin"}))
-	r.HandleAdvance("update_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.UpdateCrowdfundingHandler, []string{"admin"}))
-	r.HandleAdvance("close_crowdfunding", ah.CrowdfundingAdvanceHandlers.CloseCrowdfundingHandler)
-	r.HandleAdvance("settle_crowdfunding", ms.RBAC.Middleware(ah.CrowdfundingAdvanceHandlers.SettleCrowdfundingHandler, []string{"creator"}))
-
-	r.HandleAdvance("create_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.CreateUserHandler, []string{"admin"}))
-	r.HandleAdvance("update_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.UpdateUserHandler, []string{"admin"}))
-	r.HandleAdvance("delete_user", ms.RBAC.Middleware(ah.UserAdvanceHandlers.DeleteUserHandler, []string{"admin"}))
-	r.HandleAdvance("withdraw", ah.UserAdvanceHandlers.WithdrawHandler)
-
-	r.HandleAdvance("create_social_account", ms.RBAC.Middleware(ah.SocialAccountsHandlers.CreateSocialAccountHandler, []string{"admin"}))
-	r.HandleAdvance("delete_social_account", ms.RBAC.Middleware(ah.SocialAccountsHandlers.DeleteSocialAccountHandler, []string{"admin"}))
-
-	r.HandleInspect("find_crowdfunding", ih.CrowdfundingInspectHandlers.FindAllCrowdfundingsHandler)
-	r.HandleInspect("find_crowdfunding_by_id", ih.CrowdfundingInspectHandlers.FindCrowdfundingByIdHandler)
-	r.HandleInspect("find_crowdfunding_by_creator", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByCreatorHandler)
-	r.HandleInspect("find_crowdfunding_by_investor", ih.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestorHandler)
-
-	r.HandleInspect("find_order", ih.OrderInspectHandlers.FindAllOrdersHandler)
-	r.HandleInspect("find_order_by_id", ih.OrderInspectHandlers.FindOrderByIdHandler)
-	r.HandleInspect("find_order_by_investor", ih.OrderInspectHandlers.FindOrdersByInvestorHandler)
-	r.HandleInspect("find_order_by_crowdfunding", ih.OrderInspectHandlers.FindBisdByCrowdfundingIdHandler)
-
-	r.HandleInspect("find_contract", ih.ContractInspectHandlers.FindAllContractsHandler)
-	r.HandleInspect("find_contract_by_symbol", ih.ContractInspectHandlers.FindContractBySymbolHandler)
-	r.HandleInspect("find_contract_by_address", ih.ContractInspectHandlers.FindContractByAddressHandler)
-
-	r.HandleInspect("find_all_users", ih.UserInspectHandlers.FindAllUsersHandler)
-	r.HandleInspect("find_user_by_address", ih.UserInspectHandlers.FindUserByAddressHandler)
-	r.HandleInspect("find_balance_by_address", ih.UserInspectHandlers.BalanceHandler)
-
-	r.HandleInspect("find_social_account_by_id", ih.SocialAccountHandlers.FindSocialAccountById)
-	r.HandleInspect("find_social_account_by_user", ih.SocialAccountHandlers.FindSocialAccountsByUserId)
-
-	return r
 }

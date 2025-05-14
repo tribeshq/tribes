@@ -4,26 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/contract_usecase"
-	"github.com/tribeshq/tribes/pkg/custom_type"
-	"github.com/tribeshq/tribes/pkg/router"
 )
 
 type ContractInspectHandlers struct {
-	ContractRepository entity.ContractRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewContractInspectHandlers(contractRepository entity.ContractRepository) *ContractInspectHandlers {
+func NewContractInspectHandlers(contractRepository repository.ContractRepository) *ContractInspectHandlers {
 	return &ContractInspectHandlers{
 		ContractRepository: contractRepository,
 	}
 }
 
-func (h *ContractInspectHandlers) FindAllContractsHandler(ctx context.Context, env rollmelette.EnvInspector) error {
+func (h *ContractInspectHandlers) FindAllContracts(env rollmelette.EnvInspector, payload []byte) error {
+	ctx := context.Background()
 	findAllContracts := contract_usecase.NewFindAllContractsUseCase(h.ContractRepository)
 	contracts, err := findAllContracts.Execute(ctx)
 	if err != nil {
@@ -37,12 +35,15 @@ func (h *ContractInspectHandlers) FindAllContractsHandler(ctx context.Context, e
 	return nil
 }
 
-func (h *ContractInspectHandlers) FindContractBySymbolHandler(ctx context.Context, env rollmelette.EnvInspector) error {
-	symbol := strings.ToUpper(router.PathValue(ctx, "symbol"))
+func (h *ContractInspectHandlers) FindContractBySymbol(env rollmelette.EnvInspector, payload []byte) error {
+	var input contract_usecase.FindContractBySymbolInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	ctx := context.Background()
 	findOrderBySymbol := contract_usecase.NewFindContractBySymbolUseCase(h.ContractRepository)
-	contract, err := findOrderBySymbol.Execute(ctx, &contract_usecase.FindContractBySymbolInputDTO{
-		Symbol: symbol,
-	})
+	contract, err := findOrderBySymbol.Execute(ctx, &input)
 	if err != nil {
 		return err
 	}
@@ -54,11 +55,15 @@ func (h *ContractInspectHandlers) FindContractBySymbolHandler(ctx context.Contex
 	return nil
 }
 
-func (h *ContractInspectHandlers) FindContractByAddressHandler(ctx context.Context, env rollmelette.EnvInspector) error {
-	findOrderByAddress := contract_usecase.NewFindContractByAddressUseCase(h.ContractRepository)
-	contract, err := findOrderByAddress.Execute(ctx, &contract_usecase.FindContractByAddressInputDTO{
-		Address: custom_type.HexToAddress(router.PathValue(ctx, "address")),
-	})
+func (h *ContractInspectHandlers) FindContractByAddress(env rollmelette.EnvInspector, payload []byte) error {
+	var input contract_usecase.FindContractByAddressInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	ctx := context.Background()
+	findContractByAddress := contract_usecase.NewFindContractByAddressUseCase(h.ContractRepository)
+	contract, err := findContractByAddress.Execute(ctx, &input)
 	if err != nil {
 		return err
 	}

@@ -4,35 +4,31 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/order_usecase"
-	"github.com/tribeshq/tribes/pkg/custom_type"
-	"github.com/tribeshq/tribes/pkg/router"
 )
 
 type OrderInspectHandlers struct {
-	OrderRepository entity.OrderRepository
+	OrderRepository repository.OrderRepository
 }
 
-func NewOrderInspectHandlers(orderRepository entity.OrderRepository) *OrderInspectHandlers {
+func NewOrderInspectHandlers(orderRepository repository.OrderRepository) *OrderInspectHandlers {
 	return &OrderInspectHandlers{
 		OrderRepository: orderRepository,
 	}
 }
 
-func (h *OrderInspectHandlers) FindOrderByIdHandler(ctx context.Context, env rollmelette.EnvInspector) error {
-	id, err := strconv.Atoi(router.PathValue(ctx, "id"))
-	if err != nil {
-		return fmt.Errorf("failed to parse id into int: %v", router.PathValue(ctx, "id"))
+func (h *OrderInspectHandlers) FindOrderById(env rollmelette.EnvInspector, payload []byte) error {
+	var input order_usecase.FindOrderByIdInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
+	ctx := context.Background()
 	findOrderById := order_usecase.NewFindOrderByIdUseCase(h.OrderRepository)
-	res, err := findOrderById.Execute(ctx, &order_usecase.FindOrderByIdInputDTO{
-		Id: uint(id),
-	})
+	res, err := findOrderById.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find order: %w", err)
 	}
@@ -44,15 +40,15 @@ func (h *OrderInspectHandlers) FindOrderByIdHandler(ctx context.Context, env rol
 	return nil
 }
 
-func (h *OrderInspectHandlers) FindBisdByCrowdfundingIdHandler(ctx context.Context, env rollmelette.EnvInspector) error {
-	id, err := strconv.Atoi(router.PathValue(ctx, "id"))
-	if err != nil {
-		return fmt.Errorf("failed to parse id into int: %v", router.PathValue(ctx, "id"))
+func (h *OrderInspectHandlers) FindBisdByCrowdfundingId(env rollmelette.EnvInspector, payload []byte) error {
+	var input order_usecase.FindOrdersByCrowdfundingIdInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
+
+	ctx := context.Background()
 	findOrdersByCrowdfundingId := order_usecase.NewFindOrdersByCrowdfundingIdUseCase(h.OrderRepository)
-	res, err := findOrdersByCrowdfundingId.Execute(ctx, &order_usecase.FindOrdersByCrowdfundingIdInputDTO{
-		CrowdfundingId: uint(id),
-	})
+	res, err := findOrdersByCrowdfundingId.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find orders by crowdfunding id: %v", err)
 	}
@@ -64,7 +60,8 @@ func (h *OrderInspectHandlers) FindBisdByCrowdfundingIdHandler(ctx context.Conte
 	return nil
 }
 
-func (h *OrderInspectHandlers) FindAllOrdersHandler(ctx context.Context, env rollmelette.EnvInspector) error {
+func (h *OrderInspectHandlers) FindAllOrders(env rollmelette.EnvInspector, payload []byte) error {
+	ctx := context.Background()
 	findAllOrders := order_usecase.NewFindAllOrdersUseCase(h.OrderRepository)
 	res, err := findAllOrders.Execute(ctx)
 	if err != nil {
@@ -78,12 +75,15 @@ func (h *OrderInspectHandlers) FindAllOrdersHandler(ctx context.Context, env rol
 	return nil
 }
 
-func (h *OrderInspectHandlers) FindOrdersByInvestorHandler(ctx context.Context, env rollmelette.EnvInspector) error {
-	address := strings.ToLower(router.PathValue(ctx, "address"))
+func (h *OrderInspectHandlers) FindOrdersByInvestor(env rollmelette.EnvInspector, payload []byte) error {
+	var input order_usecase.FindOrdersByInvestorInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	ctx := context.Background()
 	findOrdersByInvestor := order_usecase.NewFindOrdersByInvestorUseCase(h.OrderRepository)
-	res, err := findOrdersByInvestor.Execute(ctx, &order_usecase.FinsOrdersByInvestorInputDTO{
-		Investor: custom_type.HexToAddress(address),
-	})
+	res, err := findOrdersByInvestor.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find orders by investor: %w", err)
 	}

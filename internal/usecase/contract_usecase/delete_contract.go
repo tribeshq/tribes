@@ -3,7 +3,7 @@ package contract_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type DeleteContractInputDTO struct {
@@ -11,10 +11,10 @@ type DeleteContractInputDTO struct {
 }
 
 type DeleteContractUseCase struct {
-	ContractReposiotry entity.ContractRepository
+	ContractReposiotry repository.ContractRepository
 }
 
-func NewDeleteContractUseCase(contractRepository entity.ContractRepository) *DeleteContractUseCase {
+func NewDeleteContractUseCase(contractRepository repository.ContractRepository) *DeleteContractUseCase {
 	return &DeleteContractUseCase{
 		ContractReposiotry: contractRepository,
 	}

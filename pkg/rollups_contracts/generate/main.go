@@ -18,24 +18,24 @@ const bindingPkg = "rollups_contracts"
 
 type contractBinding struct {
 	jsonPath string
-	typeName string
+	custom_typeName string
 	outFile  string
 }
 
 var bindings = []contractBinding{
 	{
 		jsonPath: baseContractsPath + "inputs/InputBox.sol/InputBox.json",
-		typeName: "InputBox",
+		custom_typeName: "InputBox",
 		outFile:  "./pkg/rollups_contracts/input_box.go",
 	},
 	{
 		jsonPath: baseContractsPath + "dapp/CartesiDApp.sol/CartesiDApp.json",
-		typeName: "CartesiDApp",
+		custom_typeName: "CartesiDApp",
 		outFile:  "./pkg/rollups_contracts/cartesi_dapp.go",
 	},
 	{
 		jsonPath: baseContractsPath + "portals/ERC20Portal.sol/ERC20Portal.json",
-		typeName: "ERC20Portal",
+		custom_typeName: "ERC20Portal",
 		outFile:  "./pkg/rollups_contracts/erc20_portal.go",
 	},
 }
@@ -124,11 +124,11 @@ func generateBinding(b contractBinding, content []byte) {
 		sigs    []map[string]string
 		abis    = []string{string(getAbi(content))}
 		bins    = []string{""}
-		types   = []string{b.typeName}
+		custom_types   = []string{b.custom_typeName}
 		libs    = make(map[string]string)
 		aliases = make(map[string]string)
 	)
-	code, err := bind.Bind(types, abis, bins, sigs, bindingPkg, bind.LangGo, libs, aliases)
+	code, err := bind.Bind(custom_types, abis, bins, sigs, bindingPkg, bind.LangGo, libs, aliases)
 	checkErr("generate binding", err)
 	const fileMode = 0600
 	err = os.WriteFile(b.outFile, []byte(code), fileMode)

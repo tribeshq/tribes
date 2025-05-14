@@ -7,6 +7,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -26,13 +27,13 @@ type CreateOrderOutputDTO struct {
 }
 
 type CreateOrderUseCase struct {
-	UserRepository         entity.UserRepository
-	OrderRepository        entity.OrderRepository
-	ContractRepository     entity.ContractRepository
-	CrowdfundingRepository entity.CrowdfundingRepository
+	UserRepository         repository.UserRepository
+	OrderRepository        repository.OrderRepository
+	ContractRepository     repository.ContractRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewCreateOrderUseCase(userRepository entity.UserRepository, orderRepository entity.OrderRepository, contractRepository entity.ContractRepository, crowdfundingRepository entity.CrowdfundingRepository) *CreateOrderUseCase {
+func NewCreateOrderUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository, contractRepository repository.ContractRepository, crowdfundingRepository repository.CrowdfundingRepository) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
 		UserRepository:         userRepository,
 		OrderRepository:        orderRepository,
@@ -44,7 +45,7 @@ func NewCreateOrderUseCase(userRepository entity.UserRepository, orderRepository
 func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateOrderOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
-		return nil, fmt.Errorf("invalid deposit type provided for order creation: %T", deposit)
+		return nil, fmt.Errorf("invalid deposit custom_type provided for order creation: %T", deposit)
 	}
 
 	user, err := c.UserRepository.FindUserByAddress(ctx, custom_type.Address(erc20Deposit.Sender))

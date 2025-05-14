@@ -9,24 +9,25 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/contract_usecase"
 	"github.com/tribeshq/tribes/internal/usecase/crowdfunding_usecase"
 )
 
 type CrowdfundingAdvanceHandlers struct {
-	OrderRepository         entity.OrderRepository
-	UserRepository          entity.UserRepository
-	SocialAccountRepository entity.SocialAccountRepository
-	CrowdfundingRepository  entity.CrowdfundingRepository
-	ContractRepository      entity.ContractRepository
+	OrderRepository         repository.OrderRepository
+	UserRepository          repository.UserRepository
+	SocialAccountRepository repository.SocialAccountRepository
+	CrowdfundingRepository  repository.CrowdfundingRepository
+	ContractRepository      repository.ContractRepository
 }
 
 func NewCrowdfundingAdvanceHandlers(
-	orderRepository entity.OrderRepository,
-	userRepository entity.UserRepository,
-	socialAccountRepository entity.SocialAccountRepository,
-	crowdfundingRepository entity.CrowdfundingRepository,
-	contractRepository entity.ContractRepository,
+	orderRepository repository.OrderRepository,
+	userRepository repository.UserRepository,
+	socialAccountRepository repository.SocialAccountRepository,
+	crowdfundingRepository repository.CrowdfundingRepository,
+	contractRepository repository.ContractRepository,
 ) *CrowdfundingAdvanceHandlers {
 	return &CrowdfundingAdvanceHandlers{
 		OrderRepository:         orderRepository,
@@ -37,7 +38,7 @@ func NewCrowdfundingAdvanceHandlers(
 	}
 }
 
-func (h *CrowdfundingAdvanceHandlers) CreateCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *CrowdfundingAdvanceHandlers) CreateCrowdfunding(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.CreateCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -75,7 +76,7 @@ func (h *CrowdfundingAdvanceHandlers) CreateCrowdfundingHandler(env rollmelette.
 	return nil
 }
 
-func (h *CrowdfundingAdvanceHandlers) CloseCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *CrowdfundingAdvanceHandlers) CloseCrowdfunding(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.CloseCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -148,7 +149,7 @@ func (h *CrowdfundingAdvanceHandlers) CloseCrowdfundingHandler(env rollmelette.E
 	return nil
 }
 
-func (h *CrowdfundingAdvanceHandlers) SettleCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *CrowdfundingAdvanceHandlers) SettleCrowdfunding(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.SettleCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -211,7 +212,7 @@ func (h *CrowdfundingAdvanceHandlers) SettleCrowdfundingHandler(env rollmelette.
 	return nil
 }
 
-func (h *CrowdfundingAdvanceHandlers) UpdateCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *CrowdfundingAdvanceHandlers) UpdateCrowdfunding(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.UpdateCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -233,7 +234,7 @@ func (h *CrowdfundingAdvanceHandlers) UpdateCrowdfundingHandler(env rollmelette.
 	return nil
 }
 
-func (h *CrowdfundingAdvanceHandlers) DeleteCrowdfundingHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *CrowdfundingAdvanceHandlers) DeleteCrowdfunding(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input crowdfunding_usecase.DeleteCrowdfundingInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)

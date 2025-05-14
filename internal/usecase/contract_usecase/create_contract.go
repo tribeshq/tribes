@@ -5,6 +5,7 @@ import (
 
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -21,10 +22,10 @@ type CreateContractOutputDTO struct {
 }
 
 type CreateContractUseCase struct {
-	ContractRepository entity.ContractRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewCreateContractUseCase(contractRepository entity.ContractRepository) *CreateContractUseCase {
+func NewCreateContractUseCase(contractRepository repository.ContractRepository) *CreateContractUseCase {
 	return &CreateContractUseCase{
 		ContractRepository: contractRepository,
 	}

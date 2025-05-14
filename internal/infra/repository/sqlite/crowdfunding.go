@@ -1,30 +1,22 @@
-package repository
+package sqlite
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/type"
 	"gorm.io/gorm"
 )
 
-type CrowdfundingRepositorySqlite struct {
-	Db *gorm.DB
-}
-
-func NewCrowdfundingRepositorySqlite(db *gorm.DB) *CrowdfundingRepositorySqlite {
-	return &CrowdfundingRepositorySqlite{Db: db}
-}
-
-func (r *CrowdfundingRepositorySqlite) CreateCrowdfunding(ctx context.Context, input *entity.Crowdfunding) (*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) CreateCrowdfunding(ctx context.Context, input *entity.Crowdfunding) (*entity.Crowdfunding, error) {
 	if err := r.Db.WithContext(ctx).Create(input).Error; err != nil {
 		return nil, fmt.Errorf("failed to create crowdfunding: %w", err)
 	}
 	return input, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) FindCrowdfundingById(ctx context.Context, id uint) (*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindCrowdfundingById(ctx context.Context, id uint) (*entity.Crowdfunding, error) {
 	var crowdfunding entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Preload("Orders").
@@ -37,7 +29,7 @@ func (r *CrowdfundingRepositorySqlite) FindCrowdfundingById(ctx context.Context,
 	return &crowdfunding, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) FindAllCrowdfundings(ctx context.Context) ([]*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindAllCrowdfundings(ctx context.Context) ([]*entity.Crowdfunding, error) {
 	var crowdfundings []*entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Preload("Orders").
@@ -47,7 +39,7 @@ func (r *CrowdfundingRepositorySqlite) FindAllCrowdfundings(ctx context.Context)
 	return crowdfundings, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) FindCrowdfundingsByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindCrowdfundingsByInvestor(ctx context.Context, investor type.Address) ([]*entity.Crowdfunding, error) {
 	var crowdfundings []*entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Joins("JOIN orders ON orders.crowdfunding_id = crowdfundings.id").
@@ -59,7 +51,7 @@ func (r *CrowdfundingRepositorySqlite) FindCrowdfundingsByInvestor(ctx context.C
 	return crowdfundings, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) FindCrowdfundingsByCreator(ctx context.Context, creator custom_type.Address) ([]*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) FindCrowdfundingsByCreator(ctx context.Context, creator type.Address) ([]*entity.Crowdfunding, error) {
 	var crowdfundings []*entity.Crowdfunding
 	if err := r.Db.WithContext(ctx).
 		Where("creator = ?", creator).
@@ -70,7 +62,7 @@ func (r *CrowdfundingRepositorySqlite) FindCrowdfundingsByCreator(ctx context.Co
 	return crowdfundings, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) UpdateCrowdfunding(ctx context.Context, input *entity.Crowdfunding) (*entity.Crowdfunding, error) {
+func (r *SQLiteRepository) UpdateCrowdfunding(ctx context.Context, input *entity.Crowdfunding) (*entity.Crowdfunding, error) {
 	if err := r.Db.WithContext(ctx).Updates(&input).Error; err != nil {
 		return nil, fmt.Errorf("failed to update crowdfunding: %w", err)
 	}
@@ -81,7 +73,7 @@ func (r *CrowdfundingRepositorySqlite) UpdateCrowdfunding(ctx context.Context, i
 	return crowdfunding, nil
 }
 
-func (r *CrowdfundingRepositorySqlite) DeleteCrowdfunding(ctx context.Context, id uint) error {
+func (r *SQLiteRepository) DeleteCrowdfunding(ctx context.Context, id uint) error {
 	res := r.Db.WithContext(ctx).Delete(&entity.Crowdfunding{}, id)
 	if res.Error != nil {
 		return fmt.Errorf("failed to delete crowdfunding: %w", res.Error)

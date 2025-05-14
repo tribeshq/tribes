@@ -3,7 +3,7 @@ package social_account_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type DeleteSocialAccountInputDTO struct {
@@ -11,10 +11,10 @@ type DeleteSocialAccountInputDTO struct {
 }
 
 type DeleteSocialAccountUseCase struct {
-	SocialAccountRepository entity.SocialAccountRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewDeleteSocialAccountUseCase(socialAccountRepository entity.SocialAccountRepository) *DeleteSocialAccountUseCase {
+func NewDeleteSocialAccountUseCase(socialAccountRepository repository.SocialAccountRepository) *DeleteSocialAccountUseCase {
 	return &DeleteSocialAccountUseCase{
 		SocialAccountRepository: socialAccountRepository,
 	}

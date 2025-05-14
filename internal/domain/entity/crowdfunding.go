@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -24,25 +23,15 @@ const (
 	CrowdfundingStateSettled     CrowdfundingState = "settled"
 )
 
-type CrowdfundingRepository interface {
-	CreateCrowdfunding(ctx context.Context, crowdfunding *Crowdfunding) (*Crowdfunding, error)
-	FindCrowdfundingsByCreator(ctx context.Context, creator custom_type.Address) ([]*Crowdfunding, error)
-	FindCrowdfundingsByInvestor(ctx context.Context, investor custom_type.Address) ([]*Crowdfunding, error)
-	FindCrowdfundingById(ctx context.Context, id uint) (*Crowdfunding, error)
-	FindAllCrowdfundings(ctx context.Context) ([]*Crowdfunding, error)
-	UpdateCrowdfunding(ctx context.Context, crowdfunding *Crowdfunding) (*Crowdfunding, error)
-	DeleteCrowdfunding(ctx context.Context, id uint) error
-}
-
 type Crowdfunding struct {
 	Id                  uint                `json:"id" gorm:"primaryKey"`
-	Token               custom_type.Address `json:"token,omitempty" gorm:"type:text;not null"`
-	Collateral          *uint256.Int        `json:"collateral,omitempty" gorm:"type:text;not null"`
-	Creator             custom_type.Address `json:"creator,omitempty" gorm:"type:text;not null"`
-	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty" gorm:"type:text;not null"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"type:text;not null"`
-	TotalObligation     *uint256.Int        `json:"total_obligation,omitempty" gorm:"type:text;not null;default:0"`
-	State               CrowdfundingState   `json:"state,omitempty" gorm:"type:text;not null"`
+	Token               custom_type.Address `json:"token,omitempty" gorm:"custom_type:text;not null"`
+	Collateral          *uint256.Int        `json:"collateral,omitempty" gorm:"custom_type:text;not null"`
+	Creator             custom_type.Address `json:"creator,omitempty" gorm:"custom_type:text;not null"`
+	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty" gorm:"custom_type:text;not null"`
+	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"custom_type:text;not null"`
+	TotalObligation     *uint256.Int        `json:"total_obligation,omitempty" gorm:"custom_type:text;not null;default:0"`
+	State               CrowdfundingState   `json:"state,omitempty" gorm:"custom_type:text;not null"`
 	Orders              []*Order            `json:"orders,omitempty" gorm:"foreignKey:CrowdfundingId;constraint:OnDelete:CASCADE"`
 	FundraisingDuration int64               `json:"fundraising_duration,omitempty" gorm:"not null"`
 	ClosesAt            int64               `json:"closes_at,omitempty" gorm:"not null"`

@@ -3,7 +3,7 @@ package contract_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -12,10 +12,10 @@ type FindContractByAddressInputDTO struct {
 }
 
 type FindContractByAddressUseCase struct {
-	ContractRepository entity.ContractRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewFindContractByAddressUseCase(contractRepository entity.ContractRepository) *FindContractByAddressUseCase {
+func NewFindContractByAddressUseCase(contractRepository repository.ContractRepository) *FindContractByAddressUseCase {
 	return &FindContractByAddressUseCase{
 		ContractRepository: contractRepository,
 	}

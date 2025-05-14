@@ -3,16 +3,16 @@ package contract_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindAllContractsOutputDTO []*FindContractOutputDTO
 
 type FindAllContractsUsecase struct {
-	ContractRepository entity.ContractRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewFindAllContractsUseCase(contractRepository entity.ContractRepository) *FindAllContractsUsecase {
+func NewFindAllContractsUseCase(contractRepository repository.ContractRepository) *FindAllContractsUsecase {
 	return &FindAllContractsUsecase{
 		ContractRepository: contractRepository,
 	}

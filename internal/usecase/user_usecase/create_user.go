@@ -6,6 +6,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
@@ -25,10 +26,10 @@ type CreateUserOutputDTO struct {
 }
 
 type CreateUserUseCase struct {
-	UserRepository entity.UserRepository
+	UserRepository repository.UserRepository
 }
 
-func NewCreateUserUseCase(userRepository entity.UserRepository) *CreateUserUseCase {
+func NewCreateUserUseCase(userRepository repository.UserRepository) *CreateUserUseCase {
 	return &CreateUserUseCase{
 		UserRepository: userRepository,
 	}

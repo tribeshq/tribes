@@ -3,7 +3,7 @@ package user_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindUserByRoleInputDTO struct {
@@ -13,10 +13,10 @@ type FindUserByRoleInputDTO struct {
 type FindUserByRoleOutputDTO []*FindUserOutputDTO
 
 type FindUserByRoleUseCase struct {
-	userRepository entity.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewFindUserByRoleUseCase(userRepository entity.UserRepository) *FindUserByRoleUseCase {
+func NewFindUserByRoleUseCase(userRepository repository.UserRepository) *FindUserByRoleUseCase {
 	return &FindUserByRoleUseCase{
 		userRepository: userRepository,
 	}

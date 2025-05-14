@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -13,19 +12,10 @@ var (
 	ErrContractNotFound = errors.New("contract not found")
 )
 
-type ContractRepository interface {
-	CreateContract(ctx context.Context, contract *Contract) (*Contract, error)
-	FindAllContracts(ctx context.Context) ([]*Contract, error)
-	FindContractBySymbol(ctx context.Context, symbol string) (*Contract, error)
-	FindContractByAddress(ctx context.Context, address custom_type.Address) (*Contract, error)
-	UpdateContract(ctx context.Context, contract *Contract) (*Contract, error)
-	DeleteContract(ctx context.Context, symbol string) error
-}
-
 type Contract struct {
 	Id        uint                `json:"id" gorm:"primaryKey"`
 	Symbol    string              `json:"symbol,omitempty" gorm:"uniqueIndex;not null"`
-	Address   custom_type.Address `json:"address,omitempty" gorm:"type:text;not null"`
+	Address   custom_type.Address `json:"address,omitempty" gorm:"custom_type:text;not null"`
 	CreatedAt int64               `json:"created_at,omitempty" gorm:"not null"`
 	UpdatedAt int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }

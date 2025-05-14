@@ -3,16 +3,18 @@ package order_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
+
 
 type FindAllOrdersOutputDTO []*FindOrderOutputDTO
 
+
 type FindAllOrdersUseCase struct {
-	OrderRepository entity.OrderRepository
+	OrderRepository repository.OrderRepository
 }
 
-func NewFindAllOrdersUseCase(orderRepository entity.OrderRepository) *FindAllOrdersUseCase {
+func NewFindAllOrdersUseCase(orderRepository repository.OrderRepository) *FindAllOrdersUseCase {
 	return &FindAllOrdersUseCase{
 		OrderRepository: orderRepository,
 	}

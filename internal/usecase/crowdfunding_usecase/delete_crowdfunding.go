@@ -3,7 +3,7 @@ package crowdfunding_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type DeleteCrowdfundingInputDTO struct {
@@ -11,10 +11,10 @@ type DeleteCrowdfundingInputDTO struct {
 }
 
 type DeleteCrowdfundingUseCase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewDeleteCrowdfundingUseCase(crowdfundingRepository entity.CrowdfundingRepository) *DeleteCrowdfundingUseCase {
+func NewDeleteCrowdfundingUseCase(crowdfundingRepository repository.CrowdfundingRepository) *DeleteCrowdfundingUseCase {
 	return &DeleteCrowdfundingUseCase{CrowdfundingRepository: crowdfundingRepository}
 }
 

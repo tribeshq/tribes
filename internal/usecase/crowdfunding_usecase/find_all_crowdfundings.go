@@ -4,15 +4,16 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindAllCrowdfundingsOutputDTO []*FindCrowdfundingOutputDTO
 
 type FindAllCrowdfundingsUseCase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewFindAllCrowdfundingsUseCase(crowdfundingRepository entity.CrowdfundingRepository) *FindAllCrowdfundingsUseCase {
+func NewFindAllCrowdfundingsUseCase(crowdfundingRepository repository.CrowdfundingRepository) *FindAllCrowdfundingsUseCase {
 	return &FindAllCrowdfundingsUseCase{CrowdfundingRepository: crowdfundingRepository}
 }
 
