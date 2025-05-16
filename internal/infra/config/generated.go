@@ -18,26 +18,19 @@ func init() {
 }
 
 const (
-	TRIBES_AUTH_KIND                       = "TRIBES_AUTH_KIND"
-	TRIBES_AUTH_MNEMONIC                   = "TRIBES_AUTH_MNEMONIC"
-	TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX     = "TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX"
-	TRIBES_AUTH_MNEMONIC_FILE              = "TRIBES_AUTH_MNEMONIC_FILE"
-	TRIBES_AUTH_PRIVATE_KEY                = "TRIBES_AUTH_PRIVATE_KEY"
-	TRIBES_AUTH_PRIVATE_KEY_FILE           = "TRIBES_AUTH_PRIVATE_KEY_FILE"
-	TRIBES_BLOCKCHAIN_DEFAULT_BLOCK        = "TRIBES_BLOCKCHAIN_DEFAULT_BLOCK"
-	TRIBES_BLOCKCHAIN_HTTP_ENDPOINT        = "TRIBES_BLOCKCHAIN_HTTP_ENDPOINT"
-	TRIBES_BLOCKCHAIN_ID                   = "TRIBES_BLOCKCHAIN_ID"
-	TRIBES_BLOCKCHAIN_LEGACY_ENABLED       = "TRIBES_BLOCKCHAIN_LEGACY_ENABLED"
-	TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT = "TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT"
-	TRIBES_BLOCKCHAIN_WS_ENDPOINT          = "TRIBES_BLOCKCHAIN_WS_ENDPOINT"
-	TRIBES_CONTRACTS_APPLICATION_ADDRESS   = "TRIBES_CONTRACTS_APPLICATION_ADDRESS"
-	TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS  = "TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS"
-	TRIBES_CONTRACTS_INPUT_BOX_ADDRESS     = "TRIBES_CONTRACTS_INPUT_BOX_ADDRESS"
-	TRIBES_LOG_COLOR                       = "TRIBES_LOG_COLOR"
-	TRIBES_LOG_LEVEL                       = "TRIBES_LOG_LEVEL"
-	TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES     = "TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES"
-	TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT  = "TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT"
-	TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT  = "TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT"
+	TRIBES_AUTH_KIND                      = "TRIBES_AUTH_KIND"
+	TRIBES_AUTH_MNEMONIC                  = "TRIBES_AUTH_MNEMONIC"
+	TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX    = "TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX"
+	TRIBES_AUTH_MNEMONIC_FILE             = "TRIBES_AUTH_MNEMONIC_FILE"
+	TRIBES_AUTH_PRIVATE_KEY               = "TRIBES_AUTH_PRIVATE_KEY"
+	TRIBES_AUTH_PRIVATE_KEY_FILE          = "TRIBES_AUTH_PRIVATE_KEY_FILE"
+	TRIBES_BLOCKCHAIN_HTTP_ENDPOINT       = "TRIBES_BLOCKCHAIN_HTTP_ENDPOINT"
+	TRIBES_BLOCKCHAIN_ID                  = "TRIBES_BLOCKCHAIN_ID"
+	TRIBES_CONTRACTS_APPLICATION_ADDRESS  = "TRIBES_CONTRACTS_APPLICATION_ADDRESS"
+	TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS = "TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS"
+	TRIBES_CONTRACTS_INPUT_BOX_ADDRESS    = "TRIBES_CONTRACTS_INPUT_BOX_ADDRESS"
+	TRIBES_LOG_COLOR                      = "TRIBES_LOG_COLOR"
+	TRIBES_LOG_LEVEL                      = "TRIBES_LOG_LEVEL"
 )
 
 func SetDefaults() {
@@ -55,42 +48,24 @@ func SetDefaults() {
 
 	// no default for TRIBES_AUTH_PRIVATE_KEY_FILE
 
-	viper.SetDefault(TRIBES_BLOCKCHAIN_DEFAULT_BLOCK, "finalized")
-
 	// no default for TRIBES_BLOCKCHAIN_HTTP_ENDPOINT
 
 	// no default for TRIBES_BLOCKCHAIN_ID
 
-	viper.SetDefault(TRIBES_BLOCKCHAIN_LEGACY_ENABLED, "false")
-
-	viper.SetDefault(TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT, "60")
-
-	// no default for TRIBES_BLOCKCHAIN_WS_ENDPOINT
-
 	// no default for TRIBES_CONTRACTS_APPLICATION_ADDRESS
 
-	viper.SetDefault(TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS, "0x05355c2F9bA566c06199DEb17212c3B78C1A3C31")
+	// no default for TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS
 
-	viper.SetDefault(TRIBES_CONTRACTS_INPUT_BOX_ADDRESS, "0xB6b39Fb3dD926A9e3FBc7A129540eEbeA3016a6c")
+	// no default for TRIBES_CONTRACTS_INPUT_BOX_ADDRESS
 
 	viper.SetDefault(TRIBES_LOG_COLOR, "true")
 
 	viper.SetDefault(TRIBES_LOG_LEVEL, "info")
 
-	viper.SetDefault(TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES, "4")
-
-	viper.SetDefault(TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT, "60")
-
-	viper.SetDefault(TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT, "1")
-
 }
 
 // McpConfig holds configuration values for the mcp service.
 type McpConfig struct {
-
-	// The default block to be used by EVM Reader and Claimer when requesting new blocks.
-	// One of 'latest', 'pending', 'safe', 'finalized'
-	TribesBlockchainDefaultBlock DefaultBlock `mapstructure:"TRIBES_BLOCKCHAIN_DEFAULT_BLOCK"`
 
 	// HTTP endpoint for the blockchain RPC provider.
 	TribesBlockchainHttpEndpoint URL `mapstructure:"TRIBES_BLOCKCHAIN_HTTP_ENDPOINT"`
@@ -98,30 +73,11 @@ type McpConfig struct {
 	// An unique identifier representing a blockchain network.
 	TribesBlockchainId uint64 `mapstructure:"TRIBES_BLOCKCHAIN_ID"`
 
-	// If set to true the node will send transactions using the legacy gas fee model
-	// (instead of EIP-1559).
-	TribesBlockchainLegacyEnabled bool `mapstructure:"TRIBES_BLOCKCHAIN_LEGACY_ENABLED"`
-
-	// Block subscription timeout in seconds.
-	TribesBlockchainSubscriptionTimeout uint64 `mapstructure:"TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT"`
-
-	// WebSocket endpoint for the blockchain RPC provider.
-	TribesBlockchainWsEndpoint URL `mapstructure:"TRIBES_BLOCKCHAIN_WS_ENDPOINT"`
-
 	// If set to true, the node will add colors to its log output.
 	TribesLogColor bool `mapstructure:"TRIBES_LOG_COLOR"`
 
 	// One of "debug", "info", "warn", "error".
 	TribesLogLevel LogLevel `mapstructure:"TRIBES_LOG_LEVEL"`
-
-	// Maximum number of retry attempts for HTTP blockchain requests after encountering an error.
-	TribesBlockchainHttpMaxRetries uint64 `mapstructure:"TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES"`
-
-	// Maximum wait time in seconds for the exponential backoff retry policy. The delay between retries for HTTP blockchain requests will never exceed this value, regardless of the backoff calculation.
-	TribesBlockchainHttpRetryMaxWait Duration `mapstructure:"TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT"`
-
-	// Minimum wait time in seconds for the exponential backoff retry policy. This is the initial delay before the first retry for HTTP blockchain requests.
-	TribesBlockchainHttpRetryMinWait Duration `mapstructure:"TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT"`
 }
 
 // LoadMcpConfig reads configuration from environment variables, a config file, and defaults.
@@ -140,13 +96,6 @@ func LoadMcpConfig() (*McpConfig, error) {
 	var cfg McpConfig
 	var err error
 
-	cfg.TribesBlockchainDefaultBlock, err = GetTribesBlockchainDefaultBlock()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_DEFAULT_BLOCK: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_DEFAULT_BLOCK is required for the mcp service: %w", err)
-	}
-
 	cfg.TribesBlockchainHttpEndpoint, err = GetTribesBlockchainHttpEndpoint()
 	if err != nil && err != ErrNotDefined {
 		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_HTTP_ENDPOINT: %w", err)
@@ -161,27 +110,6 @@ func LoadMcpConfig() (*McpConfig, error) {
 		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_ID is required for the mcp service: %w", err)
 	}
 
-	cfg.TribesBlockchainLegacyEnabled, err = GetTribesBlockchainLegacyEnabled()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_LEGACY_ENABLED: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_LEGACY_ENABLED is required for the mcp service: %w", err)
-	}
-
-	cfg.TribesBlockchainSubscriptionTimeout, err = GetTribesBlockchainSubscriptionTimeout()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT is required for the mcp service: %w", err)
-	}
-
-	cfg.TribesBlockchainWsEndpoint, err = GetTribesBlockchainWsEndpoint()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_WS_ENDPOINT: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_WS_ENDPOINT is required for the mcp service: %w", err)
-	}
-
 	cfg.TribesLogColor, err = GetTribesLogColor()
 	if err != nil && err != ErrNotDefined {
 		return nil, fmt.Errorf("failed to get TRIBES_LOG_COLOR: %w", err)
@@ -194,27 +122,6 @@ func LoadMcpConfig() (*McpConfig, error) {
 		return nil, fmt.Errorf("failed to get TRIBES_LOG_LEVEL: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("TRIBES_LOG_LEVEL is required for the mcp service: %w", err)
-	}
-
-	cfg.TribesBlockchainHttpMaxRetries, err = GetTribesBlockchainHttpMaxRetries()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES is required for the mcp service: %w", err)
-	}
-
-	cfg.TribesBlockchainHttpRetryMaxWait, err = GetTribesBlockchainHttpRetryMaxWait()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT is required for the mcp service: %w", err)
-	}
-
-	cfg.TribesBlockchainHttpRetryMinWait, err = GetTribesBlockchainHttpRetryMinWait()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT is required for the mcp service: %w", err)
 	}
 
 	return &cfg, nil
@@ -298,19 +205,6 @@ func GetTribesAuthPrivateKeyFile() (string, error) {
 	return notDefinedstring(), fmt.Errorf("%s: %w", TRIBES_AUTH_PRIVATE_KEY_FILE, ErrNotDefined)
 }
 
-// GetTribesBlockchainDefaultBlock returns the value for the environment variable TRIBES_BLOCKCHAIN_DEFAULT_BLOCK.
-func GetTribesBlockchainDefaultBlock() (DefaultBlock, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_DEFAULT_BLOCK)
-	if s != "" {
-		v, err := toDefaultBlock(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_DEFAULT_BLOCK, err)
-		}
-		return v, nil
-	}
-	return notDefinedDefaultBlock(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_DEFAULT_BLOCK, ErrNotDefined)
-}
-
 // GetTribesBlockchainHttpEndpoint returns the value for the environment variable TRIBES_BLOCKCHAIN_HTTP_ENDPOINT.
 func GetTribesBlockchainHttpEndpoint() (URL, error) {
 	s := viper.GetString(TRIBES_BLOCKCHAIN_HTTP_ENDPOINT)
@@ -335,45 +229,6 @@ func GetTribesBlockchainId() (uint64, error) {
 		return v, nil
 	}
 	return notDefineduint64(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_ID, ErrNotDefined)
-}
-
-// GetTribesBlockchainLegacyEnabled returns the value for the environment variable TRIBES_BLOCKCHAIN_LEGACY_ENABLED.
-func GetTribesBlockchainLegacyEnabled() (bool, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_LEGACY_ENABLED)
-	if s != "" {
-		v, err := toBool(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_LEGACY_ENABLED, err)
-		}
-		return v, nil
-	}
-	return notDefinedbool(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_LEGACY_ENABLED, ErrNotDefined)
-}
-
-// GetTribesBlockchainSubscriptionTimeout returns the value for the environment variable TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT.
-func GetTribesBlockchainSubscriptionTimeout() (uint64, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT)
-	if s != "" {
-		v, err := toUint64(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT, err)
-		}
-		return v, nil
-	}
-	return notDefineduint64(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT, ErrNotDefined)
-}
-
-// GetTribesBlockchainWsEndpoint returns the value for the environment variable TRIBES_BLOCKCHAIN_WS_ENDPOINT.
-func GetTribesBlockchainWsEndpoint() (URL, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_WS_ENDPOINT)
-	if s != "" {
-		v, err := toURL(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_WS_ENDPOINT, err)
-		}
-		return v, nil
-	}
-	return notDefinedURL(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_WS_ENDPOINT, ErrNotDefined)
 }
 
 // GetTribesContractsApplicationAddress returns the value for the environment variable TRIBES_CONTRACTS_APPLICATION_ADDRESS.
@@ -439,43 +294,4 @@ func GetTribesLogLevel() (LogLevel, error) {
 		return v, nil
 	}
 	return notDefinedLogLevel(), fmt.Errorf("%s: %w", TRIBES_LOG_LEVEL, ErrNotDefined)
-}
-
-// GetTribesBlockchainHttpMaxRetries returns the value for the environment variable TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES.
-func GetTribesBlockchainHttpMaxRetries() (uint64, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES)
-	if s != "" {
-		v, err := toUint64(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES, err)
-		}
-		return v, nil
-	}
-	return notDefineduint64(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES, ErrNotDefined)
-}
-
-// GetTribesBlockchainHttpRetryMaxWait returns the value for the environment variable TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT.
-func GetTribesBlockchainHttpRetryMaxWait() (Duration, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT)
-	if s != "" {
-		v, err := toDuration(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT, err)
-		}
-		return v, nil
-	}
-	return notDefinedDuration(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT, ErrNotDefined)
-}
-
-// GetTribesBlockchainHttpRetryMinWait returns the value for the environment variable TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT.
-func GetTribesBlockchainHttpRetryMinWait() (Duration, error) {
-	s := viper.GetString(TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT)
-	if s != "" {
-		v, err := toDuration(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT, err)
-		}
-		return v, nil
-	}
-	return notDefinedDuration(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT, ErrNotDefined)
 }

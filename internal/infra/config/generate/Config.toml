@@ -1,8 +1,7 @@
-# (c) TRIBES and individual authors (see AUTHORS)
-# SPDX-License-Identifier: Apache-2.0 (see LICENSE)
 #
 # Logging
 #
+
 [logging.TRIBES_LOG_LEVEL]
 default = "info"
 go-type = "LogLevel"
@@ -33,62 +32,11 @@ description = """
 HTTP endpoint for the blockchain RPC provider."""
 used-by = ["mcp"]
 
-[blockchain.TRIBES_BLOCKCHAIN_WS_ENDPOINT]
-go-type = "URL"
-description = """
-WebSocket endpoint for the blockchain RPC provider."""
-used-by = ["mcp"]
-
-[blockchain.TRIBES_BLOCKCHAIN_LEGACY_ENABLED]
-default = "false"
-go-type = "bool"
-description = """
-If set to true the node will send transactions using the legacy gas fee model
-(instead of EIP-1559)."""
-used-by = ["mcp"]
-
-[blockchain.TRIBES_BLOCKCHAIN_DEFAULT_BLOCK]
-default = "finalized"
-go-type = "DefaultBlock"
-description = """
-The default block to be used by EVM Reader and Claimer when requesting new blocks.
-One of 'latest', 'pending', 'safe', 'finalized'"""
-used-by = ["mcp"]
-
-[blockchain.TRIBES_BLOCKCHAIN_SUBSCRIPTION_TIMEOUT]
-default = "60"
-go-type = "uint64"
-description = """
-Block subscription timeout in seconds."""
-used-by = ["mcp"]
-
-[rollups.TRIBES_BLOCKCHAIN_HTTP_MAX_RETRIES]
-default = "4"
-go-type = "uint64"
-description = """
-Maximum number of retry attempts for HTTP blockchain requests after encountering an error."""
-used-by = ["mcp"]
-
-[rollups.TRIBES_BLOCKCHAIN_HTTP_RETRY_MIN_WAIT]
-default = "1"
-go-type = "Duration"
-description = """
-Minimum wait time in seconds for the exponential backoff retry policy. This is the initial delay before the first retry for HTTP blockchain requests."""
-used-by = ["mcp"]
-
-[rollups.TRIBES_BLOCKCHAIN_HTTP_RETRY_MAX_WAIT]
-default = "60"
-go-type = "Duration"
-description = """
-Maximum wait time in seconds for the exponential backoff retry policy. The delay between retries for HTTP blockchain requests will never exceed this value, regardless of the backoff calculation."""
-used-by = ["mcp"]
-
 #
 # Contracts
 #
 
 [contracts.TRIBES_CONTRACTS_INPUT_BOX_ADDRESS]
-default = "0xB6b39Fb3dD926A9e3FBc7A129540eEbeA3016a6c"
 go-type = "Address"
 description = """
 Address of the InputBox contract. Required for interacting with the blockchain."""
@@ -96,7 +44,6 @@ omit = true
 used-by = ["mcp"]
 
 [contracts.TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS]
-default = "0x05355c2F9bA566c06199DEb17212c3B78C1A3C31"
 go-type = "Address"
 description = """
 Address of the ERC20 Portal contract. Required for token operations."""

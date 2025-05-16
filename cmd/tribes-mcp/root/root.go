@@ -7,6 +7,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/spf13/cobra"
+	"github.com/tribeshq/tribes/internal/infra/config"
 )
 
 const (
@@ -14,22 +15,29 @@ const (
 )
 
 var (
-	useMemoryDB bool
-	Cmd         = &cobra.Command{
-		Use:   "tribes-" + CMD_NAME,
-		Short: "Runs Tribes MCP",
-		Long:  `MCP server for debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
-		Run:   run,
-	}
+	cfg                    *config.McpConfig
+	logLevel               string
+	logColor               bool
+	useMemoryDB            bool
+	blockchainHttpEndpoint string
 )
 
+var Cmd = &cobra.Command{
+	Use:   "tribes-" + CMD_NAME,
+	Short: "Runs Tribes MCP",
+	Long:  `MCP server for debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
+	Run:   run,
+}
+
 func init() {
-	Cmd.PersistentFlags().BoolVar(
-		&useMemoryDB,
-		"memory-db",
-		false,
-		"Use in-memory SQLite database instead of persistent",
-	)
+	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		var err error
+		cfg, err = config.LoadMcpConfig()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 }
 
 func run(cmd *cobra.Command, args []string) {
