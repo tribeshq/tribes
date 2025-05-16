@@ -12,13 +12,13 @@
 //		"encoding/json"
 //		"fmt"
 //		"github.com/rollmelette/rollmelette"
-//		"github.com/tribeshq/tribes/pkg/rollups_router"
+//		"github.com/tribeshq/tribes/pkg/router"
 //	)
 //
 //	func main() {
-//		router := rollups_router.NewRouter()
+//		router := router.NewRouter()
 //
-//		router.Use(rollups_router.LoggingMiddleware)
+//		router.Use(router.LoggingMiddleware)
 //
 //		router.HandleAdvance("/create", func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 //			var req struct {
@@ -41,7 +41,7 @@
 //			return nil
 //		})
 //	}
-package rollups_router
+package router
 
 import (
 	"encoding/json"

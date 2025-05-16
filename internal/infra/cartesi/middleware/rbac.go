@@ -7,8 +7,8 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user_usecase"
-	"github.com/tribeshq/tribes/pkg/custom_type"
-	"github.com/tribeshq/tribes/pkg/rollups_router"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/rollups/router"
 )
 
 type RBACFactory struct {
@@ -21,20 +21,20 @@ func NewRBACFactory(userRepository repository.UserRepository) *RBACFactory {
 	}
 }
 
-func (f *RBACFactory) Create(roles []string) rollups_router.Middleware {
+func (f *RBACFactory) Create(roles []string) router.Middleware {
 	return func(handler interface{}) interface{} {
 		switch h := handler.(type) {
-		case rollups_router.AdvanceHandlerFunc:
-			return rollups_router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-				var address custom_type.Address
+		case router.AdvanceHandlerFunc:
+			return router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+				var address Address
 				ctx := context.Background()
 
 				// Get the sender address from either ERC20 deposit or metadata
 				erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 				if ok {
-					address = custom_type.Address(erc20Deposit.Sender)
+					address = Address(erc20Deposit.Sender)
 				} else {
-					address = custom_type.Address(metadata.MsgSender)
+					address = Address(metadata.MsgSender)
 				}
 
 				// Find user and check roles
@@ -60,7 +60,7 @@ func (f *RBACFactory) Create(roles []string) rollups_router.Middleware {
 
 				return h(env, metadata, deposit, payload)
 			})
-		case rollups_router.InspectHandlerFunc:
+		case router.InspectHandlerFunc:
 			return h
 		default:
 			return handler
@@ -68,14 +68,14 @@ func (f *RBACFactory) Create(roles []string) rollups_router.Middleware {
 	}
 }
 
-func (f *RBACFactory) AdminOnly() rollups_router.Middleware {
+func (f *RBACFactory) AdminOnly() router.Middleware {
 	return f.Create([]string{"admin"})
 }
 
-func (f *RBACFactory) InvestorOnly() rollups_router.Middleware {
+func (f *RBACFactory) InvestorOnly() router.Middleware {
 	return f.Create([]string{"qualified_investor", "non_qualified_investor"})
 }
 
-func (f *RBACFactory) CreatorOnly() rollups_router.Middleware {
+func (f *RBACFactory) CreatorOnly() router.Middleware {
 	return f.Create([]string{"creator"})
 }

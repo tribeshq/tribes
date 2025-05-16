@@ -1,6 +1,3 @@
-// (c) Cartesi and individual authors (see AUTHORS)
-// SPDX-License-Identifier: Apache-2.0 (see LICENSE)
-
 // This package contains functions to help using the Go-ethereum library.
 // It is not the objective of this package to replace or hide Go-ethereum.
 package ethutil
@@ -14,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	contracts "github.com/tribeshq/tribes/pkg/rollups_contracts"
+	"github.com/tribeshq/tribes/pkg/rollups/contracts"
 )
 
 // Gas limit when sending transactions.

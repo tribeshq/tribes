@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +35,7 @@ func (r *SQLiteRepository) FindContractBySymbol(ctx context.Context, symbol stri
 	return &contract, nil
 }
 
-func (r *SQLiteRepository) FindContractByAddress(ctx context.Context, address custom_type.Address) (*entity.Contract, error) {
+func (r *SQLiteRepository) FindContractByAddress(ctx context.Context, address Address) (*entity.Contract, error) {
 	var contract entity.Contract
 	if err := r.Db.WithContext(ctx).Where("address = ?", address).First(&contract).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

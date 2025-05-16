@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +16,7 @@ func (r *SQLiteRepository) CreateUser(ctx context.Context, input *entity.User) (
 	return input, nil
 }
 
-func (r *SQLiteRepository) FindUserByAddress(ctx context.Context, address custom_type.Address) (*entity.User, error) {
+func (r *SQLiteRepository) FindUserByAddress(ctx context.Context, address Address) (*entity.User, error) {
 	var user entity.User
 	if err := r.Db.WithContext(ctx).Preload("SocialAccounts").Where("address = ?", address).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -54,7 +54,7 @@ func (r *SQLiteRepository) UpdateUser(ctx context.Context, input *entity.User) (
 	return user, nil
 }
 
-func (r *SQLiteRepository) DeleteUser(ctx context.Context, address custom_type.Address) error {
+func (r *SQLiteRepository) DeleteUser(ctx context.Context, address Address) error {
 	res := r.Db.WithContext(ctx).Where("address = ?", address).Delete(&entity.User{})
 	if res.Error != nil {
 		return fmt.Errorf("failed to delete user: %w", res.Error)

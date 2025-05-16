@@ -15,11 +15,11 @@
 //	import (
 //		"encoding/json"
 //		"github.com/rollmelette/rollmelette"
-//		"github.com/tribeshq/tribes/pkg/rollups_router"
+//		"github.com/tribeshq/tribes/pkg/router"
 //	)
 //
 //	func main() {
-//		router := rollups_router.NewRouter()
+//		router := router.NewRouter()
 //
 //		userGroup := router.Group("users")
 //		{
@@ -71,7 +71,7 @@
 //		}
 //	}
 
-package rollups_router
+package router
 
 import (
 	"strings"

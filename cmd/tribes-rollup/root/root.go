@@ -54,7 +54,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
-	"github.com/tribeshq/tribes/pkg/rollups_router"
+	"github.com/tribeshq/tribes/pkg/rollups/router"
 )
 
 const (
@@ -101,10 +101,10 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	slog.Info("Handlers initialized")
 
-	r := rollups_router.NewRouter()
-	r.Use(rollups_router.ErrorHandlingMiddleware)
-	r.Use(rollups_router.ValidationMiddleware)
-	r.Use(rollups_router.LoggingMiddleware)
+	r := router.NewRouter()
+	r.Use(router.ErrorHandlingMiddleware)
+	r.Use(router.ValidationMiddleware)
+	r.Use(router.LoggingMiddleware)
 
 	rbacFactory := middleware.NewRBACFactory(repo)
 

@@ -6,21 +6,21 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type UpdateContractInputDTO struct {
-	Id      uint                `json:"id"`
-	Address custom_type.Address `json:"address"`
-	Symbol  string              `json:"symbol"`
+	Id      uint    `json:"id"`
+	Address Address `json:"address"`
+	Symbol  string  `json:"symbol"`
 }
 
 type UpdateContractOutputDTO struct {
-	Id        uint                `json:"id"`
-	Symbol    string              `json:"symbol"`
-	Address   custom_type.Address `json:"address"`
-	CreatedAt int64               `json:"created_at"`
-	UpdatedAt int64               `json:"updated_at"`
+	Id        uint    `json:"id"`
+	Symbol    string  `json:"symbol"`
+	Address   Address `json:"address"`
+	CreatedAt int64   `json:"created_at"`
+	UpdatedAt int64   `json:"updated_at"`
 }
 
 type UpdateContractUseCase struct {

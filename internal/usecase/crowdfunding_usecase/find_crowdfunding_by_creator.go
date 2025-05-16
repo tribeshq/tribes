@@ -5,11 +5,11 @@ import (
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindCrowdfundingsByCreatorInputDTO struct {
-	Creator custom_type.Address `json:"creator"`
+	Creator Address `json:"creator"`
 }
 
 type FindCrowdfundingsByCreatorOutputDTO []*FindCrowdfundingOutputDTO

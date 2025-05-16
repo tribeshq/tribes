@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 var (
@@ -13,14 +13,14 @@ var (
 )
 
 type Contract struct {
-	Id        uint                `json:"id" gorm:"primaryKey"`
-	Symbol    string              `json:"symbol,omitempty" gorm:"uniqueIndex;not null"`
-	Address   custom_type.Address `json:"address,omitempty" gorm:"custom_type:text;not null"`
-	CreatedAt int64               `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt int64               `json:"updated_at,omitempty" gorm:"default:0"`
+	Id        uint    `json:"id" gorm:"primaryKey"`
+	Symbol    string  `json:"symbol,omitempty" gorm:"uniqueIndex;not null"`
+	Address   Address `json:"address,omitempty" gorm:"custom_type:text;not null"`
+	CreatedAt int64   `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt int64   `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewContract(symbol string, address custom_type.Address, createdAt int64) (*Contract, error) {
+func NewContract(symbol string, address Address, createdAt int64) (*Contract, error) {
 	contract := &Contract{
 		Symbol:    symbol,
 		Address:   address,
@@ -36,7 +36,7 @@ func (c *Contract) validate() error {
 	if c.Symbol == "" {
 		return fmt.Errorf("%w: symbol cannot be empty", ErrInvalidContract)
 	}
-	if c.Address == (custom_type.Address{}) {
+	if c.Address == (Address{}) {
 		return fmt.Errorf("%w: address cannot be empty", ErrInvalidContract)
 	}
 	return nil

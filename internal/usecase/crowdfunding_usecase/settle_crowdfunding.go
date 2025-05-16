@@ -3,12 +3,11 @@ package crowdfunding_usecase
 import (
 	"context"
 	"fmt"
-
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type SettleCrowdfundingInputDTO struct {
@@ -16,20 +15,20 @@ type SettleCrowdfundingInputDTO struct {
 }
 
 type SettleCrowdfundingOutputDTO struct {
-	Id                  uint                `json:"id"`
-	Token               custom_type.Address `json:"token"`
-	Collateral          *uint256.Int        `json:"collateral"`
-	Creator             custom_type.Address `json:"creator"`
-	DebtIssued          *uint256.Int        `json:"debt_issued"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
-	TotalObligation     *uint256.Int        `json:"total_obligation"`
-	Orders              []*entity.Order     `json:"orders"`
-	State               string              `json:"state"`
-	FundraisingDuration int64               `json:"fundraising_duration"`
-	ClosesAt            int64               `json:"closes_at"`
-	MaturityAt          int64               `json:"maturity_at"`
-	CreatedAt           int64               `json:"created_at"`
-	UpdatedAt           int64               `json:"updated_at"`
+	Id                  uint            `json:"id"`
+	Token               Address         `json:"token"`
+	Collateral          *uint256.Int    `json:"collateral"`
+	Creator             Address         `json:"creator"`
+	DebtIssued          *uint256.Int    `json:"debt_issued"`
+	MaxInterestRate     *uint256.Int    `json:"max_interest_rate"`
+	TotalObligation     *uint256.Int    `json:"total_obligation"`
+	Orders              []*entity.Order `json:"orders"`
+	State               string          `json:"state"`
+	FundraisingDuration int64           `json:"fundraising_duration"`
+	ClosesAt            int64           `json:"closes_at"`
+	MaturityAt          int64           `json:"maturity_at"`
+	CreatedAt           int64           `json:"created_at"`
+	UpdatedAt           int64           `json:"updated_at"`
 }
 
 type SettleCrowdfundingUseCase struct {
@@ -69,7 +68,7 @@ func (uc *SettleCrowdfundingUseCase) Execute(
 		return nil, fmt.Errorf("error finding stablecoin contract: %w", err)
 	}
 
-	if custom_type.Address(erc20Deposit.Token) != stablecoin.Address {
+	if Address(erc20Deposit.Token) != stablecoin.Address {
 		return nil, fmt.Errorf("token deposit is not the stablecoin %v", stablecoin.Address)
 	}
 

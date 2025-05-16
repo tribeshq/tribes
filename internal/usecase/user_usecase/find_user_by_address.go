@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindUserByAddressInputDTO struct {
-	Address custom_type.Address `json:"address"`
+	Address Address `json:"address"`
 }
 
 type FindUserByAddressUseCase struct {

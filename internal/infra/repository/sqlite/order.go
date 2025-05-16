@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/gorm"
 )
 
@@ -45,7 +45,7 @@ func (r *SQLiteRepository) FindOrdersByState(ctx context.Context, crowdfundingId
 	return orders, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByInvestor(ctx context.Context, investor Address) ([]*entity.Order, error) {
 	var orders []*entity.Order
 	if err := r.Db.WithContext(ctx).Where("investor = ?", investor).Find(&orders).Error; err != nil {
 		return nil, fmt.Errorf("failed to find orders by investor: %w", err)

@@ -2,23 +2,22 @@ package user_usecase
 
 import (
 	"context"
-
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateUserInputDTO struct {
-	Role    string              `json:"role"`
-	Address custom_type.Address `json:"address"`
+	Role    string  `json:"role"`
+	Address Address `json:"address"`
 }
 
 type CreateUserOutputDTO struct {
 	Id                uint                    `json:"id"`
 	Role              string                  `json:"role"`
-	Address           custom_type.Address     `json:"address"`
+	Address           Address                 `json:"address"`
 	SocialAccounts    []*entity.SocialAccount `json:"social_accounts"`
 	InvestmentLimit   *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
 	DebtIssuanceLimit *uint256.Int            `json:"debt_issuance_limit,omitempty" gorm:"type:bigint"`

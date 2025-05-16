@@ -10,7 +10,7 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user_usecase"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type UserAdvanceHandlers struct {
@@ -99,7 +99,7 @@ func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette
 	ctx := context.Background()
 	findUserByAddress := user_usecase.NewCreateUserUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(ctx, &user_usecase.CreateUserInputDTO{
-		Address: custom_type.Address(metadata.MsgSender),
+		Address: Address(metadata.MsgSender),
 	}, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)

@@ -15,7 +15,7 @@ import (
 
 const rollupsContractsUrl = "https://registry.npmjs.org/@cartesi/rollups/-/rollups-2.0.0-rc.18.tgz"
 const baseContractsPath = "package/out/"
-const bindingPkg = "rollups_contracts"
+const bindingPkg = "contracts"
 
 type contractBinding struct {
 	jsonPath        string

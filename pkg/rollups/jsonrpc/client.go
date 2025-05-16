@@ -1,9 +1,6 @@
-// (c) Cartesi and individual authors (see AUTHORS)
-// SPDX-License-Identifier: Apache-2.0 (see LICENSE)
-
 // Package client provides a JSON‑RPC client that can be used as a library
 // by other services or commands.
-package client
+package jsonrpc
 
 import (
 	"bytes"
@@ -14,7 +11,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/tribeshq/tribes/pkg/jsonrpc/model"
+	"github.com/tribeshq/tribes/pkg/rollups/model"
 )
 
 // JsonRpcClient defines the interface for our client so it can be mocked.

@@ -8,7 +8,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateCrowdfundingInputDTO struct {
@@ -21,18 +21,18 @@ type CreateCrowdfundingInputDTO struct {
 }
 
 type CreateCrowdfundingOutputDTO struct {
-	Id                  uint                `json:"id"`
-	Token               custom_type.Address `json:"token,omitempty"`
-	Collateral          *uint256.Int        `json:"collateral,omitempty"`
-	Creator             custom_type.Address `json:"creator,omitempty"`
-	DebtIssued          *uint256.Int        `json:"debt_issued"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
-	Orders              []*entity.Order     `json:"orders"`
-	State               string              `json:"state"`
-	FundraisingDuration int64               `json:"fundraising_duration"`
-	ClosesAt            int64               `json:"closes_at"`
-	MaturityAt          int64               `json:"maturity_at"`
-	CreatedAt           int64               `json:"created_at"`
+	Id                  uint            `json:"id"`
+	Token               Address         `json:"token,omitempty"`
+	Collateral          *uint256.Int    `json:"collateral,omitempty"`
+	Creator             Address         `json:"creator,omitempty"`
+	DebtIssued          *uint256.Int    `json:"debt_issued"`
+	MaxInterestRate     *uint256.Int    `json:"max_interest_rate"`
+	Orders              []*entity.Order `json:"orders"`
+	State               string          `json:"state"`
+	FundraisingDuration int64           `json:"fundraising_duration"`
+	ClosesAt            int64           `json:"closes_at"`
+	MaturityAt          int64           `json:"maturity_at"`
+	CreatedAt           int64           `json:"created_at"`
 }
 
 type CreateCrowdfundingUseCase struct {
@@ -83,7 +83,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	// 	return nil, fmt.Errorf("%w: cannot create crowndfunding campaign without at least 7 days for the approval process", entity.ErrInvalidCrowdfunding)
 	// }
 
-	creator, err := c.UserRepository.FindUserByAddress(ctx, custom_type.Address(erc20Deposit.Sender))
+	creator, err := c.UserRepository.FindUserByAddress(ctx, Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}
@@ -91,7 +91,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 		return nil, fmt.Errorf("creator's debt issuance limit exceeded")
 	}
 
-	if _, err = c.ContractRepository.FindContractByAddress(ctx, custom_type.Address(erc20Deposit.Token)); err != nil {
+	if _, err = c.ContractRepository.FindContractByAddress(ctx, Address(erc20Deposit.Token)); err != nil {
 		return nil, fmt.Errorf("unknown token: %w", err)
 	}
 
@@ -115,7 +115,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	}
 
 	crowdfunding, err := entity.NewCrowdfunding(
-		custom_type.Address(erc20Deposit.Token),
+		Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Amount),
 		creator.Address,
 		input.DebtIssued,

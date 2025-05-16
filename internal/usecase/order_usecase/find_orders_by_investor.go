@@ -2,13 +2,12 @@ package order_usecase
 
 import (
 	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindOrdersByInvestorInputDTO struct {
-	Investor custom_type.Address `json:"investor"`
+	Investor Address `json:"investor"`
 }
 
 type FindOrdersByInvestorOutputDTO []*FindOrderOutputDTO
