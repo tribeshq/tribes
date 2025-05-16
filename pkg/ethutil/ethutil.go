@@ -79,7 +79,7 @@ func ERC20Deposit(
 	transactionOpts *bind.TransactOpts,
 	portalAddress common.Address,
 	tokenAddress common.Address,
-	accountAddress common.Address,
+	appAddress common.Address,
 	amount *big.Int,
 	execLayerData []byte,
 ) (*types.Receipt, error) {
@@ -95,7 +95,7 @@ func ERC20Deposit(
 	receipt, err := sendTransaction(
 		ctx, client, transactionOpts, big.NewInt(0), GasLimit, // Value is 0 for token deposits
 		func(txOpts *bind.TransactOpts) (*types.Transaction, error) {
-			return portal.DepositERC20Tokens(txOpts, tokenAddress, accountAddress, amount, execLayerData)
+			return portal.DepositERC20Tokens(txOpts, tokenAddress, appAddress, amount, execLayerData)
 		},
 	)
 	if err != nil {

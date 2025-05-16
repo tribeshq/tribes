@@ -66,7 +66,7 @@ var (
 	Cmd         = &cobra.Command{
 		Use:   "tribes-" + CMD_NAME,
 		Short: "Runs Tribes Rollup",
-		Long:  `Debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
+		Long:  `Cartesi Rollup Application for debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
 		Run:   run,
 	}
 )
@@ -108,7 +108,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	rbacFactory := middleware.NewRBACFactory(repo)
 
-	contractGroup := r.Group("contracts")
+	contractGroup := r.Group("contract")
 	{
 		contractGroup.Use(rbacFactory.AdminOnly())
 		contractGroup.HandleAdvance("create", handlers.ContractAdvanceHandlers.CreateContract)
@@ -117,11 +117,11 @@ func run(cmd *cobra.Command, args []string) {
 
 		// Public operations
 		contractGroup.HandleInspect("", handlers.ContractInspectHandlers.FindAllContracts)
-		contractGroup.HandleInspect("symbol/:symbol", handlers.ContractInspectHandlers.FindContractBySymbol)
-		contractGroup.HandleInspect("address/:address", handlers.ContractInspectHandlers.FindContractByAddress)
+		contractGroup.HandleInspect("symbol", handlers.ContractInspectHandlers.FindContractBySymbol)
+		contractGroup.HandleInspect("address", handlers.ContractInspectHandlers.FindContractByAddress)
 	}
 
-	orderGroup := r.Group("orders")
+	orderGroup := r.Group("order")
 	{
 		orderGroup.Use(rbacFactory.InvestorOnly())
 		orderGroup.HandleAdvance("create", handlers.OrderAdvanceHandlers.CreateOrder)
@@ -129,14 +129,15 @@ func run(cmd *cobra.Command, args []string) {
 
 		// Public operations
 		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
-		orderGroup.HandleInspect(":id", handlers.OrderInspectHandlers.FindOrderById)
-		orderGroup.HandleInspect("investor/:address", handlers.OrderInspectHandlers.FindOrdersByInvestor)
-		orderGroup.HandleInspect("crowdfunding/:id", handlers.OrderInspectHandlers.FindBisdByCrowdfundingId)
+		orderGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
+		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
+		orderGroup.HandleInspect("crowdfunding", handlers.OrderInspectHandlers.FindBisdByCrowdfundingId)
 	}
 
 	crowdfundingGroup := r.Group("crowdfunding")
 	{
 		adminGroup := crowdfundingGroup.Group("admin")
+
 		adminGroup.Use(rbacFactory.AdminOnly())
 		adminGroup.HandleAdvance("delete", handlers.CrowdfundingAdvanceHandlers.DeleteCrowdfunding)
 		adminGroup.HandleAdvance("update", handlers.CrowdfundingAdvanceHandlers.UpdateCrowdfunding)
@@ -149,12 +150,12 @@ func run(cmd *cobra.Command, args []string) {
 		// Public operations
 		crowdfundingGroup.HandleAdvance("close", handlers.CrowdfundingAdvanceHandlers.CloseCrowdfunding)
 		crowdfundingGroup.HandleInspect("", handlers.CrowdfundingInspectHandlers.FindAllCrowdfundings)
-		crowdfundingGroup.HandleInspect(":id", handlers.CrowdfundingInspectHandlers.FindCrowdfundingById)
-		crowdfundingGroup.HandleInspect("creator/:address", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByCreator)
-		crowdfundingGroup.HandleInspect("investor/:address", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestor)
+		crowdfundingGroup.HandleInspect("id", handlers.CrowdfundingInspectHandlers.FindCrowdfundingById)
+		crowdfundingGroup.HandleInspect("creator", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByCreator)
+		crowdfundingGroup.HandleInspect("investor", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestor)
 	}
 
-	userGroup := r.Group("users")
+	userGroup := r.Group("user")
 	{
 		userGroup.Use(rbacFactory.AdminOnly())
 		userGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
@@ -164,8 +165,8 @@ func run(cmd *cobra.Command, args []string) {
 
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
-		userGroup.HandleInspect(":address", handlers.UserInspectHandlers.FindUserByAddress)
-		userGroup.HandleInspect(":address/balance", handlers.UserInspectHandlers.Balance)
+		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
+		userGroup.HandleInspect("balance", handlers.UserInspectHandlers.Balance)
 	}
 
 	socialGroup := r.Group("social")
@@ -175,8 +176,8 @@ func run(cmd *cobra.Command, args []string) {
 		socialGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
 
 		// Public operations
-		socialGroup.HandleInspect(":id", handlers.SocialAccountHandlers.FindSocialAccountById)
-		socialGroup.HandleInspect("user/:userId", handlers.SocialAccountHandlers.FindSocialAccountsByUserId)
+		socialGroup.HandleInspect("id", handlers.SocialAccountHandlers.FindSocialAccountById)
+		socialGroup.HandleInspect("user/id", handlers.SocialAccountHandlers.FindSocialAccountsByUserId)
 	}
 
 	opts := rollmelette.NewRunOpts()
