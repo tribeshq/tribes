@@ -59,13 +59,26 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
+      # Build and push MCP image only on tag
       - name: Build and push Tribes MCP image
+        if: startsWith(github.ref, 'refs/tags/')
         id: push-mcp
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
         with:
           context: .
           file: ./build/Dockerfile.mcp
-          push: startsWith(github.ref, 'refs/tags/')
+          push: true
+          tags: ${{ steps.meta-mcp.outputs.tags }}
+          labels: ${{ steps.meta-mcp.outputs.labels }}
+
+      # Build MCP image only for PRs (no push)
+      - name: Build Tribes MCP image (no push)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
+        with:
+          context: .
+          file: ./build/Dockerfile.mcp
+          push: false
           tags: ${{ steps.meta-mcp.outputs.tags }}
           labels: ${{ steps.meta-mcp.outputs.labels }}
 
@@ -77,14 +90,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Build and push Machine image only on tag
       - name: Build and push Tribes Machine image
+        if: startsWith(github.ref, 'refs/tags/')
         id: push-machine
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
         with:
           context: .
           file: ./build/Dockerfile.machine
           platforms: linux/riscv64
-          push: startsWith(github.ref, 'refs/tags/')
+          push: true
+          tags: ${{ steps.meta-machine.outputs.tags }}
+          labels: ${{ steps.meta-machine.outputs.labels }}
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build Machine image only for PRs (no push)
+      - name: Build Tribes Machine image (no push)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
+        with:
+          context: .
+          file: ./build/Dockerfile.machine
+          platforms: linux/riscv64
+          push: false
           tags: ${{ steps.meta-machine.outputs.tags }}
           labels: ${{ steps.meta-machine.outputs.labels }}
           build-args: |
