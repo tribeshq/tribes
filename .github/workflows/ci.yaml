@@ -25,6 +25,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU for riscv64
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver: docker-container
+
+      - name: Show Buildx builders
+        run: docker buildx ls
+
       # MCP IMAGE (multiplataforma, buildx action)
       - name: Log in to the Container registry
         if: startsWith(github.ref, 'refs/tags/')
@@ -71,14 +85,6 @@ jobs:
           labels: ${{ steps.meta-mcp.outputs.labels }}
 
       # MACHINE IMAGE (apenas riscv64, comando manual)
-      - name: Set up QEMU for riscv64
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: riscv64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to GitHub Container Registry (machine)
         if: startsWith(github.ref, 'refs/tags/')
         uses: docker/login-action@v3
