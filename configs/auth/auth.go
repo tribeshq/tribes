@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	. "github.com/tribeshq/tribes/internal/infra/config"
+	. "github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/pkg/ethutil"
 )
 

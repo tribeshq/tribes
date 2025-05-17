@@ -8,14 +8,18 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/tribeshq/tribes/pkg/ethutil"
 )
 
 type AdvanceStateTool struct {
-	Client *ethclient.Client
-	TxOpts *bind.TransactOpts
+	Client        *ethclient.Client
+	TxOpts        *bind.TransactOpts
+	AppAddress    common.Address
+	TokenAddress  common.Address
+	PortalAddress common.Address
 }
 
 func NewAdvanceStateTool(client *ethclient.Client, txOpts *bind.TransactOpts) *AdvanceStateTool {
@@ -45,7 +49,7 @@ func (t *AdvanceStateTool) CreateOrder(ctx context.Context, request mcp.CallTool
 	amountBig := new(big.Int)
 	amountBig.SetString(amount, 10)
 
-	receipt, err := ethutil.ERC20Deposit(ctx, t.Client, t.TxOpts, portalAddress, tokenAddress, appAddress, amountBig, execLayerDataBytes)
+	receipt, err := ethutil.ERC20Deposit(ctx, t.Client, t.TxOpts, t.PortalAddress, t.TokenAddress, t.AppAddress, amountBig, execLayerDataBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to deposit ERC20: %w", err)
 	}

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -19,16 +20,17 @@ import (
 // 3. list crowdfunding by creator;
 
 type InspectStateTool struct {
-	client  *http.Client
-	baseURL string
+	BaseURL    string
+	Client     *http.Client
+	AppAddress common.Address
 }
 
 func NewInspectStateTool(baseURL string) *InspectStateTool {
 	return &InspectStateTool{
-		client: &http.Client{
+		Client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
-		baseURL: baseURL,
+		BaseURL: baseURL,
 	}
 }
 
@@ -45,14 +47,14 @@ func (t *InspectStateTool) ListAllCrowdfundings(ctx context.Context, request mcp
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.baseURL, appAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := t.client.Do(req)
+	resp, err := t.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crowdfundings: %w", err)
 	}
@@ -100,14 +102,14 @@ func (t *InspectStateTool) ListAllOrders(ctx context.Context, request mcp.CallTo
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.baseURL, appAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := t.client.Do(req)
+	resp, err := t.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get orders: %w", err)
 	}
@@ -162,14 +164,14 @@ func (t *InspectStateTool) ListCrowdfundingByCreator(ctx context.Context, reques
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.baseURL, appAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := t.client.Do(req)
+	resp, err := t.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crowdfundings by creator: %w", err)
 	}

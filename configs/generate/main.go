@@ -11,8 +11,8 @@ package main
 
 func main() {
 	data := readTOML("Config.toml")
-	config := decodeTOML(data)
-	envs := sortConfig(config)
+	configs := decodeTOML(data)
+	envs := sortConfig(configs)
 	for _, env := range envs {
 		env.validate()
 	}

@@ -32,6 +32,12 @@ description = """
 HTTP endpoint for the blockchain RPC provider."""
 used-by = ["mcp"]
 
+[blockchain.TRIBES_JSONRPC_ENDPOINT]
+go-type = "string"
+description = """
+JSONRPC API service url."""
+used-by = ["mcp"]
+
 #
 # Contracts
 #
@@ -54,6 +60,13 @@ used-by = ["mcp"]
 go-type = "Address"
 description = """
 Address of the Tribes application contract. Required for application interactions."""
+omit = true
+used-by = ["mcp"]
+
+[contracts.TRIBES_CONTRACTS_TOKEN_ADDRESS]
+go-type = "Address"
+description = """
+Address of the token contract. Required for token operations."""
 omit = true
 used-by = ["mcp"]
 

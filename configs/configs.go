@@ -1,6 +1,6 @@
 // The config package manages the node configuration, which comes from environment variables.
 // The sub-package generate specifies these environment variables.
-package config
+package configs
 
 import (
 	"encoding/hex"
@@ -10,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/tribeshq/tribes/pkg/rollups/model"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -29,7 +27,6 @@ type (
 	URL            = *url.URL
 	Duration       = time.Duration
 	LogLevel       = slog.Level
-	DefaultBlock   = model.DefaultBlock
 	RedactedString = Redacted[string]
 	RedactedUint   = Redacted[uint32]
 	Address        = common.Address
@@ -93,21 +90,6 @@ func ToAddressFromString(s string) (Address, error) {
 	return common.BytesToAddress(b), nil
 }
 
-func ToDefaultBlockFromString(s string) (DefaultBlock, error) {
-	var m = map[string]DefaultBlock{
-		"latest":    model.DefaultBlock_Latest,
-		"pending":   model.DefaultBlock_Pending,
-		"safe":      model.DefaultBlock_Safe,
-		"finalized": model.DefaultBlock_Finalized,
-	}
-	if v, ok := m[s]; ok {
-		return v, nil
-	} else {
-		var zeroValue DefaultBlock
-		return zeroValue, fmt.Errorf("invalid default block '%s'", s)
-	}
-}
-
 func ToAuthKindFromString(s string) (AuthKind, error) {
 	var m = map[string]AuthKind{
 		"private_key":      AuthKindPrivateKeyVar,
@@ -146,10 +128,8 @@ var (
 	toBool           = strconv.ParseBool
 	toUint64         = ToUint64FromString
 	toString         = ToStringFromString
-	toDuration       = ToDurationFromSeconds
 	toLogLevel       = ToLogLevelFromString
 	toAuthKind       = ToAuthKindFromString
-	toDefaultBlock   = ToDefaultBlockFromString
 	toRedactedString = ToRedactedStringFromString
 	toRedactedUint   = ToRedactedUint32FromString
 	toURL            = ToURLFromString
@@ -160,10 +140,8 @@ var (
 	notDefinedbool           = func() bool { return false }
 	notDefineduint64         = func() uint64 { return 0 }
 	notDefinedstring         = func() string { return "" }
-	notDefinedDuration       = func() time.Duration { return 0 }
 	notDefinedLogLevel       = func() slog.Level { return slog.LevelInfo }
 	notDefinedAuthKind       = func() AuthKind { return AuthKindMnemonicVar }
-	notDefinedDefaultBlock   = func() model.DefaultBlock { return model.DefaultBlock_Finalized }
 	notDefinedRedactedString = func() RedactedString { return RedactedString{""} }
 	notDefinedRedactedUint   = func() RedactedUint { return RedactedUint{0} }
 	notDefinedURL            = func() URL { return &url.URL{} }
