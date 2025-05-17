@@ -70,7 +70,6 @@ jobs:
           push-to-registry: true
 
   release:
-    needs: package
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
