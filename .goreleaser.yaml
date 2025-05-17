@@ -1,0 +1,44 @@
+project_name: tribes
+
+dist: dist
+
+builds:
+  - id: mcp
+    main: ./cmd/tribes-mcp
+    binary: tribes-mcp
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+  - id: rollup
+    main: ./cmd/tribes-rollup
+    binary: tribes-rollup
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: mcp-archive
+    builds: [mcp]
+    name_template: "tribes-mcp_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+  - id: rollup-archive
+    builds: [rollup]
+    name_template: "tribes-rollup_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+release:
+  github:
+    owner: tribeshq
+    name: tribes 
