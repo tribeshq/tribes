@@ -32,6 +32,7 @@ var (
 	inspectEndpoint        string
 	erc20portalAddress     string
 	blockchainHttpEndpoint string
+	blockchainId           int
 )
 
 var Cmd = &cobra.Command{
@@ -67,6 +68,9 @@ func init() {
 
 	Cmd.Flags().StringVar(&erc20portalAddress, "erc20-portal-address", "0x05355c2F9bA566c06199DEb17212c3B78C1A3C31", "ERC20 Portal contract address")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS, Cmd.Flags().Lookup("erc20-portal-address")))
+
+	Cmd.Flags().IntVar(&blockchainId, "blockchain-id", 13370, "Blockchain ID")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_ID, Cmd.Flags().Lookup("blockchain-id")))
 
 	Cmd.Flags().StringVar(&blockchainHttpEndpoint, "blockchain-http-endpoint", "http://localhost:8080/anvil", "Blockchain HTTP endpoint")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_HTTP_ENDPOINT, Cmd.Flags().Lookup("blockchain-http-endpoint")))
