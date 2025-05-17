@@ -25,9 +25,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # MCP IMAGE (multiplataforma, buildx action)
       - name: Log in to the Container registry
         if: startsWith(github.ref, 'refs/tags/')
-        uses: docker/login-action@327cd5a69de6c009b9ce71bce8395f28e651bf99
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -35,7 +36,7 @@ jobs:
 
       - name: Extract metadata for MCP
         id: meta-mcp
-        uses: docker/metadata-action@8e1d5461f02b7886d3c1a774bfbd873650445aa2
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.TRIBES_MCP_IMAGE_NAME }}
           tags: |
@@ -46,82 +47,65 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
-      - name: Extract metadata for Machine
-        id: meta-machine
-        uses: docker/metadata-action@8e1d5461f02b7886d3c1a774bfbd873650445aa2
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.TRIBES_MACHINE_IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,format=short
-
-      # Build and push MCP image only on tag
       - name: Build and push Tribes MCP image
         if: startsWith(github.ref, 'refs/tags/')
         id: push-mcp
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./build/Dockerfile.mcp
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta-mcp.outputs.tags }}
           labels: ${{ steps.meta-mcp.outputs.labels }}
 
-      # Build MCP image only for PRs (no push)
       - name: Build Tribes MCP image (no push)
         if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./build/Dockerfile.mcp
+          platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ steps.meta-mcp.outputs.tags }}
           labels: ${{ steps.meta-mcp.outputs.labels }}
 
-      - name: Set up QEMU
+      # MACHINE IMAGE (apenas riscv64, comando manual)
+      - name: Set up QEMU for riscv64
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: 'riscv64'
+          platforms: riscv64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build and push Machine image only on tag
-      - name: Build and push Tribes Machine image
+      - name: Log in to GitHub Container Registry (machine)
         if: startsWith(github.ref, 'refs/tags/')
-        id: push-machine
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
+        uses: docker/login-action@v3
         with:
-          context: .
-          file: ./build/Dockerfile.machine
-          platforms: linux/riscv64
-          push: true
-          tags: ${{ steps.meta-machine.outputs.tags }}
-          labels: ${{ steps.meta-machine.outputs.labels }}
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build Machine image only for PRs (no push)
-      - name: Build Tribes Machine image (no push)
+      - name: Build and Push Cartesi Machine image (riscv64)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          docker buildx build \
+            --platform linux/riscv64 \
+            --file ./build/Dockerfile.machine \
+            --tag ghcr.io/${{ github.repository }}-machine:latest \
+            --push \
+            .
+
+      - name: Build Cartesi Machine image (no push, riscv64)
         if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
-        with:
-          context: .
-          file: ./build/Dockerfile.machine
-          platforms: linux/riscv64
-          push: false
-          tags: ${{ steps.meta-machine.outputs.tags }}
-          labels: ${{ steps.meta-machine.outputs.labels }}
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          docker buildx build \
+            --platform linux/riscv64 \
+            --file ./build/Dockerfile.machine \
+            --tag ghcr.io/${{ github.repository }}-machine:pr \
+            --load \
+            .
 
       - name: Generate artifact attestation for MCP
         if: startsWith(github.ref, 'refs/tags/')
