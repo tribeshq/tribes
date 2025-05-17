@@ -22,10 +22,13 @@ type AdvanceStateTool struct {
 	PortalAddress common.Address
 }
 
-func NewAdvanceStateTool(client *ethclient.Client, txOpts *bind.TransactOpts) *AdvanceStateTool {
+func NewAdvanceStateTool(client *ethclient.Client, txOpts *bind.TransactOpts, appAddress common.Address, tokenAddress common.Address, portalAddress common.Address) *AdvanceStateTool {
 	return &AdvanceStateTool{
-		Client: client,
-		TxOpts: txOpts,
+		Client:        client,
+		TxOpts:        txOpts,
+		AppAddress:    appAddress,
+		TokenAddress:  tokenAddress,
+		PortalAddress: portalAddress,
 	}
 }
 

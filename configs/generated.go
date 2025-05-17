@@ -26,13 +26,14 @@ const (
 	TRIBES_AUTH_PRIVATE_KEY_FILE          = "TRIBES_AUTH_PRIVATE_KEY_FILE"
 	TRIBES_BLOCKCHAIN_HTTP_ENDPOINT       = "TRIBES_BLOCKCHAIN_HTTP_ENDPOINT"
 	TRIBES_BLOCKCHAIN_ID                  = "TRIBES_BLOCKCHAIN_ID"
-	TRIBES_JSONRPC_ENDPOINT               = "TRIBES_JSONRPC_ENDPOINT"
 	TRIBES_CONTRACTS_APPLICATION_ADDRESS  = "TRIBES_CONTRACTS_APPLICATION_ADDRESS"
 	TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS = "TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS"
 	TRIBES_CONTRACTS_INPUT_BOX_ADDRESS    = "TRIBES_CONTRACTS_INPUT_BOX_ADDRESS"
 	TRIBES_CONTRACTS_TOKEN_ADDRESS        = "TRIBES_CONTRACTS_TOKEN_ADDRESS"
 	TRIBES_LOG_COLOR                      = "TRIBES_LOG_COLOR"
 	TRIBES_LOG_LEVEL                      = "TRIBES_LOG_LEVEL"
+	TRIBES_INSPECT_ENDPOINT               = "TRIBES_INSPECT_ENDPOINT"
+	TRIBES_JSONRPC_ENDPOINT               = "TRIBES_JSONRPC_ENDPOINT"
 )
 
 func SetDefaults() {
@@ -40,7 +41,7 @@ func SetDefaults() {
 
 	viper.SetDefault(TRIBES_AUTH_KIND, "mnemonic")
 
-	// no default for TRIBES_AUTH_MNEMONIC
+	viper.SetDefault(TRIBES_AUTH_MNEMONIC, "test test test test test test test test test test test junk")
 
 	viper.SetDefault(TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX, "0")
 
@@ -54,8 +55,6 @@ func SetDefaults() {
 
 	// no default for TRIBES_BLOCKCHAIN_ID
 
-	// no default for TRIBES_JSONRPC_ENDPOINT
-
 	// no default for TRIBES_CONTRACTS_APPLICATION_ADDRESS
 
 	// no default for TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS
@@ -68,6 +67,10 @@ func SetDefaults() {
 
 	viper.SetDefault(TRIBES_LOG_LEVEL, "info")
 
+	// no default for TRIBES_INSPECT_ENDPOINT
+
+	// no default for TRIBES_JSONRPC_ENDPOINT
+
 }
 
 // McpConfig holds configuration values for the mcp service.
@@ -79,14 +82,17 @@ type McpConfig struct {
 	// An unique identifier representing a blockchain network.
 	TribesBlockchainId uint64 `mapstructure:"TRIBES_BLOCKCHAIN_ID"`
 
-	// JSONRPC API service url.
-	TribesJsonrpcEndpoint string `mapstructure:"TRIBES_JSONRPC_ENDPOINT"`
-
 	// If set to true, the node will add colors to its log output.
 	TribesLogColor bool `mapstructure:"TRIBES_LOG_COLOR"`
 
 	// One of "debug", "info", "warn", "error".
 	TribesLogLevel LogLevel `mapstructure:"TRIBES_LOG_LEVEL"`
+
+	// Inspect API service url.
+	TribesInspectEndpoint string `mapstructure:"TRIBES_INSPECT_ENDPOINT"`
+
+	// JSONRPC API service url.
+	TribesJsonrpcEndpoint string `mapstructure:"TRIBES_JSONRPC_ENDPOINT"`
 }
 
 // LoadMcpConfig reads configuration from environment variables, a config file, and defaults.
@@ -119,13 +125,6 @@ func LoadMcpConfig() (*McpConfig, error) {
 		return nil, fmt.Errorf("TRIBES_BLOCKCHAIN_ID is required for the mcp service: %w", err)
 	}
 
-	cfg.TribesJsonrpcEndpoint, err = GetTribesJsonrpcEndpoint()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_JSONRPC_ENDPOINT: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_JSONRPC_ENDPOINT is required for the mcp service: %w", err)
-	}
-
 	cfg.TribesLogColor, err = GetTribesLogColor()
 	if err != nil && err != ErrNotDefined {
 		return nil, fmt.Errorf("failed to get TRIBES_LOG_COLOR: %w", err)
@@ -138,6 +137,20 @@ func LoadMcpConfig() (*McpConfig, error) {
 		return nil, fmt.Errorf("failed to get TRIBES_LOG_LEVEL: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("TRIBES_LOG_LEVEL is required for the mcp service: %w", err)
+	}
+
+	cfg.TribesInspectEndpoint, err = GetTribesInspectEndpoint()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get TRIBES_INSPECT_ENDPOINT: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("TRIBES_INSPECT_ENDPOINT is required for the mcp service: %w", err)
+	}
+
+	cfg.TribesJsonrpcEndpoint, err = GetTribesJsonrpcEndpoint()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get TRIBES_JSONRPC_ENDPOINT: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("TRIBES_JSONRPC_ENDPOINT is required for the mcp service: %w", err)
 	}
 
 	return &cfg, nil
@@ -247,19 +260,6 @@ func GetTribesBlockchainId() (uint64, error) {
 	return notDefineduint64(), fmt.Errorf("%s: %w", TRIBES_BLOCKCHAIN_ID, ErrNotDefined)
 }
 
-// GetTribesJsonrpcEndpoint returns the value for the environment variable TRIBES_JSONRPC_ENDPOINT.
-func GetTribesJsonrpcEndpoint() (string, error) {
-	s := viper.GetString(TRIBES_JSONRPC_ENDPOINT)
-	if s != "" {
-		v, err := toString(s)
-		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_JSONRPC_ENDPOINT, err)
-		}
-		return v, nil
-	}
-	return notDefinedstring(), fmt.Errorf("%s: %w", TRIBES_JSONRPC_ENDPOINT, ErrNotDefined)
-}
-
 // GetTribesContractsApplicationAddress returns the value for the environment variable TRIBES_CONTRACTS_APPLICATION_ADDRESS.
 func GetTribesContractsApplicationAddress() (Address, error) {
 	s := viper.GetString(TRIBES_CONTRACTS_APPLICATION_ADDRESS)
@@ -336,4 +336,30 @@ func GetTribesLogLevel() (LogLevel, error) {
 		return v, nil
 	}
 	return notDefinedLogLevel(), fmt.Errorf("%s: %w", TRIBES_LOG_LEVEL, ErrNotDefined)
+}
+
+// GetTribesInspectEndpoint returns the value for the environment variable TRIBES_INSPECT_ENDPOINT.
+func GetTribesInspectEndpoint() (string, error) {
+	s := viper.GetString(TRIBES_INSPECT_ENDPOINT)
+	if s != "" {
+		v, err := toString(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_INSPECT_ENDPOINT, err)
+		}
+		return v, nil
+	}
+	return notDefinedstring(), fmt.Errorf("%s: %w", TRIBES_INSPECT_ENDPOINT, ErrNotDefined)
+}
+
+// GetTribesJsonrpcEndpoint returns the value for the environment variable TRIBES_JSONRPC_ENDPOINT.
+func GetTribesJsonrpcEndpoint() (string, error) {
+	s := viper.GetString(TRIBES_JSONRPC_ENDPOINT)
+	if s != "" {
+		v, err := toString(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_JSONRPC_ENDPOINT, err)
+		}
+		return v, nil
+	}
+	return notDefinedstring(), fmt.Errorf("%s: %w", TRIBES_JSONRPC_ENDPOINT, ErrNotDefined)
 }

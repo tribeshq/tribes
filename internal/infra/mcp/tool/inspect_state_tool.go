@@ -25,12 +25,13 @@ type InspectStateTool struct {
 	AppAddress common.Address
 }
 
-func NewInspectStateTool(baseURL string) *InspectStateTool {
+func NewInspectStateTool(baseURL string, appAddress common.Address) *InspectStateTool {
 	return &InspectStateTool{
 		Client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
-		BaseURL: baseURL,
+		BaseURL:    baseURL,
+		AppAddress: appAddress,
 	}
 }
 

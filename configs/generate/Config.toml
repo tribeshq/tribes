@@ -32,10 +32,20 @@ description = """
 HTTP endpoint for the blockchain RPC provider."""
 used-by = ["mcp"]
 
-[blockchain.TRIBES_JSONRPC_ENDPOINT]
+#
+# Rollup
+#
+
+[rollup.TRIBES_JSONRPC_ENDPOINT]
 go-type = "string"
 description = """
 JSONRPC API service url."""
+used-by = ["mcp"]
+
+[rollup.TRIBES_INSPECT_ENDPOINT]
+go-type = "string"
+description = """
+Inspect API service url."""
 used-by = ["mcp"]
 
 #
@@ -99,6 +109,7 @@ omit = true
 used-by = ["mcp"]
 
 [auth.TRIBES_AUTH_MNEMONIC]
+default = "test test test test test test test test test test test junk"
 go-type = "RedactedString"
 description = """
 The node will use the private key generated from this mnemonic to sign transactions."""
