@@ -88,11 +88,6 @@ func (r *Router) Group(prefix string) *Group {
 
 // HandleAdvance registers a new advance handler
 func (r *Router) HandleAdvance(path string, handler AdvanceHandlerFunc) {
-	if path == "" {
-		path = "/"
-	}
-	path = strings.TrimPrefix(path, "/")
-
 	// Apply middlewares in reverse order
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
 		handler = r.middlewares[i](handler).(AdvanceHandlerFunc)
@@ -103,12 +98,6 @@ func (r *Router) HandleAdvance(path string, handler AdvanceHandlerFunc) {
 
 // HandleInspect registers a new inspect handler
 func (r *Router) HandleInspect(path string, handler InspectHandlerFunc) {
-	if path == "" {
-		path = "/"
-	}
-	path = strings.TrimPrefix(path, "/")
-
-	// Apply middlewares in reverse order
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
 		handler = r.middlewares[i](handler).(InspectHandlerFunc)
 	}
@@ -116,62 +105,54 @@ func (r *Router) HandleInspect(path string, handler InspectHandlerFunc) {
 	r.inspectHandlers[path] = handler
 }
 
-// AdvanceRequest represents the structure of an advance request
-type AdvanceRequest struct {
-	Path    string          `json:"path"`
-	Payload json.RawMessage `json:"payload"`
+// Request represents the structure of a route request (advance or inspect)
+type Request struct {
+	Path string          `json:"path"`
+	Data json.RawMessage `json:"data"`
 }
 
-// parseAdvanceRawPayload parses the raw payload into an AdvanceRequest
-func parseAdvanceRawPayload(payload []byte) (*AdvanceRequest, error) {
-	var req AdvanceRequest
+// parseRequestRawPayload parses the raw payload into a Request
+func parseRequestRawPayload(payload []byte) (*Request, error) {
+	var req Request
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return nil, fmt.Errorf("failed to parse payload: %w", err)
 	}
-
 	if req.Path == "" {
 		return nil, fmt.Errorf("path is required")
 	}
-
 	return &req, nil
 }
 
 // Advance handles advance requests
 func (r *Router) Advance(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	req, err := parseAdvanceRawPayload(payload)
+	fmt.Printf("[Advance] Payload: %s\n", string(payload))
+	req, err := parseRequestRawPayload(payload)
 	if err != nil {
 		return fmt.Errorf("invalid request: %w", err)
 	}
 
-	path := strings.TrimPrefix(req.Path, "/")
+	path := strings.Trim(req.Path, "/")
 	handler, exists := r.advanceHandlers[path]
 	if !exists {
 		return fmt.Errorf("no handler found for path: %s", path)
 	}
 
-	return handler(env, metadata, deposit, req.Payload)
+	return handler(env, metadata, deposit, req.Data)
 }
 
 // Inspect handles inspect requests
 func (r *Router) Inspect(env rollmelette.EnvInspector, payload []byte) error {
-	var req struct {
-		Path    string          `json:"path"`
-		Payload json.RawMessage `json:"payload"`
+	fmt.Printf("[Inspect] Payload: %s\n", string(payload))
+	req, err := parseRequestRawPayload(payload)
+	if err != nil {
+		return fmt.Errorf("invalid request: %w", err)
 	}
 
-	if err := json.Unmarshal(payload, &req); err != nil {
-		return fmt.Errorf("failed to parse payload: %w", err)
-	}
-
-	if req.Path == "" {
-		return fmt.Errorf("path is required")
-	}
-
-	path := strings.TrimPrefix(req.Path, "/")
+	path := strings.Trim(req.Path, "/")
 	handler, exists := r.inspectHandlers[path]
 	if !exists {
 		return fmt.Errorf("no handler found for path: %s", path)
 	}
 
-	return handler(env, req.Payload)
+	return handler(env, req.Data)
 }

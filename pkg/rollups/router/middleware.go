@@ -69,12 +69,12 @@ func ValidationMiddleware(handler interface{}) interface{} {
 	switch h := handler.(type) {
 	case AdvanceHandlerFunc:
 		return AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-			var req AdvanceRequest
+			var req Request
 			if err := json.Unmarshal(payload, &req); err != nil {
 				return fmt.Errorf("invalid request format: %v", err)
 			}
 
-			if len(req.Payload) == 0 {
+			if len(req.Data) == 0 {
 				return fmt.Errorf("empty payload")
 			}
 

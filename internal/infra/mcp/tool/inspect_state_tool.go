@@ -37,13 +37,11 @@ func NewInspectStateTool(baseURL string, appAddress common.Address) *InspectStat
 
 func (t *InspectStateTool) ListAllCrowdfundings(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	payload := map[string]interface{}{
-		"path": "/crowdfunding",
+		"path": "crowdfunding",
 		"data": map[string]interface{}{},
 	}
 
-	payloadJSON, err := json.Marshal(map[string]interface{}{
-		"payload": payload,
-	})
+	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
@@ -92,13 +90,11 @@ func (t *InspectStateTool) ListAllCrowdfundings(ctx context.Context, request mcp
 
 func (t *InspectStateTool) ListAllOrders(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	payload := map[string]interface{}{
-		"path": "/order",
+		"path": "order",
 		"data": map[string]interface{}{},
 	}
 
-	payloadJSON, err := json.Marshal(map[string]interface{}{
-		"payload": payload,
-	})
+	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
@@ -152,15 +148,13 @@ func (t *InspectStateTool) ListCrowdfundingByCreator(ctx context.Context, reques
 	}
 
 	payload := map[string]interface{}{
-		"path": "/crowdfunding/creator",
+		"path": "crowdfunding/creator",
 		"data": map[string]interface{}{
 			"creator": creator,
 		},
 	}
 
-	payloadJSON, err := json.Marshal(map[string]interface{}{
-		"payload": payload,
-	})
+	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal payload: %w", err)
 	}
