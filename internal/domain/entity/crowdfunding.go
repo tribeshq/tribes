@@ -1,12 +1,11 @@
 package entity
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
 	"github.com/holiman/uint256"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 var (
@@ -24,34 +23,24 @@ const (
 	CrowdfundingStateSettled     CrowdfundingState = "settled"
 )
 
-type CrowdfundingRepository interface {
-	CreateCrowdfunding(ctx context.Context, crowdfunding *Crowdfunding) (*Crowdfunding, error)
-	FindCrowdfundingsByCreator(ctx context.Context, creator custom_type.Address) ([]*Crowdfunding, error)
-	FindCrowdfundingsByInvestor(ctx context.Context, investor custom_type.Address) ([]*Crowdfunding, error)
-	FindCrowdfundingById(ctx context.Context, id uint) (*Crowdfunding, error)
-	FindAllCrowdfundings(ctx context.Context) ([]*Crowdfunding, error)
-	UpdateCrowdfunding(ctx context.Context, crowdfunding *Crowdfunding) (*Crowdfunding, error)
-	DeleteCrowdfunding(ctx context.Context, id uint) error
-}
-
 type Crowdfunding struct {
-	Id                  uint                `json:"id" gorm:"primaryKey"`
-	Token               custom_type.Address `json:"token,omitempty" gorm:"type:text;not null"`
-	Collateral          *uint256.Int        `json:"collateral,omitempty" gorm:"type:text;not null"`
-	Creator             custom_type.Address `json:"creator,omitempty" gorm:"type:text;not null"`
-	DebtIssued          *uint256.Int        `json:"debt_issued,omitempty" gorm:"type:text;not null"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"type:text;not null"`
-	TotalObligation     *uint256.Int        `json:"total_obligation,omitempty" gorm:"type:text;not null;default:0"`
-	State               CrowdfundingState   `json:"state,omitempty" gorm:"type:text;not null"`
-	Orders              []*Order            `json:"orders,omitempty" gorm:"foreignKey:CrowdfundingId;constraint:OnDelete:CASCADE"`
-	FundraisingDuration int64               `json:"fundraising_duration,omitempty" gorm:"not null"`
-	ClosesAt            int64               `json:"closes_at,omitempty" gorm:"not null"`
-	MaturityAt          int64               `json:"maturity_at,omitempty" gorm:"not null"`
-	CreatedAt           int64               `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt           int64               `json:"updated_at,omitempty" gorm:"default:0"`
+	Id                  uint              `json:"id" gorm:"primaryKey"`
+	Token               Address           `json:"token,omitempty" gorm:"custom_type:text;not null"`
+	Collateral          *uint256.Int      `json:"collateral,omitempty" gorm:"custom_type:text;not null"`
+	Creator             Address           `json:"creator,omitempty" gorm:"custom_type:text;not null"`
+	DebtIssued          *uint256.Int      `json:"debt_issued,omitempty" gorm:"custom_type:text;not null"`
+	MaxInterestRate     *uint256.Int      `json:"max_interest_rate,omitempty" gorm:"custom_type:text;not null"`
+	TotalObligation     *uint256.Int      `json:"total_obligation,omitempty" gorm:"custom_type:text;not null;default:0"`
+	State               CrowdfundingState `json:"state,omitempty" gorm:"custom_type:text;not null"`
+	Orders              []*Order          `json:"orders,omitempty" gorm:"foreignKey:CrowdfundingId;constraint:OnDelete:CASCADE"`
+	FundraisingDuration int64             `json:"fundraising_duration,omitempty" gorm:"not null"`
+	ClosesAt            int64             `json:"closes_at,omitempty" gorm:"not null"`
+	MaturityAt          int64             `json:"maturity_at,omitempty" gorm:"not null"`
+	CreatedAt           int64             `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt           int64             `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCrowdfunding(token custom_type.Address, amount *uint256.Int, creator custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, fundraisingDuration int64, closesAt int64, maturityAt int64, createdAt int64) (*Crowdfunding, error) {
+func NewCrowdfunding(token Address, amount *uint256.Int, creator Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, fundraisingDuration int64, closesAt int64, maturityAt int64, createdAt int64) (*Crowdfunding, error) {
 	crowdfunding := &Crowdfunding{
 		Token:               token,
 		Collateral:          amount,
@@ -71,13 +60,13 @@ func NewCrowdfunding(token custom_type.Address, amount *uint256.Int, creator cus
 }
 
 func (a *Crowdfunding) validate() error {
-	if a.Token == (custom_type.Address{}) {
+	if a.Token == (Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidCrowdfunding)
 	}
 	if a.Collateral.Sign() == 0 {
 		return fmt.Errorf("%w: collateral cannot be zero", ErrInvalidCrowdfunding)
 	}
-	if a.Creator == (custom_type.Address{}) {
+	if a.Creator == (Address{}) {
 		return fmt.Errorf("%w: invalid creator address", ErrInvalidCrowdfunding)
 	}
 	if a.DebtIssued.Sign() == 0 {

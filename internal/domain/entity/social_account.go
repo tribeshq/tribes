@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"context"
 	"errors"
 	"fmt"
 )
@@ -18,17 +17,10 @@ const (
 	PlatformInstagram Platform = "instagram"
 )
 
-type SocialAccountRepository interface {
-	CreateSocialAccount(ctx context.Context, socialAccount *SocialAccount) (*SocialAccount, error)
-	FindSocialAccountById(ctx context.Context, id uint) (*SocialAccount, error)
-	FindSocialAccountsByUserId(ctx context.Context, userID uint) ([]*SocialAccount, error)
-	DeleteSocialAccount(ctx context.Context, id uint) error
-}
-
 type SocialAccount struct {
 	Id        uint     `json:"id" gorm:"primaryKey"`
 	UserId    uint     `json:"user_id,omitempty" gorm:"not null"`
-	Username  string   `json:"username,omitempty" gorm:"type:text;not null;uniqueIndex:idx_username_platform"`
+	Username  string   `json:"username,omitempty" gorm:"custom_type:text;not null;uniqueIndex:idx_username_platform"`
 	Followers uint     `json:"followers,omitempty" gorm:"not null"`
 	Platform  Platform `json:"platform,omitempty" gorm:"not null;uniqueIndex:idx_username_platform"`
 	CreatedAt int64    `json:"created_at,omitempty" gorm:"not null"`

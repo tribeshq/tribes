@@ -4,20 +4,21 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindCrowdfundingsByCreatorInputDTO struct {
-	Creator custom_type.Address `json:"creator"`
+	Creator Address `json:"creator"`
 }
 
 type FindCrowdfundingsByCreatorOutputDTO []*FindCrowdfundingOutputDTO
 
 type FindCrowdfundingsByCreatorUseCase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewFindCrowdfundingsByCreatorUseCase(crowdfundingRepository entity.CrowdfundingRepository) *FindCrowdfundingsByCreatorUseCase {
+func NewFindCrowdfundingsByCreatorUseCase(crowdfundingRepository repository.CrowdfundingRepository) *FindCrowdfundingsByCreatorUseCase {
 	return &FindCrowdfundingsByCreatorUseCase{CrowdfundingRepository: crowdfundingRepository}
 }
 

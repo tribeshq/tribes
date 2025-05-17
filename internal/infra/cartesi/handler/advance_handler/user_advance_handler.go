@@ -8,23 +8,24 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user_usecase"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type UserAdvanceHandlers struct {
-	UserRepository     entity.UserRepository
-	ContractRepository entity.ContractRepository
+	UserRepository     repository.UserRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewUserAdvanceHandlers(userRepository entity.UserRepository, contractRepository entity.ContractRepository) *UserAdvanceHandlers {
+func NewUserAdvanceHandlers(userRepository repository.UserRepository, contractRepository repository.ContractRepository) *UserAdvanceHandlers {
 	return &UserAdvanceHandlers{
 		UserRepository:     userRepository,
 		ContractRepository: contractRepository,
 	}
 }
 
-func (h *UserAdvanceHandlers) CreateUserHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *UserAdvanceHandlers) CreateUser(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input user_usecase.CreateUserInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -46,7 +47,7 @@ func (h *UserAdvanceHandlers) CreateUserHandler(env rollmelette.Env, metadata ro
 	return nil
 }
 
-func (h *UserAdvanceHandlers) UpdateUserHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *UserAdvanceHandlers) UpdateUser(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input user_usecase.UpdateUserInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -68,7 +69,7 @@ func (h *UserAdvanceHandlers) UpdateUserHandler(env rollmelette.Env, metadata ro
 	return nil
 }
 
-func (h *UserAdvanceHandlers) DeleteUserHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *UserAdvanceHandlers) DeleteUser(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input user_usecase.DeleteUserInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -89,7 +90,7 @@ func (h *UserAdvanceHandlers) DeleteUserHandler(env rollmelette.Env, metadata ro
 	return nil
 }
 
-func (h *UserAdvanceHandlers) WithdrawHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input user_usecase.WithdrawInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -98,7 +99,7 @@ func (h *UserAdvanceHandlers) WithdrawHandler(env rollmelette.Env, metadata roll
 	ctx := context.Background()
 	findUserByAddress := user_usecase.NewCreateUserUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(ctx, &user_usecase.CreateUserInputDTO{
-		Address: custom_type.Address(metadata.MsgSender),
+		Address: Address(metadata.MsgSender),
 	}, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)

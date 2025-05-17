@@ -3,24 +3,24 @@ package social_account_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-type FindSocialAccountByIDInputDTO struct {
+type FindSocialAccountByIdInputDTO struct {
 	SocialAccountId uint `json:"social_account_id"`
 }
 
 type FindSocialAccountByIdUseCase struct {
-	SocialAccountRepository entity.SocialAccountRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewFindSocialAccountByIdUseCase(socialAccountRepository entity.SocialAccountRepository) *FindSocialAccountByIdUseCase {
+func NewFindSocialAccountByIdUseCase(socialAccountRepository repository.SocialAccountRepository) *FindSocialAccountByIdUseCase {
 	return &FindSocialAccountByIdUseCase{
 		SocialAccountRepository: socialAccountRepository,
 	}
 }
 
-func (s *FindSocialAccountByIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByIDInputDTO) (*FindSocialAccountOutputDTO, error) {
+func (s *FindSocialAccountByIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByIdInputDTO) (*FindSocialAccountOutputDTO, error) {
 	socialAccount, err := s.SocialAccountRepository.FindSocialAccountById(ctx, input.SocialAccountId)
 	if err != nil {
 		return nil, err

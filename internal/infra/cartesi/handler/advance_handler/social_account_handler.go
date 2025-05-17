@@ -6,21 +6,21 @@ import (
 	"fmt"
 
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/social_account_usecase"
 )
 
 type SocialAccountAdvanceHandlers struct {
-	SocialAccountRepository entity.SocialAccountRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewSocialAccountAdvanceHandlers(socialAccountRepository entity.SocialAccountRepository) *SocialAccountAdvanceHandlers {
+func NewSocialAccountAdvanceHandlers(socialAccountRepository repository.SocialAccountRepository) *SocialAccountAdvanceHandlers {
 	return &SocialAccountAdvanceHandlers{
 		SocialAccountRepository: socialAccountRepository,
 	}
 }
 
-func (s *SocialAccountAdvanceHandlers) CreateSocialAccountHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (s *SocialAccountAdvanceHandlers) CreateSocialAccount(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input social_account_usecase.CreateSocialAccountInputDTO
 	err := json.Unmarshal(payload, &input)
 	if err != nil {
@@ -41,7 +41,7 @@ func (s *SocialAccountAdvanceHandlers) CreateSocialAccountHandler(env rollmelett
 	return nil
 }
 
-func (s *SocialAccountAdvanceHandlers) DeleteSocialAccountHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (s *SocialAccountAdvanceHandlers) DeleteSocialAccount(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input social_account_usecase.DeleteSocialAccountInputDTO
 	err := json.Unmarshal(payload, &input)
 	if err != nil {

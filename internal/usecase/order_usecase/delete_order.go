@@ -3,7 +3,7 @@ package order_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type DeleteOrderInputDTO struct {
@@ -11,10 +11,10 @@ type DeleteOrderInputDTO struct {
 }
 
 type DeleteOrderUseCase struct {
-	OrderRepository entity.OrderRepository
+	OrderRepository repository.OrderRepository
 }
 
-func NewDeleteOrderUseCase(orderRepository entity.OrderRepository) *DeleteOrderUseCase {
+func NewDeleteOrderUseCase(orderRepository repository.OrderRepository) *DeleteOrderUseCase {
 	return &DeleteOrderUseCase{
 		OrderRepository: orderRepository,
 	}

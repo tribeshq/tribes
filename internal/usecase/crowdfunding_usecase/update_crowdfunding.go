@@ -2,11 +2,11 @@ package crowdfunding_usecase
 
 import (
 	"context"
-
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type UpdateCrowdfundingInputDTO struct {
@@ -21,27 +21,27 @@ type UpdateCrowdfundingInputDTO struct {
 }
 
 type UpdateCrowdfundingOutputDTO struct {
-	Id                  uint                `json:"id"`
-	Token               custom_type.Address `json:"token"`
-	Collateral          *uint256.Int        `json:"collateral"`
-	Creator             custom_type.Address `json:"creator"`
-	DebtIssued          *uint256.Int        `json:"debt_issued"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
-	TotalObligation     *uint256.Int        `json:"total_obligation"`
-	Orders              []*entity.Order     `json:"orders"`
-	State               string              `json:"state"`
-	FundraisingDuration int64               `json:"fundraising_duration"`
-	ClosesAt            int64               `json:"closes_at"`
-	MaturityAt          int64               `json:"maturity_at"`
-	CreatedAt           int64               `json:"created_at"`
-	UpdatedAt           int64               `json:"updated_at"`
+	Id                  uint            `json:"id"`
+	Token               Address         `json:"token"`
+	Collateral          *uint256.Int    `json:"collateral"`
+	Creator             Address         `json:"creator"`
+	DebtIssued          *uint256.Int    `json:"debt_issued"`
+	MaxInterestRate     *uint256.Int    `json:"max_interest_rate"`
+	TotalObligation     *uint256.Int    `json:"total_obligation"`
+	Orders              []*entity.Order `json:"orders"`
+	State               string          `json:"state"`
+	FundraisingDuration int64           `json:"fundraising_duration"`
+	ClosesAt            int64           `json:"closes_at"`
+	MaturityAt          int64           `json:"maturity_at"`
+	CreatedAt           int64           `json:"created_at"`
+	UpdatedAt           int64           `json:"updated_at"`
 }
 
 type UpdateCrowdfundingUsecase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewUpdateCrowdfundingUseCase(crowdfundingRepository entity.CrowdfundingRepository) *UpdateCrowdfundingUsecase {
+func NewUpdateCrowdfundingUseCase(crowdfundingRepository repository.CrowdfundingRepository) *UpdateCrowdfundingUsecase {
 	return &UpdateCrowdfundingUsecase{
 		CrowdfundingRepository: crowdfundingRepository,
 	}

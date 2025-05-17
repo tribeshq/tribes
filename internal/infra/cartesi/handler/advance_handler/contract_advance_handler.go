@@ -6,21 +6,21 @@ import (
 	"fmt"
 
 	"github.com/rollmelette/rollmelette"
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/contract_usecase"
 )
 
 type ContractAdvanceHandlers struct {
-	ContractRepository entity.ContractRepository
+	ContractRepository repository.ContractRepository
 }
 
-func NewContractAdvanceHandlers(contractRepository entity.ContractRepository) *ContractAdvanceHandlers {
+func NewContractAdvanceHandlers(contractRepository repository.ContractRepository) *ContractAdvanceHandlers {
 	return &ContractAdvanceHandlers{
 		ContractRepository: contractRepository,
 	}
 }
 
-func (h *ContractAdvanceHandlers) CreateContractHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *ContractAdvanceHandlers) CreateContract(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input contract_usecase.CreateContractInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -42,7 +42,7 @@ func (h *ContractAdvanceHandlers) CreateContractHandler(env rollmelette.Env, met
 	return nil
 }
 
-func (h *ContractAdvanceHandlers) UpdateContractHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *ContractAdvanceHandlers) UpdateContract(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input contract_usecase.UpdateContractInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -64,7 +64,7 @@ func (h *ContractAdvanceHandlers) UpdateContractHandler(env rollmelette.Env, met
 	return nil
 }
 
-func (h *ContractAdvanceHandlers) DeleteContractHandler(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *ContractAdvanceHandlers) DeleteContract(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input contract_usecase.DeleteContractInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)

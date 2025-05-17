@@ -7,7 +7,8 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateCrowdfundingInputDTO struct {
@@ -20,32 +21,32 @@ type CreateCrowdfundingInputDTO struct {
 }
 
 type CreateCrowdfundingOutputDTO struct {
-	Id                  uint                `json:"id"`
-	Token               custom_type.Address `json:"token,omitempty"`
-	Collateral          *uint256.Int        `json:"collateral,omitempty"`
-	Creator             custom_type.Address `json:"creator,omitempty"`
-	DebtIssued          *uint256.Int        `json:"debt_issued"`
-	MaxInterestRate     *uint256.Int        `json:"max_interest_rate"`
-	Orders              []*entity.Order     `json:"orders"`
-	State               string              `json:"state"`
-	FundraisingDuration int64               `json:"fundraising_duration"`
-	ClosesAt            int64               `json:"closes_at"`
-	MaturityAt          int64               `json:"maturity_at"`
-	CreatedAt           int64               `json:"created_at"`
+	Id                  uint            `json:"id"`
+	Token               Address         `json:"token,omitempty"`
+	Collateral          *uint256.Int    `json:"collateral,omitempty"`
+	Creator             Address         `json:"creator,omitempty"`
+	DebtIssued          *uint256.Int    `json:"debt_issued"`
+	MaxInterestRate     *uint256.Int    `json:"max_interest_rate"`
+	Orders              []*entity.Order `json:"orders"`
+	State               string          `json:"state"`
+	FundraisingDuration int64           `json:"fundraising_duration"`
+	ClosesAt            int64           `json:"closes_at"`
+	MaturityAt          int64           `json:"maturity_at"`
+	CreatedAt           int64           `json:"created_at"`
 }
 
 type CreateCrowdfundingUseCase struct {
-	UserRepository          entity.UserRepository
-	ContractRepository      entity.ContractRepository
-	SocialAccountRepository entity.SocialAccountRepository
-	CrowdfundingRepository  entity.CrowdfundingRepository
+	UserRepository          repository.UserRepository
+	ContractRepository      repository.ContractRepository
+	SocialAccountRepository repository.SocialAccountRepository
+	CrowdfundingRepository  repository.CrowdfundingRepository
 }
 
 func NewCreateCrowdfundingUseCase(
-	userRepository entity.UserRepository,
-	contractRepository entity.ContractRepository,
-	socialRepository entity.SocialAccountRepository,
-	crowdfundingRepository entity.CrowdfundingRepository,
+	userRepository repository.UserRepository,
+	contractRepository repository.ContractRepository,
+	socialRepository repository.SocialAccountRepository,
+	crowdfundingRepository repository.CrowdfundingRepository,
 ) *CreateCrowdfundingUseCase {
 	return &CreateCrowdfundingUseCase{
 		UserRepository:          userRepository,
@@ -58,7 +59,7 @@ func NewCreateCrowdfundingUseCase(
 func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCrowdfundingInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateCrowdfundingOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
-		return nil, fmt.Errorf("invalid deposit type: %T", deposit)
+		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
 	if input.DebtIssued.Cmp(uint256.NewInt(15000000)) > 0 {
@@ -82,7 +83,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	// 	return nil, fmt.Errorf("%w: cannot create crowndfunding campaign without at least 7 days for the approval process", entity.ErrInvalidCrowdfunding)
 	// }
 
-	creator, err := c.UserRepository.FindUserByAddress(ctx, custom_type.Address(erc20Deposit.Sender))
+	creator, err := c.UserRepository.FindUserByAddress(ctx, Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}
@@ -90,7 +91,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 		return nil, fmt.Errorf("creator's debt issuance limit exceeded")
 	}
 
-	if _, err = c.ContractRepository.FindContractByAddress(ctx, custom_type.Address(erc20Deposit.Token)); err != nil {
+	if _, err = c.ContractRepository.FindContractByAddress(ctx, Address(erc20Deposit.Token)); err != nil {
 		return nil, fmt.Errorf("unknown token: %w", err)
 	}
 
@@ -114,7 +115,7 @@ func (c *CreateCrowdfundingUseCase) Execute(ctx context.Context, input *CreateCr
 	}
 
 	crowdfunding, err := entity.NewCrowdfunding(
-		custom_type.Address(erc20Deposit.Token),
+		Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Amount),
 		creator.Address,
 		input.DebtIssued,

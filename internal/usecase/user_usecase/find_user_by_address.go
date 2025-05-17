@@ -3,19 +3,19 @@ package user_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindUserByAddressInputDTO struct {
-	Address custom_type.Address `json:"address"`
+	Address Address `json:"address"`
 }
 
 type FindUserByAddressUseCase struct {
-	UserRepository entity.UserRepository
+	UserRepository repository.UserRepository
 }
 
-func NewFindUserByAddressUseCase(userRepository entity.UserRepository) *FindUserByAddressUseCase {
+func NewFindUserByAddressUseCase(userRepository repository.UserRepository) *FindUserByAddressUseCase {
 	return &FindUserByAddressUseCase{
 		UserRepository: userRepository,
 	}

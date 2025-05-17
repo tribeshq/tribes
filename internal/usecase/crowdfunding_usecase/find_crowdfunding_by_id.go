@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindCrowdfundingByIdInputDTO struct {
@@ -11,10 +12,10 @@ type FindCrowdfundingByIdInputDTO struct {
 }
 
 type FindCrowdfundingByIdUseCase struct {
-	CrowdfundingRepository entity.CrowdfundingRepository
+	CrowdfundingRepository repository.CrowdfundingRepository
 }
 
-func NewFindCrowdfundingByIdUseCase(crowdfundingRepository entity.CrowdfundingRepository) *FindCrowdfundingByIdUseCase {
+func NewFindCrowdfundingByIdUseCase(crowdfundingRepository repository.CrowdfundingRepository) *FindCrowdfundingByIdUseCase {
 	return &FindCrowdfundingByIdUseCase{CrowdfundingRepository: crowdfundingRepository}
 }
 

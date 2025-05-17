@@ -2,28 +2,27 @@ package order_usecase
 
 import (
 	"context"
-
-	"github.com/tribeshq/tribes/internal/domain/entity"
-	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type FinsOrdersByInvestorInputDTO struct {
-	Investor custom_type.Address `json:"investor"`
+type FindOrdersByInvestorInputDTO struct {
+	Investor Address `json:"investor"`
 }
 
 type FindOrdersByInvestorOutputDTO []*FindOrderOutputDTO
 
 type FindOrdersByInvestorUseCase struct {
-	OrderRepository entity.OrderRepository
+	OrderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByInvestorUseCase(orderRepository entity.OrderRepository) *FindOrdersByInvestorUseCase {
+func NewFindOrdersByInvestorUseCase(orderRepository repository.OrderRepository) *FindOrdersByInvestorUseCase {
 	return &FindOrdersByInvestorUseCase{
 		OrderRepository: orderRepository,
 	}
 }
 
-func (o *FindOrdersByInvestorUseCase) Execute(ctx context.Context, input *FinsOrdersByInvestorInputDTO) (FindOrdersByInvestorOutputDTO, error) {
+func (o *FindOrdersByInvestorUseCase) Execute(ctx context.Context, input *FindOrdersByInvestorInputDTO) (FindOrdersByInvestorOutputDTO, error) {
 	res, err := o.OrderRepository.FindOrdersByInvestor(ctx, input.Investor)
 	if err != nil {
 		return nil, err

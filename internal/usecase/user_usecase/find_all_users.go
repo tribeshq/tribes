@@ -3,16 +3,16 @@ package user_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindAllUsersOutputDTO []*FindUserOutputDTO
 
 type FindAllUsersUseCase struct {
-	UserRepository entity.UserRepository
+	UserRepository repository.UserRepository
 }
 
-func NewFindAllUsersUseCase(userRepository entity.UserRepository) *FindAllUsersUseCase {
+func NewFindAllUsersUseCase(userRepository repository.UserRepository) *FindAllUsersUseCase {
 	return &FindAllUsersUseCase{
 		UserRepository: userRepository,
 	}

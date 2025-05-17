@@ -3,7 +3,7 @@ package order_usecase
 import (
 	"context"
 
-	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindOrdersByStateInputDTO struct {
@@ -14,10 +14,10 @@ type FindOrdersByStateInputDTO struct {
 type FindOrdersByStateOutputDTO []*FindOrderOutputDTO
 
 type FindOrdersByStateUseCase struct {
-	OrderRepository entity.OrderRepository
+	OrderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByStateUseCase(orderRepository entity.OrderRepository) *FindOrdersByStateUseCase {
+func NewFindOrdersByStateUseCase(orderRepository repository.OrderRepository) *FindOrdersByStateUseCase {
 	return &FindOrdersByStateUseCase{
 		OrderRepository: orderRepository,
 	}

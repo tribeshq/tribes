@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type CreateSocialAccountInputDTO struct {
@@ -24,10 +25,10 @@ type CreateSocialAccountOutputDTO struct {
 }
 
 type CreateSocialAccountUseCase struct {
-	SocialAccountRepository entity.SocialAccountRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewCreateSocialAccountUseCase(socialAccountRepository entity.SocialAccountRepository) *CreateSocialAccountUseCase {
+func NewCreateSocialAccountUseCase(socialAccountRepository repository.SocialAccountRepository) *CreateSocialAccountUseCase {
 	return &CreateSocialAccountUseCase{
 		SocialAccountRepository: socialAccountRepository,
 	}
