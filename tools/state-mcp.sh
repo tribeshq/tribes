@@ -110,8 +110,12 @@ echo "Deploying contracts..."
 STABLECOIN_ADDRESS=$(deployToken "Stablecoin" "STABLECOIN")
 sleep $SLEEP_TIME
 
+echo "==================== STABLECOIN_ADDRESS: $STABLECOIN_ADDRESS ===================="
+
 TOKENIZED_RECEIVABLE_ADDRESS=$(deployToken "Pink" "PINK")
 sleep $SLEEP_TIME
+
+echo "==================== TOKENIZED_RECEIVABLE_ADDRESS: $TOKENIZED_RECEIVABLE_ADDRESS ===================="
 
 echo "Deployed contracts:"
 echo "STABLECOIN_ADDRESS=$STABLECOIN_ADDRESS"

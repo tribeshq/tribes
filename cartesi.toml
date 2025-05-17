@@ -1,5 +1,5 @@
 [drives.root]
 builder = "docker"
-image = "ghcr.io/tribeshq/tribes-machine:latest"
+dockerfile = "./build/Dockerfile.machine"
 format = "ext2"
 extraSize = "100Mb"

@@ -176,6 +176,7 @@ make test
 
 
 docker run --rm \
-	-v $(pwd):/app -w /app \
-	ghcr.io/tribeshq/tribes-machine:latest \
-	--config <path-to-toml-file> --verbose
+  -v $(pwd):/app -w /app \
+  ghcr.io/tribeshq/tribes-mcp:latest \
+  --token-address 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 \
+  --app-address 0xba8988a6d833725c2a4802bd83a6c0b20891e730
