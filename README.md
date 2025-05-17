@@ -173,3 +173,9 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 ```sh
 make test
 ```
+
+
+docker run --rm \
+	-v $(pwd):/app -w /app \
+	ghcr.io/tribeshq/tribes-machine:latest \
+	--config <path-to-toml-file> --verbose

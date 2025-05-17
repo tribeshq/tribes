@@ -22,9 +22,12 @@ const (
 
 var (
 	cfg                    *configs.McpConfig
+	authKind               string
 	appAddress             string
+	privateKey             string
 	tokenAddress           string
 	mnemonicPhrase         string
+	mnemonicIndex          int
 	jsonrpcEndpoint        string
 	inspectEndpoint        string
 	erc20portalAddress     string
@@ -47,8 +50,17 @@ func init() {
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_APPLICATION_ADDRESS, Cmd.Flags().Lookup("app-address")))
 	cobra.CheckErr(Cmd.MarkFlagRequired("app-address"))
 
+	Cmd.Flags().StringVar(&authKind, "auth-kind", "", "Authentication kind")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_KIND, Cmd.Flags().Lookup("auth-kind")))
+
+	Cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_PRIVATE_KEY, Cmd.Flags().Lookup("private-key")))
+
 	Cmd.Flags().StringVar(&mnemonicPhrase, "mnemonic-phrase", "", "Mnemonic phrase")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC, Cmd.Flags().Lookup("mnemonic-phrase")))
+
+	Cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Mnemonic index")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX, Cmd.Flags().Lookup("mnemonic-index")))
 
 	Cmd.Flags().StringVar(&inspectEndpoint, "inspect-endpoint", "http://localhost:8080/inspect", "Inspect endpoint")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_INSPECT_ENDPOINT, Cmd.Flags().Lookup("inspect-endpoint")))
