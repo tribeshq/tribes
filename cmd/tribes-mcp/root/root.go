@@ -3,7 +3,6 @@ package root
 import (
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -63,7 +62,7 @@ func init() {
 	Cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Mnemonic index")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX, Cmd.Flags().Lookup("mnemonic-index")))
 
-	Cmd.Flags().StringVar(&inspectEndpoint, "inspect-endpoint", "http://localhost:8080/inspect", "Inspect endpoint")
+	Cmd.Flags().StringVar(&inspectEndpoint, "inspect-endpoint", "http://127.0.0.1:8080/inspect", "Inspect endpoint")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_INSPECT_ENDPOINT, Cmd.Flags().Lookup("inspect-endpoint")))
 
 	Cmd.Flags().StringVar(&erc20portalAddress, "erc20-portal-address", "0x05355c2F9bA566c06199DEb17212c3B78C1A3C31", "ERC20 Portal contract address")
@@ -72,7 +71,7 @@ func init() {
 	Cmd.Flags().IntVar(&blockchainId, "blockchain-id", 13370, "Blockchain ID")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_ID, Cmd.Flags().Lookup("blockchain-id")))
 
-	Cmd.Flags().StringVar(&blockchainHttpEndpoint, "blockchain-http-endpoint", "http://localhost:8080/anvil", "Blockchain HTTP endpoint")
+	Cmd.Flags().StringVar(&blockchainHttpEndpoint, "blockchain-http-endpoint", "http://127.0.0.1:8080/anvil", "Blockchain HTTP endpoint")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_HTTP_ENDPOINT, Cmd.Flags().Lookup("blockchain-http-endpoint")))
 
 	Cmd.Flags().StringVar(&jsonrpcEndpoint, "jsonrpc-endpoint", "http://127.0.0.1:8080/rpc", "Jsonrpc endpoint")
@@ -89,9 +88,7 @@ func init() {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	startTime := time.Now()
 	ctx := cmd.Context()
-
 	s := server.NewMCPServer(
 		"Tribes MCP Server",
 		"0.1.0",
@@ -139,13 +136,25 @@ func run(cmd *cobra.Command, args []string) {
 	//--------------------------------
 
 	client, err := ethclient.DialContext(ctx, blockchainHttpEndpoint)
-	cobra.CheckErr(err)
+	if err != nil {
+		slog.Error("Failed to connect to blockchain",
+			"error", err,
+			"endpoint", blockchainHttpEndpoint,
+		)
+		cobra.CheckErr(err)
+	}
 
 	chainId, err := client.ChainID(ctx)
-	cobra.CheckErr(err)
+	if err != nil {
+		slog.Error("Failed to get chain ID", "error", err)
+		cobra.CheckErr(err)
+	}
 
 	txOpts, err := auth.GetTransactOpts(chainId)
-	cobra.CheckErr(err)
+	if err != nil {
+		slog.Error("Failed to configure transaction options", "error", err)
+		cobra.CheckErr(err)
+	}
 
 	//--------------------------------
 	// MCP Handlers
@@ -173,17 +182,20 @@ func run(cmd *cobra.Command, args []string) {
 	s.AddTool(listCrowdfundingByCreator, inspectStateTool.ListCrowdfundingByCreator)
 	s.AddTool(createOrder, advanceStateTool.CreateOrder)
 
-	ready := make(chan struct{}, 1)
-	go func() {
-		select {
-		case <-ready:
-			duration := time.Since(startTime)
-			slog.Info("DApp is ready", "after", duration)
-		case <-cmd.Context().Done():
-		}
-	}()
+	slog.Info("Starting MCP server",
+		"blockchainId", blockchainId,
+		"blockchainHttpEndpoint", blockchainHttpEndpoint,
+		"inspectEndpoint", inspectEndpoint,
+		"jsonrpcEndpoint", jsonrpcEndpoint,
+		"appAddress", appAddress,
+		"tokenAddress", tokenAddress,
+	)
 
 	if err := server.ServeStdio(s); err != nil {
+		slog.Error("Server error",
+			"error", err,
+			"endpoint", jsonrpcEndpoint,
+		)
 		fmt.Printf("Server error: %v\n", err)
 	}
 }
