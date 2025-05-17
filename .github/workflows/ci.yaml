@@ -1,4 +1,4 @@
-name: ci
+name: release
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
     env:
       REGISTRY: ghcr.io
       TRIBES_MCP_IMAGE_NAME: ${{ github.repository }}-mcp
-      TRIBES_MACHINE_IMAGE_NAME: ${{ github.repository }}-machine
     permissions:
       contents: read
       packages: write
@@ -25,21 +24,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU for riscv64
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: riscv64
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           install: true
           driver: docker-container
 
-      - name: Show Buildx builders
-        run: docker buildx ls
-
-      # MCP IMAGE (multiplataforma, buildx action)
       - name: Log in to the Container registry
         if: startsWith(github.ref, 'refs/tags/')
         uses: docker/login-action@v3
@@ -54,65 +44,22 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.TRIBES_MCP_IMAGE_NAME }}
           tags: |
-            type=raw,value=latest
-            type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
       - name: Build and push Tribes MCP image
-        if: startsWith(github.ref, 'refs/tags/')
         id: push-mcp
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./build/Dockerfile.mcp
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta-mcp.outputs.tags }}
           labels: ${{ steps.meta-mcp.outputs.labels }}
-
-      - name: Build Tribes MCP image (no push)
-        if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./build/Dockerfile.mcp
-          platforms: linux/amd64,linux/arm64
-          push: false
-          tags: ${{ steps.meta-mcp.outputs.tags }}
-          labels: ${{ steps.meta-mcp.outputs.labels }}
-
-      # MACHINE IMAGE (apenas riscv64, comando manual)
-      - name: Log in to GitHub Container Registry (machine)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Push Cartesi Machine image (multiplatform)
-        if: startsWith(github.ref, 'refs/tags/')
-        id: push-machine
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./build/Dockerfile.machine
-          platforms: linux/amd64,linux/arm64,linux/riscv64
-          push: true
-          tags: ghcr.io/${{ github.repository }}-machine:latest
-
-      - name: Build Cartesi Machine image (no push, multiplatform)
-        if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./build/Dockerfile.machine
-          platforms: linux/amd64,linux/arm64,linux/riscv64
-          push: false
-          tags: ghcr.io/${{ github.repository }}-machine:pr
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Generate artifact attestation for MCP
         if: startsWith(github.ref, 'refs/tags/') && steps.push-mcp.outputs.digest != ''
@@ -122,16 +69,8 @@ jobs:
           subject-digest: ${{ steps.push-mcp.outputs.digest }}
           push-to-registry: true
 
-      - name: Generate artifact attestation for Machine
-        if: startsWith(github.ref, 'refs/tags/') && steps.push-machine.outputs.digest != ''
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.TRIBES_MACHINE_IMAGE_NAME }}
-          subject-digest: ${{ steps.push-machine.outputs.digest }}
-          push-to-registry: true
-
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    needs: package
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -146,14 +85,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Build Tribes Rollup binary
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
-          workdir: ./cmd/tribes-rollup
-      - name: Build Tribes MCP binary
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
