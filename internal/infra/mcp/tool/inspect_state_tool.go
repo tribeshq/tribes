@@ -43,25 +43,25 @@ func (t *InspectStateTool) ListAllCrowdfundings(ctx context.Context, request mcp
 
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get crowdfundings: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to get crowdfundings: status %d, body: %s", resp.StatusCode, string(body))
+		return mcp.NewToolResultError(fmt.Sprintf("failed to get crowdfundings: status %d, body: %s", resp.StatusCode, string(body))), nil
 	}
 
 	var response struct {
@@ -71,18 +71,18 @@ func (t *InspectStateTool) ListAllCrowdfundings(ctx context.Context, request mcp
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	if len(response.Reports) == 0 {
-		return nil, fmt.Errorf("no reports in response")
+		return mcp.NewToolResultError("no reports in response"), nil
 	}
 
 	hexStr := strings.TrimPrefix(response.Reports[0].Payload, "0x")
 
 	decoded, err := hex.DecodeString(hexStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode hex payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	return mcp.NewToolResultText(string(decoded)), nil
@@ -96,25 +96,25 @@ func (t *InspectStateTool) ListAllOrders(ctx context.Context, request mcp.CallTo
 
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get orders: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to get orders: status %d, body: %s", resp.StatusCode, string(body))
+		return mcp.NewToolResultError(fmt.Sprintf("failed to get orders: status %d, body: %s", resp.StatusCode, string(body))), nil
 	}
 
 	var response struct {
@@ -124,18 +124,18 @@ func (t *InspectStateTool) ListAllOrders(ctx context.Context, request mcp.CallTo
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	if len(response.Reports) == 0 {
-		return nil, fmt.Errorf("no reports in response")
+		return mcp.NewToolResultError("no reports in response"), nil
 	}
 
 	hexStr := strings.TrimPrefix(response.Reports[0].Payload, "0x")
 
 	decoded, err := hex.DecodeString(hexStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode hex payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	return mcp.NewToolResultText(string(decoded)), nil
@@ -144,7 +144,7 @@ func (t *InspectStateTool) ListAllOrders(ctx context.Context, request mcp.CallTo
 func (t *InspectStateTool) ListCrowdfundingByCreator(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	creator, ok := request.Params.Arguments["creator"].(string)
 	if !ok {
-		return nil, fmt.Errorf("creator must be a string")
+		return mcp.NewToolResultError("creator must be a string"), nil
 	}
 
 	payload := map[string]interface{}{
@@ -156,25 +156,25 @@ func (t *InspectStateTool) ListCrowdfundingByCreator(ctx context.Context, reques
 
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/inspect/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/%s", t.BaseURL, t.AppAddress.Hex()), bytes.NewBuffer(payloadJSON))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get crowdfundings by creator: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to get crowdfundings by creator: status %d, body: %s", resp.StatusCode, string(body))
+		return mcp.NewToolResultError(fmt.Sprintf("failed to get crowdfundings by creator: status %d, body: %s", resp.StatusCode, string(body))), nil
 	}
 
 	var response struct {
@@ -184,18 +184,18 @@ func (t *InspectStateTool) ListCrowdfundingByCreator(ctx context.Context, reques
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	if len(response.Reports) == 0 {
-		return nil, fmt.Errorf("no reports in response")
+		return mcp.NewToolResultError("no reports in response"), nil
 	}
 
 	hexStr := strings.TrimPrefix(response.Reports[0].Payload, "0x")
 
 	decoded, err := hex.DecodeString(hexStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode hex payload: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	return mcp.NewToolResultText(string(decoded)), nil

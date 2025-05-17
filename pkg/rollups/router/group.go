@@ -75,8 +75,6 @@ package router
 
 import (
 	"strings"
-
-	"github.com/rollmelette/rollmelette"
 )
 
 type Group struct {
@@ -103,36 +101,40 @@ func (g *Group) Group(prefix string) *Group {
 	}
 }
 
-func (g *Group) HandleAdvance(path string, handler AdvanceHandlerFunc) {
+func (g *Group) registerHandler(path string, wrap func(handler interface{}) interface{}, register func(fullPath string, handler interface{}), handler interface{}) {
+	var fullPath string
 	if path == "" {
-		path = "/"
+		fullPath = g.prefix
+	} else {
+		fullPath = g.prefix + "/" + strings.Trim(path, "/")
 	}
-	path = strings.TrimPrefix(path, "/")
-	fullPath := g.prefix + "/" + path
-	fullPath = strings.TrimPrefix(fullPath, "/")
+	fullPath = strings.Trim(fullPath, "/")
 
-	g.router.HandleAdvance(fullPath, func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-		// Apply group middleware in reverse order
-		for i := len(g.middleware) - 1; i >= 0; i-- {
-			handler = g.middleware[i](handler).(AdvanceHandlerFunc)
-		}
-		return handler(env, metadata, deposit, payload)
-	})
+	h := handler
+	for i := len(g.middleware) - 1; i >= 0; i-- {
+		h = wrap(g.middleware[i](h))
+	}
+	register(fullPath, h)
+}
+
+func (g *Group) HandleAdvance(path string, handler AdvanceHandlerFunc) {
+	g.registerHandler(
+		path,
+		func(h interface{}) interface{} { return h.(AdvanceHandlerFunc) },
+		func(fullPath string, h interface{}) {
+			g.router.HandleAdvance(fullPath, h.(AdvanceHandlerFunc))
+		},
+		handler,
+	)
 }
 
 func (g *Group) HandleInspect(path string, handler InspectHandlerFunc) {
-	if path == "" {
-		path = "/"
-	}
-	path = strings.TrimPrefix(path, "/")
-	fullPath := g.prefix + "/" + path
-	fullPath = strings.TrimPrefix(fullPath, "/")
-
-	g.router.HandleInspect(fullPath, func(env rollmelette.EnvInspector, payload []byte) error {
-		// Apply group middleware in reverse order
-		for i := len(g.middleware) - 1; i >= 0; i-- {
-			handler = g.middleware[i](handler).(InspectHandlerFunc)
-		}
-		return handler(env, payload)
-	})
+	g.registerHandler(
+		path,
+		func(h interface{}) interface{} { return h.(InspectHandlerFunc) },
+		func(fullPath string, h interface{}) {
+			g.router.HandleInspect(fullPath, h.(InspectHandlerFunc))
+		},
+		handler,
+	)
 }

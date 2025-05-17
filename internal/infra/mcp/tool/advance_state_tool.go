@@ -2,7 +2,6 @@ package tool
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"math/big"
@@ -35,15 +34,15 @@ func NewAdvanceStateTool(client *ethclient.Client, txOpts *bind.TransactOpts, ap
 func (t *AdvanceStateTool) CreateOrder(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	crowdfundingId, ok := request.Params.Arguments["crowdfunding_id"].(string)
 	if !ok {
-		return nil, errors.New("name must be a string")
+		return mcp.NewToolResultError("name must be a string"), nil
 	}
 	amount, ok := request.Params.Arguments["amount"].(string)
 	if !ok {
-		return nil, errors.New("amount must be a string")
+		return mcp.NewToolResultError("amount must be a string"), nil
 	}
 	interestRate, ok := request.Params.Arguments["interest_rate"].(string)
 	if !ok {
-		return nil, errors.New("interest_rate must be a string")
+		return mcp.NewToolResultError("interest_rate must be a string"), nil
 	}
 
 	execLayerData := fmt.Sprintf(`{"path":"create_order","payload":{"crowdfunding_id":%s,"interest_rate":"%s"}}`, crowdfundingId, interestRate)
@@ -54,7 +53,7 @@ func (t *AdvanceStateTool) CreateOrder(ctx context.Context, request mcp.CallTool
 
 	receipt, err := ethutil.ERC20Deposit(ctx, t.Client, t.TxOpts, t.PortalAddress, t.TokenAddress, t.AppAddress, amountBig, execLayerDataBytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to deposit ERC20: %w", err)
+		return mcp.NewToolResultError(err.Error()), nil
 	}
 
 	return mcp.NewToolResultText(receipt.TxHash.Hex()), nil
