@@ -173,21 +173,3 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 ```sh
 make test
 ```
-
-
-docker run --rm -it \
-  -v $(pwd):/app -w /app \
-  ghcr.io/tribeshq/tribes-mcp:latest \
-  --token-address 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 \
-  --app-address 0xba8988a6d833725c2a4802bd83a6c0b20891e730 \
-  --inspect-endpoint http://host.docker.internal:8080/inspect \
-  --blockchain-http-endpoint http://host.docker.internal:8080/anvil \
-  --jsonrpc-endpoint http://host.docker.internal:8080/rpc
-
-
-go run ./cmd/tribes-mcp \
-   --token-address 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 \
-   --app-address 0xba8988a6d833725c2a4802bd83a6c0b20891e730 \
-   --inspect-endpoint http://localhost:8080/inspect \
-   --blockchain-http-endpoint http://localhost:8080/anvil \
-   --jsonrpc-endpoint http://localhost:8080/rpc
