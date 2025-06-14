@@ -67,6 +67,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
+      - name: Running tests
+        run: make test
+
       - name: Build and Publish Tribes MCP image
         if: startsWith(github.ref, 'refs/tags/')
         id: push-mcp
