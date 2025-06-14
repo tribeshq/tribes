@@ -18,7 +18,6 @@
 ##  Table of Contents
 
 - [Overview](#overview)
-- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Running](#running)
@@ -27,9 +26,7 @@
 
 ##  Overview
 
-<div align="justify">
 A crowdfunding platform designed for prominent content creators, enabling them to monetize their influence by issuing tokenized debt instruments collateralized exclusively by their tokenized future receivables. Based on Resolution No. 88 of the Brazilian Securities and Exchange Commission (CVM), the Brazilian SEC, the platform connects creators with a network of investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
-</div>
 <br>
 
 [![Docs]][Link-docs] [![Deck]][Link-deck]
@@ -39,41 +36,6 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 
 [Deck]: https://img.shields.io/badge/Pitch%20Deck-D1DCCB?style=for-the-badge
 [Link-deck]: https://www.canva.com/design/DAGVvlTnNpM/GsV9c1XuhYRYCrPK5811GA/view?utm_content=DAGVvlTnNpM&utm_campaign=designshare&utm_medium=link&utm_source=editor
-
-
-##  Project Structure
-
-```sh
-└── tribes/
-   ├── .github
-   │   ├── dependabot.yaml
-   │   └── workflows
-   ├── LICENSE
-   ├── Makefile
-   ├── README.md
-   ├── build
-   │   └── Dockerfile.machine
-   ├── cmd
-   │   ├── tribes-rollup
-   ├── configs
-   │   └── sqlite.go
-   ├── contracts
-   ├── coverage.md
-   ├── go.mod
-   ├── go.sum
-   ├── internal
-   │   ├── domain
-   │   ├── infra
-   │   └── usecase
-   ├── pkg
-   │   ├── type
-   │   ├── contracts
-   │   └── router
-   ├── test
-   ├── tools
-   │   └── state.sh
-   └── website
-```
 
 ##  Getting Started
 
