@@ -67,7 +67,7 @@ jobs:
       - name: Build and Publish Tribes MCP image
         if: startsWith(github.ref, 'refs/tags/')
         id: push-mcp
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./build/Dockerfile.mcp
@@ -80,7 +80,7 @@ jobs:
 
       - name: Build Tribes MCP image (test only)
         if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./build/Dockerfile.mcp
