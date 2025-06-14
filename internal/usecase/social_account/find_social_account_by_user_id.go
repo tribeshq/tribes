@@ -33,8 +33,8 @@ func (s *FindSocialAccountsByUserIdUseCase) Execute(ctx context.Context, input *
 			Id:        socialAccount.Id,
 			UserId:    socialAccount.UserId,
 			Username:  socialAccount.Username,
-			Followers: socialAccount.Followers,
 			Platform:  string(socialAccount.Platform),
+			Proof:     socialAccount.Proof,
 			CreatedAt: socialAccount.CreatedAt,
 			UpdatedAt: socialAccount.UpdatedAt,
 		}

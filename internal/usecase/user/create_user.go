@@ -21,7 +21,6 @@ type CreateUserOutputDTO struct {
 	Address           Address                 `json:"address"`
 	SocialAccounts    []*entity.SocialAccount `json:"social_accounts"`
 	InvestmentLimit   *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
-	DebtIssuanceLimit *uint256.Int            `json:"debt_issuance_limit,omitempty" gorm:"type:bigint"`
 	CreatedAt         int64                   `json:"created_at"`
 }
 
@@ -36,7 +35,7 @@ func NewCreateUserUseCase(userRepository repository.UserRepository) *CreateUserU
 }
 
 func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputDTO, metadata rollmelette.Metadata) (*CreateUserOutputDTO, error) {
-	var investmentLimit, debtIssuanceLimit *uint256.Int
+	var investmentLimit *uint256.Int
 
 	switch input.Role {
 	case string(entity.UserRoleQualifiedInvestor):
@@ -47,14 +46,7 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputD
 		investmentLimit = uint256.NewInt(0)
 	}
 
-	switch input.Role {
-	case string(entity.UserRoleCreator):
-		debtIssuanceLimit = uint256.NewInt(15000000)
-	default:
-		debtIssuanceLimit = uint256.NewInt(0)
-	}
-
-	user, err := entity.NewUser(input.Role, investmentLimit, debtIssuanceLimit, input.Address, metadata.BlockTimestamp)
+	user, err := entity.NewUser(input.Role, investmentLimit, input.Address, metadata.BlockTimestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +60,8 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputD
 		Id:                res.Id,
 		Role:              string(res.Role),
 		Address:           res.Address,
+		SocialAccounts:    res.SocialAccounts,
 		InvestmentLimit:   res.InvestmentLimit,
-		DebtIssuanceLimit: res.DebtIssuanceLimit,
 		CreatedAt:         res.CreatedAt,
 	}, nil
 }

@@ -3,6 +3,7 @@ package social_account
 import (
 	"context"
 
+	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
@@ -10,17 +11,16 @@ import (
 type CreateSocialAccountInputDTO struct {
 	UserId    uint   `json:"user_id" validate:"required"`
 	Username  string `json:"username" validate:"required"`
-	Followers uint   `json:"followers" validate:"required"`
 	Platform  string `json:"platform" validate:"required"`
-	CreatedAt int64  `json:"created_at" validate:"required"`
+	Proof     string `json:"proof" validate:"required"`
 }
 
 type CreateSocialAccountOutputDTO struct {
 	Id        uint   `json:"id"`
 	UserId    uint   `json:"user_id"`
 	Username  string `json:"username"`
-	Followers uint   `json:"followers"`
 	Platform  string `json:"platform"`
+	Proof     string `json:"proof"`
 	CreatedAt int64  `json:"created_at"`
 }
 
@@ -34,11 +34,20 @@ func NewCreateSocialAccountUseCase(socialAccountRepository repository.SocialAcco
 	}
 }
 
-func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateSocialAccountInputDTO) (*CreateSocialAccountOutputDTO, error) {
-	socialAccount, err := entity.NewSocialAccount(input.UserId, input.Username, input.Followers, input.Platform, int64(input.CreatedAt))
+func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateSocialAccountInputDTO, metadata *rollmelette.Metadata) (*CreateSocialAccountOutputDTO, error) {
+	socialAccount, err := entity.NewSocialAccount(
+		input.UserId,
+		input.Username,
+		input.Platform,
+		input.Proof,
+		metadata.BlockTimestamp,
+	)
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: proof verification
+
 	socialAccount, err = s.SocialAccountRepository.CreateSocialAccount(ctx, socialAccount)
 	if err != nil {
 		return nil, err
@@ -47,8 +56,8 @@ func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateS
 		Id:        socialAccount.Id,
 		UserId:    socialAccount.UserId,
 		Username:  socialAccount.Username,
-		Followers: socialAccount.Followers,
 		Platform:  string(socialAccount.Platform),
+		Proof:     socialAccount.Proof,
 		CreatedAt: socialAccount.CreatedAt,
 	}, nil
 }

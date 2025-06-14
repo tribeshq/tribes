@@ -14,12 +14,11 @@ import (
 
 // Injectors from wire.go:
 
-// NewHandlers creates a new instance of all handlers with their dependencies
 func NewHandlers(repo repository.Repository) (*Handlers, error) {
-	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo)
+	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo)
-	auctionAdvanceHandlers := advance.NewAuctionAdvanceHandlers(repo, repo)
+	auctionAdvanceHandlers := advance.NewAuctionAdvanceHandlers(repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)

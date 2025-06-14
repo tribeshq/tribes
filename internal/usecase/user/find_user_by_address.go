@@ -32,7 +32,6 @@ func (u *FindUserByAddressUseCase) Execute(ctx context.Context, input *FindUserB
 		Address:           res.Address,
 		SocialAccounts:    res.SocialAccounts,
 		InvestmentLimit:   res.InvestmentLimit,
-		DebtIssuanceLimit: res.DebtIssuanceLimit,
 		CreatedAt:         res.CreatedAt,
 		UpdatedAt:         res.UpdatedAt,
 	}, nil

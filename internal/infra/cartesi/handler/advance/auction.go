@@ -23,15 +23,18 @@ var (
 
 type AuctionAdvanceHandlers struct {
 	OrderRepository   repository.OrderRepository
+	UserRepository    repository.UserRepository
 	AuctionRepository repository.AuctionRepository
 }
 
 func NewAuctionAdvanceHandlers(
 	orderRepository repository.OrderRepository,
+	userRepository repository.UserRepository,
 	auctionRepository repository.AuctionRepository,
 ) *AuctionAdvanceHandlers {
 	return &AuctionAdvanceHandlers{
 		OrderRepository:   orderRepository,
+		UserRepository:    userRepository,
 		AuctionRepository: auctionRepository,
 	}
 }
@@ -50,6 +53,7 @@ func (h *AuctionAdvanceHandlers) CreateAuction(env rollmelette.Env, metadata rol
 	ctx := context.Background()
 	createAuction := auction.NewCreateAuctionUseCase(
 		h.AuctionRepository,
+		h.UserRepository,
 	)
 
 	res, err := createAuction.Execute(ctx, &input, deposit, metadata)

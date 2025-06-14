@@ -35,7 +35,7 @@ func (s *SocialAccountAdvanceHandlers) CreateSocialAccount(env rollmelette.Env, 
 
 	ctx := context.Background()
 	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.SocialAccountRepository)
-	res, err := createSocialAccount.Execute(ctx, &input)
+	res, err := createSocialAccount.Execute(ctx, &input, &metadata)
 	if err != nil {
 		return err
 	}

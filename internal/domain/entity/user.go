@@ -27,17 +27,16 @@ type User struct {
 	Role              UserRole         `json:"role,omitempty" gorm:"not null"`
 	Address           Address          `json:"address,omitempty" gorm:"custom_type:text;uniqueIndex;not null"`
 	InvestmentLimit   *uint256.Int     `json:"investment_limit,omitempty" gorm:"custom_type:text"`
-	DebtIssuanceLimit *uint256.Int     `json:"debt_issuance_limit,omitempty" gorm:"custom_type:text"`
+	SocialAccounts    []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 	CreatedAt         int64            `json:"created_at,omitempty" gorm:"not null"`
 	UpdatedAt         int64            `json:"updated_at,omitempty" gorm:"default:0"`
-	SocialAccounts    []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 }
 
-func NewUser(role string, investmentLimit *uint256.Int, debtIssuanceLimit *uint256.Int, address Address, createdAt int64) (*User, error) {
+func NewUser(role string, investmentLimit *uint256.Int, address Address, createdAt int64) (*User, error) {
 	user := &User{
 		Role:              UserRole(role),
 		InvestmentLimit:   investmentLimit,
-		DebtIssuanceLimit: debtIssuanceLimit,
+		SocialAccounts:    []*SocialAccount{},
 		Address:           address,
 		CreatedAt:         createdAt,
 	}

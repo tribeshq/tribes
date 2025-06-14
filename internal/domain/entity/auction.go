@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrAuctionNotFound = errors.New("auction not found")
-	ErrInvalidAuction  = errors.New("invalid Auction")
+	ErrInvalidAuction  = errors.New("invalid auction")
 )
 
 type AuctionState string

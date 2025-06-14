@@ -52,6 +52,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/spf13/cobra"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
+	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
 	"github.com/tribeshq/tribes/pkg/rollups/router"
 )
@@ -90,6 +91,16 @@ func run(cmd *cobra.Command, args []string) {
 	slog.Info("Database initialized", "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
 
 	defer repo.Close()
+
+	r := NewTribesRollup(repo)
+	opts := rollmelette.NewRunOpts()
+	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
+		slog.Error("Failed to run rollmelette", "error", err)
+		os.Exit(1)
+	}
+}
+
+func NewTribesRollup(repo repository.Repository) *router.Router {
 	handlers, err := NewHandlers(repo)
 	if err != nil {
 		slog.Error("Failed to initialize handlers", "error", err)
@@ -99,7 +110,6 @@ func run(cmd *cobra.Command, args []string) {
 
 	r := router.NewRouter()
 	r.Use(router.LoggingMiddleware)
-	r.Use(router.ValidationMiddleware)
 	r.Use(router.ErrorHandlingMiddleware)
 
 	rbacFactory := middleware.NewRBACFactory(repo)
@@ -118,13 +128,14 @@ func run(cmd *cobra.Command, args []string) {
 	}
 
 	auctionGroup := r.Group("auction")
-	{		
+	{
 		creatorGroup := auctionGroup.Group("creator")
 		creatorGroup.Use(rbacFactory.CreatorOnly())
 		creatorGroup.HandleAdvance("create", handlers.AuctionAdvanceHandlers.CreateAuction)
 		creatorGroup.HandleAdvance("settle", handlers.AuctionAdvanceHandlers.SettleAuction)
 
 		// Public operations
+		auctionGroup.HandleAdvance("execute-collateral", handlers.AuctionAdvanceHandlers.ExecuteAuctionCollateral)
 		auctionGroup.HandleAdvance("close", handlers.AuctionAdvanceHandlers.CloseAuction)
 		auctionGroup.HandleInspect("", handlers.AuctionInspectHandlers.FindAllAuctions)
 		auctionGroup.HandleInspect("id", handlers.AuctionInspectHandlers.FindAuctionById)
@@ -156,9 +167,5 @@ func run(cmd *cobra.Command, args []string) {
 		socialGroup.HandleInspect("user/id", handlers.SocialAccountHandlers.FindSocialAccountsByUserId)
 	}
 
-	opts := rollmelette.NewRunOpts()
-	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
-		slog.Error("Failed to run rollmelette", "error", err)
-		os.Exit(1)
-	}
+	return r
 }

@@ -14,7 +14,6 @@ type UpdateUserInputDTO struct {
 	Role              string       `json:"role" validate:"required"`
 	Address           Address      `json:"address" validate:"required"`
 	InvestmentLimit   *uint256.Int `json:"investment_limit,omitempty" gorm:"type:bigint" validate:"required"`
-	DebtIssuanceLimit *uint256.Int `json:"debt_issuance_limit,omitempty" gorm:"type:bigint" validate:"required"`
 }
 
 type UpdateUserOutputDTO struct {
@@ -23,7 +22,6 @@ type UpdateUserOutputDTO struct {
 	Address           Address                 `json:"address"`
 	SocialAccounts    []*entity.SocialAccount `json:"social_accounts"`
 	InvestmentLimit   *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
-	DebtIssuanceLimit *uint256.Int            `json:"debt_issuance_limit,omitempty" gorm:"type:bigint"`
 	CreatedAt         int64                   `json:"created_at"`
 	UpdatedAt         int64                   `json:"updated_at"`
 }
@@ -43,7 +41,6 @@ func (u *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateUserInputD
 		Role:              entity.UserRole(input.Role),
 		Address:           input.Address,
 		InvestmentLimit:   input.InvestmentLimit,
-		DebtIssuanceLimit: input.DebtIssuanceLimit,
 		UpdatedAt:         metadata.BlockTimestamp,
 	})
 	if err != nil {
@@ -55,7 +52,6 @@ func (u *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateUserInputD
 		Address:           user.Address,
 		SocialAccounts:    user.SocialAccounts,
 		InvestmentLimit:   user.InvestmentLimit,
-		DebtIssuanceLimit: user.DebtIssuanceLimit,
 		CreatedAt:         user.CreatedAt,
 		UpdatedAt:         user.UpdatedAt,
 	}, nil

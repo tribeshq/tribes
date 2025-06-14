@@ -36,13 +36,16 @@ type CreateAuctionOutputDTO struct {
 
 type CreateAuctionUseCase struct {
 	AuctionRepository repository.AuctionRepository
+	UserRepository    repository.UserRepository
 }
 
 func NewCreateAuctionUseCase(
 	AuctionRepository repository.AuctionRepository,
+	UserRepository repository.UserRepository,
 ) *CreateAuctionUseCase {
 	return &CreateAuctionUseCase{
 		AuctionRepository: AuctionRepository,
+		UserRepository:    UserRepository,
 	}
 }
 
@@ -52,26 +55,22 @@ func (c *CreateAuctionUseCase) Execute(ctx context.Context, input *CreateAuction
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	if input.DebtIssued.Cmp(uint256.NewInt(15000000)) > 0 {
-		return nil, fmt.Errorf("%w: debt issued exceeds the maximum allowed value", entity.ErrInvalidAuction)
-	}
-	if input.ClosesAt > metadata.BlockTimestamp+15552000 {
-		return nil, fmt.Errorf("%w: close date cannot be greater than 6 months", entity.ErrInvalidAuction)
-	}
-	if input.ClosesAt > input.MaturityAt {
-		return nil, fmt.Errorf("%w: close date cannot be greater than maturity date", entity.ErrInvalidAuction)
-	}
-	if metadata.BlockTimestamp >= input.ClosesAt {
-		return nil, fmt.Errorf("%w: creation date cannot be greater than or equal to close date", entity.ErrInvalidAuction)
+	user, err := c.UserRepository.FindUserByAddress(ctx, Address(erc20Deposit.Sender))
+	if err != nil {
+		return nil, fmt.Errorf("error finding user: %w", err)
 	}
 
-	Auctions, err := c.AuctionRepository.FindAuctionsByCreator(ctx, Address(erc20Deposit.Sender))
+	if err := c.Validate(user, input, erc20Deposit, metadata); err != nil {
+		return nil, err
+	}
+
+	auctions, err := c.AuctionRepository.FindAuctionsByCreator(ctx, Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Auctions: %w", err)
 	}
-	for _, Auction := range Auctions {
-		if Auction.State != entity.AuctionStateSettled && metadata.BlockTimestamp-Auction.CreatedAt < 120*24*60*60 {
-			return nil, fmt.Errorf("active Auction exists within the last 120 days")
+	for _, auction := range auctions {
+		if auction.State != entity.AuctionStateSettled && auction.State != entity.AuctionStateCollateralExecuted {
+			return nil, fmt.Errorf("active auction exists, cannot create a new auction")
 		}
 	}
 
@@ -109,4 +108,32 @@ func (c *CreateAuctionUseCase) Execute(ctx context.Context, input *CreateAuction
 		MaturityAt:        createdAuction.MaturityAt,
 		CreatedAt:         createdAuction.CreatedAt,
 	}, nil
+}
+
+func (c *CreateAuctionUseCase) Validate(
+	user *entity.User,
+	input *CreateAuctionInputDTO,
+	deposit *rollmelette.ERC20Deposit,
+	metadata rollmelette.Metadata,
+) error {
+	if len(user.SocialAccounts) == 0 {
+		return fmt.Errorf("%w: user has no social accounts, please verify at least one social account", entity.ErrInvalidAuction)
+	}
+
+	if input.DebtIssued.Cmp(uint256.NewInt(15000000)) > 0 {
+		return fmt.Errorf("%w: debt issued exceeds the maximum allowed value", entity.ErrInvalidAuction)
+	}
+
+	if input.ClosesAt > metadata.BlockTimestamp+180*24*60*60 {
+		return fmt.Errorf("%w: close date cannot be greater than 180 days", entity.ErrInvalidAuction)
+	}
+
+	if input.ClosesAt > input.MaturityAt {
+		return fmt.Errorf("%w: close date cannot be greater than maturity date", entity.ErrInvalidAuction)
+	}
+
+	if metadata.BlockTimestamp >= input.ClosesAt {
+		return fmt.Errorf("%w: creation date cannot be greater than or equal to close date", entity.ErrInvalidAuction)
+	}
+	return nil
 }

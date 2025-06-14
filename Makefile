@@ -7,7 +7,7 @@ END_LOG = @echo "================================================== END OF LOG =
 verifier:
 	$(START_LOG)
 	@cd ./tools/tlsnotary/verifier && cargo build --release
-	@cp ./tools/tlsnotary/verifier/target/release/libverifier.a ./internal/usecase/crowdfunding/
+	@cp ./tools/tlsnotary/verifier/target/release/libverifier.a ./internal/usecase/auction/
 	$(END_LOG)
 	
 .PHONY: generate
@@ -19,7 +19,7 @@ generate:
 .PHONY: test
 test:
 	@cd ./tools/tlsnotary/verifier && cargo build --release
-	@cp ./tools/tlsnotary/verifier/target/release/libverifier.a ./internal/usecase/crowdfunding/
+	@cp ./tools/tlsnotary/verifier/target/release/libverifier.a ./internal/usecase/auction/
 	@go test -p=1 ./... -coverprofile=./coverage.md -v
 
 .PHONY: coverage

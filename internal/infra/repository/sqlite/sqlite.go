@@ -11,6 +11,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	. "github.com/tribeshq/tribes/pkg/custom_type"
+
+	"github.com/holiman/uint256"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 )
 
@@ -54,6 +57,17 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	adminUser := entity.User{
+		Role:              entity.UserRoleAdmin,
+		Address:           HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9"),
+		InvestmentLimit:   uint256.NewInt(0),
+		CreatedAt:         time.Now().Unix(),
+	}
+
+	if err := db.Create(&adminUser).Error; err != nil {
+		return nil, fmt.Errorf("failed to create admin user: %w", err)
 	}
 
 	return &SQLiteRepository{Db: db}, nil

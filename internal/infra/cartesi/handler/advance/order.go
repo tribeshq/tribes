@@ -14,15 +14,18 @@ import (
 
 type OrderAdvanceHandlers struct {
 	OrderRepository   repository.OrderRepository
+	UserRepository    repository.UserRepository
 	AuctionRepository repository.AuctionRepository
 }
 
 func NewOrderAdvanceHandlers(
 	orderRepository repository.OrderRepository,
+	userRepository repository.UserRepository,
 	auctionRepository repository.AuctionRepository,
 ) *OrderAdvanceHandlers {
 	return &OrderAdvanceHandlers{
 		OrderRepository:   orderRepository,
+		UserRepository:    userRepository,
 		AuctionRepository: auctionRepository,
 	}
 }
@@ -41,6 +44,7 @@ func (h *OrderAdvanceHandlers) CreateOrder(env rollmelette.Env, metadata rollmel
 	ctx := context.Background()
 	createOrder := order.NewCreateOrderUseCase(
 		h.OrderRepository,
+		h.UserRepository,
 		h.AuctionRepository,
 	)
 
