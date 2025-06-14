@@ -35,6 +35,7 @@ func (s *TribesRollupSuite) SetupTest() {
 	s.tester = rollmelette.NewTester(dapp)
 }
 
+
 func (s *TribesRollupSuite) TestCreateAuction() {
 	admin := common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
@@ -172,6 +173,7 @@ func (s *TribesRollupSuite) TestCloseAuction() {
 	closeAuctionInput := []byte(fmt.Sprintf(`{"path":"auction/close", "data":{"creator":"%s"}}`, creator))
 	closeAuctionResult := s.tester.Advance(anyone, closeAuctionInput)
 	s.Len(closeAuctionResult.Notices, 1)
+	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	expectedCloseAuctionOutput := fmt.Sprintf(`auction closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"auction_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
@@ -193,7 +195,6 @@ func (s *TribesRollupSuite) TestCloseAuction() {
 		baseTime, closesAt, maturityAt, closesAt,
 	)
 	s.Equal(expectedCloseAuctionOutput, string(closeAuctionResult.Notices[0].Payload))
-	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 }
 
 func (s *TribesRollupSuite) TestSettleAuction() {
@@ -298,6 +299,7 @@ func (s *TribesRollupSuite) TestSettleAuction() {
 	closeAuctionInput := []byte(fmt.Sprintf(`{"path":"auction/close", "data":{"creator":"%s"}}`, creator))
 	closeAuctionResult := s.tester.Advance(anyone, closeAuctionInput)
 	s.Len(closeAuctionResult.Notices, 1)
+	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	expectedCloseAuctionOutput := fmt.Sprintf(`auction closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"auction_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
@@ -319,7 +321,6 @@ func (s *TribesRollupSuite) TestSettleAuction() {
 		baseTime, closesAt, maturityAt, closesAt,
 	)
 	s.Equal(expectedCloseAuctionOutput, string(closeAuctionResult.Notices[0].Payload))
-	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	time.Sleep(5 * time.Second)
 
@@ -475,7 +476,6 @@ func (s *TribesRollupSuite) TestExecuteAuctionCollateral() {
 		baseTime, closesAt, maturityAt, closesAt,
 	)
 	s.Equal(expectedCloseAuctionOutput, string(closeAuctionResult.Notices[0].Payload))
-	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	findAuctionByIdInput := []byte(fmt.Sprintf(`{"path":"auction/id", "data":{"id":1}}`))
 
@@ -769,6 +769,7 @@ func (s *TribesRollupSuite) TestFindAuctionsByInvestor() {
 	closeAuctionInput := []byte(fmt.Sprintf(`{"path":"auction/close", "data":{"creator":"%s"}}`, creator))
 	closeAuctionResult := s.tester.Advance(anyone, closeAuctionInput)
 	s.Len(closeAuctionResult.Notices, 1)
+	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	expectedCloseAuctionOutput := fmt.Sprintf(`auction closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"auction_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
@@ -790,7 +791,6 @@ func (s *TribesRollupSuite) TestFindAuctionsByInvestor() {
 		baseTime, closesAt, maturityAt, closesAt,
 	)
 	s.Equal(expectedCloseAuctionOutput, string(closeAuctionResult.Notices[0].Payload))
-	s.Len(closeAuctionResult.DelegateCallVouchers, 1)
 
 	expectedFindAuctionByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"auction_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
