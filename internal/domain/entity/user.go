@@ -33,13 +33,13 @@ type User struct {
 	SocialAccounts    []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 }
 
-func NewUser(role string, investmentLimit *uint256.Int, debtIssuanceLimit *uint256.Int, address Address, created_at int64) (*User, error) {
+func NewUser(role string, investmentLimit *uint256.Int, debtIssuanceLimit *uint256.Int, address Address, createdAt int64) (*User, error) {
 	user := &User{
 		Role:              UserRole(role),
 		InvestmentLimit:   investmentLimit,
 		DebtIssuanceLimit: debtIssuanceLimit,
 		Address:           address,
-		CreatedAt:         created_at,
+		CreatedAt:         createdAt,
 	}
 	if err := user.validate(); err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (u *User) validate() error {
 		return fmt.Errorf("%w: address cannot be empty", ErrInvalidUser)
 	}
 	if u.CreatedAt == 0 {
-		return fmt.Errorf("%w: creation date is missing", ErrInvalidCrowdfunding)
+		return fmt.Errorf("%w: creation date is missing", ErrInvalidUser)
 	}
 	return nil
 }

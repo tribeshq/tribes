@@ -157,20 +157,20 @@ sleep $SLEEP_TIME
 sendInput '{"path":"create_user","payload":{"address":"'${INVESTOR_ADDRESSES[4]}'","role":"non_qualified_investor"}}'
 sleep $SLEEP_TIME
 
-# Create crowdfunding
-echo "Creating crowdfunding..."
+# Create auction
+echo "Creating auction..."
 current_timestamp=$(date +%s)
 closes_at=$((current_timestamp + 80))
 maturity_at=$((current_timestamp + 150))
-crowdfundingPayload='{"path":"create_crowdfunding","payload":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":50,"closes_at":'"$closes_at"',"maturity_at":'"$maturity_at"'}}'
+auctionPayload='{"path":"create_auction","payload":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":50,"closes_at":'"$closes_at"',"maturity_at":'"$maturity_at"'}}'
 approveTokens $TOKENIZED_RECEIVABLE_ADDRESS $PORTAL_ADDRESS 10000 $CREATOR_PRIVATE_KEY
 sleep $SLEEP_TIME # +5s
-depositERC20Tokens $TOKENIZED_RECEIVABLE_ADDRESS $DAPP_ADDRESS 10000 "$crowdfundingPayload" $CREATOR_PRIVATE_KEY
+depositERC20Tokens $TOKENIZED_RECEIVABLE_ADDRESS $DAPP_ADDRESS 10000 "$auctionPayload" $CREATOR_PRIVATE_KEY
 sleep $SLEEP_TIME # +5s
 
-# 4. Update crowdfunding to ongoing (sent by admin)
-echo "Updating crowdfunding state to 'ongoing'..."
-updatePayload='{"path":"update_crowdfunding","payload":{"id":1,"state":"ongoing"}}'
+# 4. Update auction to ongoing (sent by admin)
+echo "Updating auction state to 'ongoing'..."
+updatePayload='{"path":"update_auction","payload":{"id":1,"state":"ongoing"}}'
 sendInput "$updatePayload" $ADMIN_PRIVATE_KEY
 
 # 5. Create orders from investors (sent by each investor)
@@ -178,31 +178,31 @@ echo "Creating orders from investors..."
 ORDER_AMOUNTS=(60000 52000 2000 3000 400)
 INTEREST_RATES=("9" "8" "4" "6" "4")
 
-orderPayload0='{"path":"create_order","payload":{"crowdfunding_id":1,"interest_rate":"9"}}'
+orderPayload0='{"path":"create_order","payload":{"auction_id":1,"interest_rate":"9"}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 60000 ${INVESTOR_PRIVATE_KEYS[0]} &
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 60000 "$orderPayload0" ${INVESTOR_PRIVATE_KEYS[0]} &
 sleep $SLEEP_TIME # +5s
 
-orderPayload1='{"path":"create_order","payload":{"crowdfunding_id":1,"interest_rate":"8"}}'
+orderPayload1='{"path":"create_order","payload":{"auction_id":1,"interest_rate":"8"}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 52000 ${INVESTOR_PRIVATE_KEYS[1]} &
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 52000 "$orderPayload1" ${INVESTOR_PRIVATE_KEYS[1]} &
 sleep $SLEEP_TIME # +5s
 
-orderPayload2='{"path":"create_order","payload":{"crowdfunding_id":1,"interest_rate":"4"}}'
+orderPayload2='{"path":"create_order","payload":{"auction_id":1,"interest_rate":"4"}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 2000 ${INVESTOR_PRIVATE_KEYS[2]} &
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 2000 "$orderPayload2" ${INVESTOR_PRIVATE_KEYS[2]} &
 sleep $SLEEP_TIME # +5s
 
-orderPayload3='{"path":"create_order","payload":{"crowdfunding_id":1,"interest_rate":"6"}}'
+orderPayload3='{"path":"create_order","payload":{"auction_id":1,"interest_rate":"6"}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 3000 ${INVESTOR_PRIVATE_KEYS[3]} &
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 3000 "$orderPayload3" ${INVESTOR_PRIVATE_KEYS[3]} &
 sleep $SLEEP_TIME # +5s
 
-orderPayload4='{"path":"create_order","payload":{"crowdfunding_id":1,"interest_rate":"4"}}'
+orderPayload4='{"path":"create_order","payload":{"auction_id":1,"interest_rate":"4"}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 400 ${INVESTOR_PRIVATE_KEYS[4]} &
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 400 "$orderPayload4" ${INVESTOR_PRIVATE_KEYS[4]} &
@@ -211,14 +211,14 @@ sleep $SLEEP_TIME # +5s
 sleep 40
 wait
 
-# 7. Close crowdfunding (sent by admin)
-echo "Closing crowdfunding..."
-closePayload='{"path":"close_crowdfunding","payload":{"creator":"'"$CREATOR_ADDRESS"'"}}'
+# 7. Close auction (sent by admin)
+echo "Closing auction..."
+closePayload='{"path":"close_auction","payload":{"creator":"'"$CREATOR_ADDRESS"'"}}'
 sendInput "$closePayload" $ADMIN_PRIVATE_KEY
 
-# 9. Settle crowdfunding (sent by creator using stablecoin)
-echo "Settling crowdfunding..."
-settlePayload='{"path":"settle_crowdfunding","payload":{"crowdfunding_id":1}}'
+# 9. Settle auction (sent by creator using stablecoin)
+echo "Settling auction..."
+settlePayload='{"path":"settle_auction","payload":{"auction_id":1}}'
 approveTokens $STABLECOIN_ADDRESS $PORTAL_ADDRESS 108270 $CREATOR_PRIVATE_KEY &
 sleep $SLEEP_TIME
 depositERC20Tokens $STABLECOIN_ADDRESS $DAPP_ADDRESS 108270 "$settlePayload" $CREATOR_PRIVATE_KEY &

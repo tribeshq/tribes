@@ -9,7 +9,7 @@
 //    2.1 Define minimum and maximum target amounts for fundraising (maximum of R$ 15 million).
 //    2.2 Set fundraising duration to no more than 180 days.
 //    2.3 Guarantee a 5-day withdrawal period for investors after confirming their participation.
-//    2.4 A company must wait 120 days after the close of a successful crowdfunding campaign
+//    2.4 A company must wait 120 days after the close of a successful auction campaign
 //        before starting a new campaign.
 
 // 3. Investor Control:
@@ -65,7 +65,7 @@ var (
 	Cmd         = &cobra.Command{
 		Use:   "tribes-" + CMD_NAME,
 		Short: "Runs Tribes Rollup",
-		Long:  `Cartesi Rollup Application for debt issuance through crowdfunding w/ collateralized tokenization of receivables`,
+		Long:  `Cartesi Rollup Application for debt issuance through auction w/ collateralized tokenization of receivables`,
 		Run:   run,
 	}
 )
@@ -81,7 +81,6 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) {
 	repo, err := factory.NewRepositoryFromConnectionString(
-		cmd.Context(),
 		map[bool]string{true: "sqlite://:memory:", false: "sqlite://tribes.db"}[useMemoryDB],
 	)
 	if err != nil {
@@ -105,19 +104,6 @@ func run(cmd *cobra.Command, args []string) {
 
 	rbacFactory := middleware.NewRBACFactory(repo)
 
-	contractGroup := r.Group("contract")
-	{
-		contractGroup.Use(rbacFactory.AdminOnly())
-		contractGroup.HandleAdvance("create", handlers.ContractAdvanceHandlers.CreateContract)
-		contractGroup.HandleAdvance("update", handlers.ContractAdvanceHandlers.UpdateContract)
-		contractGroup.HandleAdvance("delete", handlers.ContractAdvanceHandlers.DeleteContract)
-
-		// Public operations
-		contractGroup.HandleInspect("", handlers.ContractInspectHandlers.FindAllContracts)
-		contractGroup.HandleInspect("symbol", handlers.ContractInspectHandlers.FindContractBySymbol)
-		contractGroup.HandleInspect("address", handlers.ContractInspectHandlers.FindContractByAddress)
-	}
-
 	orderGroup := r.Group("order")
 	{
 		orderGroup.Use(rbacFactory.InvestorOnly())
@@ -128,28 +114,22 @@ func run(cmd *cobra.Command, args []string) {
 		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
 		orderGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
 		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
-		orderGroup.HandleInspect("crowdfunding", handlers.OrderInspectHandlers.FindBisdByCrowdfundingId)
+		orderGroup.HandleInspect("auction", handlers.OrderInspectHandlers.FindBidsByAuctionId)
 	}
 
-	crowdfundingGroup := r.Group("crowdfunding")
-	{
-		adminGroup := crowdfundingGroup.Group("admin")
-
-		adminGroup.Use(rbacFactory.AdminOnly())
-		adminGroup.HandleAdvance("delete", handlers.CrowdfundingAdvanceHandlers.DeleteCrowdfunding)
-		adminGroup.HandleAdvance("update", handlers.CrowdfundingAdvanceHandlers.UpdateCrowdfunding)
-
-		creatorGroup := crowdfundingGroup.Group("creator")
+	auctionGroup := r.Group("auction")
+	{		
+		creatorGroup := auctionGroup.Group("creator")
 		creatorGroup.Use(rbacFactory.CreatorOnly())
-		creatorGroup.HandleAdvance("create", handlers.CrowdfundingAdvanceHandlers.CreateCrowdfunding)
-		creatorGroup.HandleAdvance("settle", handlers.CrowdfundingAdvanceHandlers.SettleCrowdfunding)
+		creatorGroup.HandleAdvance("create", handlers.AuctionAdvanceHandlers.CreateAuction)
+		creatorGroup.HandleAdvance("settle", handlers.AuctionAdvanceHandlers.SettleAuction)
 
 		// Public operations
-		crowdfundingGroup.HandleAdvance("close", handlers.CrowdfundingAdvanceHandlers.CloseCrowdfunding)
-		crowdfundingGroup.HandleInspect("", handlers.CrowdfundingInspectHandlers.FindAllCrowdfundings)
-		crowdfundingGroup.HandleInspect("id", handlers.CrowdfundingInspectHandlers.FindCrowdfundingById)
-		crowdfundingGroup.HandleInspect("creator", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByCreator)
-		crowdfundingGroup.HandleInspect("investor", handlers.CrowdfundingInspectHandlers.FindCrowdfundingsByInvestor)
+		auctionGroup.HandleAdvance("close", handlers.AuctionAdvanceHandlers.CloseAuction)
+		auctionGroup.HandleInspect("", handlers.AuctionInspectHandlers.FindAllAuctions)
+		auctionGroup.HandleInspect("id", handlers.AuctionInspectHandlers.FindAuctionById)
+		auctionGroup.HandleInspect("creator", handlers.AuctionInspectHandlers.FindAuctionsByCreator)
+		auctionGroup.HandleInspect("investor", handlers.AuctionInspectHandlers.FindAuctionsByInvestor)
 	}
 
 	userGroup := r.Group("user")
@@ -163,7 +143,6 @@ func run(cmd *cobra.Command, args []string) {
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
-		userGroup.HandleInspect("balance", handlers.UserInspectHandlers.Balance)
 	}
 
 	socialGroup := r.Group("social")

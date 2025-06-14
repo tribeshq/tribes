@@ -6,7 +6,7 @@ import (
 
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/internal/usecase/user_usecase"
+	"github.com/tribeshq/tribes/internal/usecase/user"
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"github.com/tribeshq/tribes/pkg/rollups/router"
 )
@@ -38,8 +38,8 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 				}
 
 				// Find user and check roles
-				findUserByAddress := user_usecase.NewFindUserByAddressUseCase(f.userRepository)
-				user, err := findUserByAddress.Execute(ctx, &user_usecase.FindUserByAddressInputDTO{
+				findUserByAddress := user.NewFindUserByAddressUseCase(f.userRepository)
+				user, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
 					Address: address,
 				})
 				if err != nil {

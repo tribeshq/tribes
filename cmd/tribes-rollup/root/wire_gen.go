@@ -7,8 +7,8 @@
 package root
 
 import (
-	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/advance_handler"
-	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/inspect_handler"
+	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/advance"
+	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/inspect"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -16,27 +16,23 @@ import (
 
 // NewHandlers creates a new instance of all handlers with their dependencies
 func NewHandlers(repo repository.Repository) (*Handlers, error) {
-	orderAdvanceHandlers := advance_handler.NewOrderAdvanceHandlers(repo, repo, repo, repo)
-	userAdvanceHandlers := advance_handler.NewUserAdvanceHandlers(repo, repo)
-	socialAccountAdvanceHandlers := advance_handler.NewSocialAccountAdvanceHandlers(repo)
-	crowdfundingAdvanceHandlers := advance_handler.NewCrowdfundingAdvanceHandlers(repo, repo, repo, repo, repo)
-	contractAdvanceHandlers := advance_handler.NewContractAdvanceHandlers(repo)
-	orderInspectHandlers := inspect_handler.NewOrderInspectHandlers(repo)
-	userInspectHandlers := inspect_handler.NewUserInspectHandlers(repo, repo)
-	socialAccountInspectHandlers := inspect_handler.NewSocialAccountInspectHandlers(repo)
-	crowdfundingInspectHandlers := inspect_handler.NewCrowdfundingInspectHandlers(repo)
-	contractInspectHandlers := inspect_handler.NewContractInspectHandlers(repo)
+	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo)
+	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
+	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo)
+	auctionAdvanceHandlers := advance.NewAuctionAdvanceHandlers(repo, repo)
+	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo)
+	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
+	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)
+	auctionInspectHandlers := inspect.NewAuctionInspectHandlers(repo)
 	handlers := &Handlers{
-		OrderAdvanceHandlers:        orderAdvanceHandlers,
-		UserAdvanceHandlers:         userAdvanceHandlers,
-		SocialAccountsHandlers:      socialAccountAdvanceHandlers,
-		CrowdfundingAdvanceHandlers: crowdfundingAdvanceHandlers,
-		ContractAdvanceHandlers:     contractAdvanceHandlers,
-		OrderInspectHandlers:        orderInspectHandlers,
-		UserInspectHandlers:         userInspectHandlers,
-		SocialAccountHandlers:       socialAccountInspectHandlers,
-		CrowdfundingInspectHandlers: crowdfundingInspectHandlers,
-		ContractInspectHandlers:     contractInspectHandlers,
+		OrderAdvanceHandlers:   orderAdvanceHandlers,
+		UserAdvanceHandlers:    userAdvanceHandlers,
+		SocialAccountsHandlers: socialAccountAdvanceHandlers,
+		AuctionAdvanceHandlers: auctionAdvanceHandlers,
+		OrderInspectHandlers:   orderInspectHandlers,
+		UserInspectHandlers:    userInspectHandlers,
+		SocialAccountHandlers:  socialAccountInspectHandlers,
+		AuctionInspectHandlers: auctionInspectHandlers,
 	}
 	return handlers, nil
 }
@@ -46,16 +42,14 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 // Handlers contains all handler dependencies
 type Handlers struct {
 	// Advance handlers
-	OrderAdvanceHandlers        *advance_handler.OrderAdvanceHandlers
-	UserAdvanceHandlers         *advance_handler.UserAdvanceHandlers
-	SocialAccountsHandlers      *advance_handler.SocialAccountAdvanceHandlers
-	CrowdfundingAdvanceHandlers *advance_handler.CrowdfundingAdvanceHandlers
-	ContractAdvanceHandlers     *advance_handler.ContractAdvanceHandlers
+	OrderAdvanceHandlers   *advance.OrderAdvanceHandlers
+	UserAdvanceHandlers    *advance.UserAdvanceHandlers
+	SocialAccountsHandlers *advance.SocialAccountAdvanceHandlers
+	AuctionAdvanceHandlers *advance.AuctionAdvanceHandlers
 
 	// Inspect handlers
-	OrderInspectHandlers        *inspect_handler.OrderInspectHandlers
-	UserInspectHandlers         *inspect_handler.UserInspectHandlers
-	SocialAccountHandlers       *inspect_handler.SocialAccountInspectHandlers
-	CrowdfundingInspectHandlers *inspect_handler.CrowdfundingInspectHandlers
-	ContractInspectHandlers     *inspect_handler.ContractInspectHandlers
+	OrderInspectHandlers   *inspect.OrderInspectHandlers
+	UserInspectHandlers    *inspect.UserInspectHandlers
+	SocialAccountHandlers  *inspect.SocialAccountInspectHandlers
+	AuctionInspectHandlers *inspect.AuctionInspectHandlers
 }

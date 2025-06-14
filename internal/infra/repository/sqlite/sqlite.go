@@ -1,19 +1,17 @@
 package sqlite
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/holiman/uint256"
-	"github.com/tribeshq/tribes/internal/domain/entity"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/tribeshq/tribes/internal/domain/entity"
 )
 
 type SQLiteRepository struct {
@@ -28,53 +26,35 @@ func (r *SQLiteRepository) Close() error {
 	return sqlDB.Close()
 }
 
-func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, error) {
-	// Remove sqlite:// prefix if present
+func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 	dbPath := strings.TrimPrefix(conn, "sqlite://")
 
-	// Configure GORM logger
-	gormLogger := logger.New(
+	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
-			SlowThreshold:             0,
-			LogLevel:                  logger.Silent,
+			SlowThreshold:             time.Second,
+			LogLevel:                  logger.Info,
 			IgnoreRecordNotFoundError: true,
-			Colorful:                  false,
+			Colorful:                  true,
 		},
 	)
 
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
-		Logger: gormLogger,
+		Logger: newLogger,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Auto-migrate schema
 	err = db.AutoMigrate(
-		&entity.User{},
+		&entity.Auction{},
 		&entity.Order{},
-		&entity.Contract{},
-		&entity.Crowdfunding{},
+		&entity.User{},
 		&entity.SocialAccount{},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to migrate schema: %w", err)
+		return nil, err
 	}
 
-	adminUser := entity.User{
-		Role:              entity.UserRoleAdmin,
-		Address:           HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"),
-		InvestmentLimit:   uint256.NewInt(0),
-		DebtIssuanceLimit: uint256.NewInt(0),
-		CreatedAt:         time.Now().Unix(),
-	}
-
-	if err := db.Create(&adminUser).Error; err != nil {
-		return nil, fmt.Errorf("failed to create admin user: %w", err)
-	}
-
-	return &SQLiteRepository{
-		Db: db,
-	}, nil
+	return &SQLiteRepository{Db: db}, nil
 }

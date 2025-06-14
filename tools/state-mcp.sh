@@ -161,21 +161,21 @@ sleep $SLEEP_TIME
 sendInput '{"path":"user/create","data":{"address":"'${INVESTOR_ADDRESSES[4]}'","role":"non_qualified_investor"}}'
 sleep $SLEEP_TIME
 
-# Create crowdfunding
-echo "Creating crowdfunding..."
+# Create auction
+echo "Creating auction..."
 current_timestamp=$(date +%s)
 closes_at=$((current_timestamp + 300))
 maturity_at=$((current_timestamp + 320))
-crowdfundingPayload='{"path":"crowdfunding/creator/create","data":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":240,"closes_at":'$closes_at',"maturity_at":'$maturity_at'}}'
+auctionPayload='{"path":"auction/creator/create","data":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":240,"closes_at":'$closes_at',"maturity_at":'$maturity_at'}}'
 approveTokens $TOKENIZED_RECEIVABLE_ADDRESS $PORTAL_ADDRESS 10000 $CREATOR_PRIVATE_KEY
 sleep $SLEEP_TIME # +5s
-depositERC20Tokens $TOKENIZED_RECEIVABLE_ADDRESS $DAPP_ADDRESS 10000 "$crowdfundingPayload" $CREATOR_PRIVATE_KEY
+depositERC20Tokens $TOKENIZED_RECEIVABLE_ADDRESS $DAPP_ADDRESS 10000 "$auctionPayload" $CREATOR_PRIVATE_KEY
 
 sleep 30
 
-# 4. Update crowdfunding to ongoing (sent by admin)
-echo "Updating crowdfunding state to 'ongoing'..."
-updatePayload='{"path":"crowdfunding/admin/update","data":{"id":1,"state":"ongoing"}}'
+# 4. Update auction to ongoing (sent by admin)
+echo "Updating auction state to 'ongoing'..."
+updatePayload='{"path":"auction/admin/update","data":{"id":1,"state":"ongoing"}}'
 sendInput "$updatePayload" $ADMIN_PRIVATE_KEY
 
 echo "\nSTABLECOIN_ADDRESS=$STABLECOIN_ADDRESS"

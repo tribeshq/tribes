@@ -27,18 +27,18 @@ func (r *SQLiteRepository) FindOrderById(ctx context.Context, id uint) (*entity.
 	return &order, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByCrowdfundingId(ctx context.Context, id uint) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByAuctionId(ctx context.Context, id uint) ([]*entity.Order, error) {
 	var orders []*entity.Order
-	if err := r.Db.WithContext(ctx).Where("crowdfunding_id = ?", id).Find(&orders).Error; err != nil {
-		return nil, fmt.Errorf("failed to find orders by crowdfunding ID: %w", err)
+	if err := r.Db.WithContext(ctx).Where("auction_id = ?", id).Find(&orders).Error; err != nil {
+		return nil, fmt.Errorf("failed to find orders by auction ID: %w", err)
 	}
 	return orders, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByState(ctx context.Context, crowdfundingId uint, state string) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByState(ctx context.Context, auctionId uint, state string) ([]*entity.Order, error) {
 	var orders []*entity.Order
 	if err := r.Db.WithContext(ctx).
-		Where("crowdfunding_id = ? AND state = ?", crowdfundingId, state).
+		Where("auction_id = ? AND state = ?", auctionId, state).
 		Find(&orders).Error; err != nil {
 		return nil, fmt.Errorf("failed to find orders by state: %w", err)
 	}

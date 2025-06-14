@@ -1,0 +1,62 @@
+package inspect
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/rollmelette/rollmelette"
+	"github.com/tribeshq/tribes/internal/infra/repository"
+	"github.com/tribeshq/tribes/internal/usecase/user"
+)
+
+type UserInspectHandlers struct {
+	UserRepository repository.UserRepository
+}
+
+func NewUserInspectHandlers(userRepository repository.UserRepository) *UserInspectHandlers {
+	return &UserInspectHandlers{
+		UserRepository: userRepository,
+	}
+}
+
+func (h *UserInspectHandlers) FindUserByAddress(env rollmelette.EnvInspector, payload []byte) error {
+	var input user.FindUserByAddressInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	validator := validator.New()
+	if err := validator.Struct(input); err != nil {
+		return fmt.Errorf("failed to validate input: %w", err)
+	}
+
+	ctx := context.Background()
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
+	res, err := findUserByAddress.Execute(ctx, &input)
+	if err != nil {
+		return fmt.Errorf("failed to find User: %w", err)
+	}
+	User, err := json.Marshal(res)
+	if err != nil {
+		return fmt.Errorf("failed to marshal User: %w", err)
+	}
+	env.Report(User)
+	return nil
+}
+
+func (h *UserInspectHandlers) FindAllUsers(env rollmelette.EnvInspector, payload []byte) error {
+	ctx := context.Background()
+	findAllUsers := user.NewFindAllUsersUseCase(h.UserRepository)
+	res, err := findAllUsers.Execute(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to find all Users: %w", err)
+	}
+	allUsers, err := json.Marshal(res)
+	if err != nil {
+		return fmt.Errorf("failed to marshal all Users: %w", err)
+	}
+	env.Report(allUsers)
+	return nil
+}

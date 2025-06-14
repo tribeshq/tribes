@@ -49,7 +49,7 @@ package main
 // 	s.tester = rollmelette.NewTester(app)
 // }
 
-// func (s *DAppSuite) TestItCreatedCrowdfundingAndSettle() {
+// func (s *DAppSuite) TestItCreatedAuctionAndSettle() {
 // 	// Set up addresses
 // 	admin := common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 // 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
@@ -99,55 +99,55 @@ package main
 // 	closesAt := baseTime + 5
 // 	maturityAt := baseTime + 10
 
-// 	// Create crowdfunding
-// 	createCrowdfundingInput := []byte(fmt.Sprintf(`{"path":"create_crowdfunding","data":{"max_interest_rate":"10", "debt_issued":"100000", "fundraising_duration":10, "closes_at":%d,"maturity_at":%d}}`, closesAt, maturityAt))
-// 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000009"), creator, big.NewInt(10000), createCrowdfundingInput)
+// 	// Create auction
+// 	createAuctionInput := []byte(fmt.Sprintf(`{"path":"create_auction","data":{"max_interest_rate":"10", "debt_issued":"100000", "fundraising_duration":10, "closes_at":%d,"maturity_at":%d}}`, closesAt, maturityAt))
+// 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000009"), creator, big.NewInt(10000), createAuctionInput)
 // 	s.Len(result.Notices, 1)
 
-// 	// Update crowdfunding state to ongoing
-// 	updateCrowdfundingInput := []byte(`{"path":"update_crowdfunding","data":{"id":1,"state":"ongoing"}}`)
-// 	result = s.tester.Advance(admin, updateCrowdfundingInput)
+// 	// Update auction state to ongoing
+// 	updateAuctionInput := []byte(`{"path":"update_auction","data":{"id":1,"state":"ongoing"}}`)
+// 	result = s.tester.Advance(admin, updateAuctionInput)
 // 	s.Len(result.Notices, 1)
 
 // 	orderCreatedAt := baseTime
 
 // 	// Investors create orders
-// 	createOrderInput := []byte(`{"path": "create_order", "data": {"crowdfunding_id":1,"interest_rate":"9"}}`)
+// 	createOrderInput := []byte(`{"path": "create_order", "data": {"auction_id":1,"interest_rate":"9"}}`)
 // 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor01, big.NewInt(60000), createOrderInput)
 // 	s.Len(result.Notices, 1)
 
-// 	createOrderInput = []byte(`{"path": "create_order", "data": {"crowdfunding_id":1,"interest_rate":"8"}}`)
+// 	createOrderInput = []byte(`{"path": "create_order", "data": {"auction_id":1,"interest_rate":"8"}}`)
 // 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor02, big.NewInt(52000), createOrderInput)
 // 	s.Len(result.Notices, 1)
 
-// 	createOrderInput = []byte(`{"path": "create_order", "data": {"crowdfunding_id":1,"interest_rate":"4"}}`)
+// 	createOrderInput = []byte(`{"path": "create_order", "data": {"auction_id":1,"interest_rate":"4"}}`)
 // 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor03, big.NewInt(2000), createOrderInput)
 // 	s.Len(result.Notices, 1)
 
-// 	createOrderInput = []byte(`{"path": "create_order", "data": {"crowdfunding_id":1,"interest_rate":"6"}}`)
+// 	createOrderInput = []byte(`{"path": "create_order", "data": {"auction_id":1,"interest_rate":"6"}}`)
 // 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor04, big.NewInt(3000), createOrderInput)
 // 	s.Len(result.Notices, 1)
 
-// 	createOrderInput = []byte(`{"path": "create_order", "data": {"crowdfunding_id":1,"interest_rate":"4"}}`)
+// 	createOrderInput = []byte(`{"path": "create_order", "data": {"auction_id":1,"interest_rate":"4"}}`)
 // 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), investor05, big.NewInt(400), createOrderInput)
 // 	s.Len(result.Notices, 1)
 
 // 	time.Sleep(5 * time.Second)
 
-// 	closeCrowdfundingInput := []byte(fmt.Sprintf(`{"path": "close_crowdfunding", "data": {"creator": "%s"}}`, creator))
-// 	result = s.tester.Advance(admin, closeCrowdfundingInput)
+// 	closeAuctionInput := []byte(fmt.Sprintf(`{"path": "close_auction", "data": {"creator": "%s"}}`, creator))
+// 	result = s.tester.Advance(admin, closeAuctionInput)
 // 	s.Len(result.Notices, 1)
 
 // 	updatedAt := baseTime + 5 // baseTime + sleep duration
 
-// 	// Expected output for closing crowdfunding
-// 	expectedOutput := fmt.Sprintf(`crowdfunding closed - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
-// 		`{"id":1,"crowdfunding_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-// 		`{"id":2,"crowdfunding_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-// 		`{"id":3,"crowdfunding_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-// 		`{"id":4,"crowdfunding_id":1,"investor":"%s","amount":"3000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-// 		`{"id":5,"crowdfunding_id":1,"investor":"%s","amount":"400","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-// 		`{"id":6,"crowdfunding_id":1,"investor":"%s","amount":"17400","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+// 	// Expected output for closing auction
+// 	expectedOutput := fmt.Sprintf(`auction closed - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
+// 		`{"id":1,"auction_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+// 		`{"id":2,"auction_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+// 		`{"id":3,"auction_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+// 		`{"id":4,"auction_id":1,"investor":"%s","amount":"3000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+// 		`{"id":5,"auction_id":1,"investor":"%s","amount":"400","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+// 		`{"id":6,"auction_id":1,"investor":"%s","amount":"17400","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 // 		`"state":"closed","fundraising_duration":10,"closes_at":%d,"maturity_at":%d,"created_at":%d,"updated_at":%d}`,
 // 		creator.Hex(),
 // 		investor01.Hex(), orderCreatedAt, updatedAt, // Order 1
@@ -160,21 +160,21 @@ package main
 // 	)
 // 	s.Equal(expectedOutput, string(result.Notices[0].Payload))
 
-// 	// Settle crowdfunding before maturity date
-// 	settleCrowdfundingInput := []byte(`{"path":"settle_crowdfunding", "data":{"crowdfunding_id":1}}`)
-// 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), creator, big.NewInt(108270), settleCrowdfundingInput)
+// 	// Settle auction before maturity date
+// 	settleAuctionInput := []byte(`{"path":"settle_auction", "data":{"auction_id":1}}`)
+// 	result = s.tester.DepositERC20(common.HexToAddress("0x0000000000000000000000000000000000000008"), creator, big.NewInt(108270), settleAuctionInput)
 // 	s.Len(result.Notices, 1)
 
 // 	settledAt := updatedAt // baseTime
 
-// 	// Expected output for settling crowdfunding
-// 	expectedOutput = fmt.Sprintf(`crowdfunding settled - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
-// 		`{"id":1,"crowdfunding_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
-// 		`{"id":2,"crowdfunding_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
-// 		`{"id":3,"crowdfunding_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-// 		`{"id":4,"crowdfunding_id":1,"investor":"%s","amount":"3000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
-// 		`{"id":5,"crowdfunding_id":1,"investor":"%s","amount":"400","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-// 		`{"id":6,"crowdfunding_id":1,"investor":"%s","amount":"17400","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+// 	// Expected output for settling auction
+// 	expectedOutput = fmt.Sprintf(`auction settled - {"id":1,"token":"0x0000000000000000000000000000000000000009","collateral":"10000","creator":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108270","orders":[`+
+// 		`{"id":1,"auction_id":1,"investor":"%s","amount":"42600","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
+// 		`{"id":2,"auction_id":1,"investor":"%s","amount":"52000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
+// 		`{"id":3,"auction_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+// 		`{"id":4,"auction_id":1,"investor":"%s","amount":"3000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
+// 		`{"id":5,"auction_id":1,"investor":"%s","amount":"400","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+// 		`{"id":6,"auction_id":1,"investor":"%s","amount":"17400","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 // 		`"state":"settled","fundraising_duration":10,"closes_at":%d,"maturity_at":%d,"created_at":%d,"updated_at":%d}`,
 // 		creator.Hex(),
 // 		investor01.Hex(), orderCreatedAt, settledAt,

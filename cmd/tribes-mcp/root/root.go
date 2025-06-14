@@ -104,16 +104,16 @@ func run(cmd *cobra.Command, args []string) {
 	// MCP Tools
 	//--------------------------------
 
-	listAllCrowdfundings := mcp.NewTool("list_all_crowdfundings",
-		mcp.WithDescription("List all crowdfundings in the system by creators"),
+	listAllAuctions := mcp.NewTool("list_all_auctions",
+		mcp.WithDescription("List all auctions in the system by creators"),
 	)
 
 	listAllOrders := mcp.NewTool("list_all_orders",
 		mcp.WithDescription("List all orders in the system"),
 	)
 
-	listCrowdfundingByCreator := mcp.NewTool("list_crowdfunding_by_creator",
-		mcp.WithDescription("List all crowdfundings created by a specific creator"),
+	listAuctionByCreator := mcp.NewTool("list_auction_by_creator",
+		mcp.WithDescription("List all auctions created by a specific creator"),
 		mcp.WithString("creator",
 			mcp.Required(),
 			mcp.Description("Address of the creator"),
@@ -121,10 +121,10 @@ func run(cmd *cobra.Command, args []string) {
 	)
 
 	createOrder := mcp.NewTool("create_order",
-		mcp.WithDescription("Create a new order for a crowdfunding"),
-		mcp.WithString("crowdfunding_id",
+		mcp.WithDescription("Create a new order for a auction"),
+		mcp.WithString("auction_id",
 			mcp.Required(),
-			mcp.Description("ID of the crowdfunding"),
+			mcp.Description("ID of the auction"),
 		),
 		mcp.WithString("amount",
 			mcp.Required(),
@@ -182,9 +182,9 @@ func run(cmd *cobra.Command, args []string) {
 	// Setup MCP server
 	//--------------------------------
 
-	s.AddTool(listAllCrowdfundings, inspectStateTool.ListAllCrowdfundings)
+	s.AddTool(listAllAuctions, inspectStateTool.ListAllAuctions)
 	s.AddTool(listAllOrders, inspectStateTool.ListAllOrders)
-	s.AddTool(listCrowdfundingByCreator, inspectStateTool.ListCrowdfundingByCreator)
+	s.AddTool(listAuctionByCreator, inspectStateTool.ListAuctionByCreator)
 	s.AddTool(createOrder, advanceStateTool.CreateOrder)
 
 	if err := server.ServeStdio(s); err != nil {

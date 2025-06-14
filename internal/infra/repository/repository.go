@@ -7,30 +7,20 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type ContractRepository interface {
-	CreateContract(ctx context.Context, contract *entity.Contract) (*entity.Contract, error)
-	FindAllContracts(ctx context.Context) ([]*entity.Contract, error)
-	FindContractBySymbol(ctx context.Context, symbol string) (*entity.Contract, error)
-	FindContractByAddress(ctx context.Context, address Address) (*entity.Contract, error)
-	UpdateContract(ctx context.Context, contract *entity.Contract) (*entity.Contract, error)
-	DeleteContract(ctx context.Context, symbol string) error
-}
-
-type CrowdfundingRepository interface {
-	CreateCrowdfunding(ctx context.Context, crowdfunding *entity.Crowdfunding) (*entity.Crowdfunding, error)
-	FindCrowdfundingsByCreator(ctx context.Context, creator Address) ([]*entity.Crowdfunding, error)
-	FindCrowdfundingsByInvestor(ctx context.Context, investor Address) ([]*entity.Crowdfunding, error)
-	FindCrowdfundingById(ctx context.Context, id uint) (*entity.Crowdfunding, error)
-	FindAllCrowdfundings(ctx context.Context) ([]*entity.Crowdfunding, error)
-	UpdateCrowdfunding(ctx context.Context, crowdfunding *entity.Crowdfunding) (*entity.Crowdfunding, error)
-	DeleteCrowdfunding(ctx context.Context, id uint) error
+type AuctionRepository interface {
+	CreateAuction(ctx context.Context, Auction *entity.Auction) (*entity.Auction, error)
+	FindAuctionsByCreator(ctx context.Context, creator Address) ([]*entity.Auction, error)
+	FindAuctionsByInvestor(ctx context.Context, investor Address) ([]*entity.Auction, error)
+	FindAuctionById(ctx context.Context, id uint) (*entity.Auction, error)
+	FindAllAuctions(ctx context.Context) ([]*entity.Auction, error)
+	UpdateAuction(ctx context.Context, Auction *entity.Auction) (*entity.Auction, error)
 }
 
 type OrderRepository interface {
 	CreateOrder(ctx context.Context, order *entity.Order) (*entity.Order, error)
 	FindOrderById(ctx context.Context, id uint) (*entity.Order, error)
-	FindOrdersByCrowdfundingId(ctx context.Context, id uint) ([]*entity.Order, error)
-	FindOrdersByState(ctx context.Context, crowdfundingId uint, state string) ([]*entity.Order, error)
+	FindOrdersByAuctionId(ctx context.Context, id uint) ([]*entity.Order, error)
+	FindOrdersByState(ctx context.Context, AuctionId uint, state string) ([]*entity.Order, error)
 	FindOrdersByInvestor(ctx context.Context, investor Address) ([]*entity.Order, error)
 	FindAllOrders(ctx context.Context) ([]*entity.Order, error)
 	UpdateOrder(ctx context.Context, order *entity.Order) (*entity.Order, error)
@@ -54,8 +44,7 @@ type UserRepository interface {
 }
 
 type Repository interface {
-	ContractRepository
-	CrowdfundingRepository
+	AuctionRepository
 	OrderRepository
 	SocialAccountRepository
 	UserRepository
