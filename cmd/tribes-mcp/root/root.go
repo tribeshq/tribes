@@ -24,7 +24,7 @@ var (
 	authKind               string
 	appAddress             string
 	privateKey             string
-	tokenAddress           string
+	stablecoinAddress      string
 	mnemonicPhrase         string
 	mnemonicIndex          int
 	jsonrpcEndpoint        string
@@ -42,13 +42,33 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.Flags().StringVar(&tokenAddress, "token-address", "", "Token contract address")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_TOKEN_ADDRESS, Cmd.Flags().Lookup("token-address")))
-	cobra.CheckErr(Cmd.MarkFlagRequired("token-address"))
+	Cmd.Flags().StringVar(&stablecoinAddress, "stablecoin-address", "", "Stablecoin contract address")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_STABLECOIN_ADDRESS, Cmd.Flags().Lookup("stablecoin-address")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("stablecoin-address"))
 
 	Cmd.Flags().StringVar(&appAddress, "app-address", "", "Application contract address")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_APPLICATION_ADDRESS, Cmd.Flags().Lookup("app-address")))
 	cobra.CheckErr(Cmd.MarkFlagRequired("app-address"))
+
+	Cmd.Flags().StringVar(&inspectEndpoint, "inspect-endpoint", "http://127.0.0.1:8080/inspect", "Inspect endpoint")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_INSPECT_ENDPOINT, Cmd.Flags().Lookup("inspect-endpoint")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("inspect-endpoint"))
+
+	Cmd.Flags().IntVar(&blockchainId, "blockchain-id", 0, "Blockchain ID")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_ID, Cmd.Flags().Lookup("blockchain-id")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("blockchain-id"))
+
+	Cmd.Flags().StringVar(&blockchainHttpEndpoint, "blockchain-http-endpoint", "", "Blockchain HTTP endpoint")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_HTTP_ENDPOINT, Cmd.Flags().Lookup("blockchain-http-endpoint")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("blockchain-http-endpoint"))
+
+	Cmd.Flags().StringVar(&jsonrpcEndpoint, "jsonrpc-endpoint", "", "Jsonrpc endpoint")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_JSONRPC_ENDPOINT, Cmd.Flags().Lookup("jsonrpc-endpoint")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("jsonrpc-endpoint"))
+
+	Cmd.Flags().StringVar(&mnemonicPhrase, "mnemonic-phrase", "", "Mnemonic phrase")
+	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC, Cmd.Flags().Lookup("mnemonic-phrase")))
+	cobra.CheckErr(Cmd.MarkFlagRequired("mnemonic-phrase"))
 
 	Cmd.Flags().StringVar(&authKind, "auth-kind", "", "Authentication kind")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_KIND, Cmd.Flags().Lookup("auth-kind")))
@@ -56,26 +76,11 @@ func init() {
 	Cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_PRIVATE_KEY, Cmd.Flags().Lookup("private-key")))
 
-	Cmd.Flags().StringVar(&mnemonicPhrase, "mnemonic-phrase", "", "Mnemonic phrase")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC, Cmd.Flags().Lookup("mnemonic-phrase")))
-
 	Cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Mnemonic index")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX, Cmd.Flags().Lookup("mnemonic-index")))
 
-	Cmd.Flags().StringVar(&inspectEndpoint, "inspect-endpoint", "http://127.0.0.1:8080/inspect", "Inspect endpoint")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_INSPECT_ENDPOINT, Cmd.Flags().Lookup("inspect-endpoint")))
-
 	Cmd.Flags().StringVar(&erc20portalAddress, "erc20-portal-address", "0x05355c2F9bA566c06199DEb17212c3B78C1A3C31", "ERC20 Portal contract address")
 	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS, Cmd.Flags().Lookup("erc20-portal-address")))
-
-	Cmd.Flags().IntVar(&blockchainId, "blockchain-id", 13370, "Blockchain ID")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_ID, Cmd.Flags().Lookup("blockchain-id")))
-
-	Cmd.Flags().StringVar(&blockchainHttpEndpoint, "blockchain-http-endpoint", "http://127.0.0.1:8080/anvil", "Blockchain HTTP endpoint")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_BLOCKCHAIN_HTTP_ENDPOINT, Cmd.Flags().Lookup("blockchain-http-endpoint")))
-
-	Cmd.Flags().StringVar(&jsonrpcEndpoint, "jsonrpc-endpoint", "http://127.0.0.1:8080/rpc", "Jsonrpc endpoint")
-	cobra.CheckErr(viper.BindPFlag(configs.TRIBES_JSONRPC_ENDPOINT, Cmd.Flags().Lookup("jsonrpc-endpoint")))
 
 	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		var err error
@@ -169,7 +174,7 @@ func run(cmd *cobra.Command, args []string) {
 		client,
 		txOpts,
 		common.HexToAddress(appAddress),
-		common.HexToAddress(tokenAddress),
+		common.HexToAddress(stablecoinAddress),
 		common.HexToAddress(erc20portalAddress),
 	)
 

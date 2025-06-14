@@ -3,11 +3,6 @@
 START_LOG = @echo "================================================= START OF LOG ==================================================="
 END_LOG = @echo "================================================== END OF LOG ===================================================="
 
-.PHONY: dev
-dev:
-	$(START_LOG)
-	@nonodo -- air
-
 .PHONY: verifier
 verifier:
 	$(START_LOG)
@@ -40,3 +35,8 @@ state:
 state-dev:
 	@chmod +x ./tools/state-dev.sh
 	@./tools/state-dev.sh
+
+.PHONY: state-mcp
+state-mcp:
+	@chmod +x ./tools/state-mcp.sh
+	@./tools/state-mcp.sh $(DAPP_ADDRESS)

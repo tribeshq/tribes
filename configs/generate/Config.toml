@@ -73,7 +73,7 @@ Address of the Tribes application contract. Required for application interaction
 omit = true
 used-by = ["mcp"]
 
-[contracts.TRIBES_CONTRACTS_TOKEN_ADDRESS]
+[contracts.TRIBES_CONTRACTS_STABLECOIN_ADDRESS]
 go-type = "Address"
 description = """
 Address of the token contract. Required for token operations."""
@@ -109,7 +109,6 @@ omit = true
 used-by = ["mcp"]
 
 [auth.TRIBES_AUTH_MNEMONIC]
-default = "test test test test test test test test test test test junk"
 go-type = "RedactedString"
 description = """
 The node will use the private key generated from this mnemonic to sign transactions."""

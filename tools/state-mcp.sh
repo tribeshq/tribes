@@ -13,9 +13,15 @@ stringToHex() {
     echo -n "$1" | xxd -p | tr -d '\n' | sed 's/^/0x/'
 }
 
+# ========== Argument Parsing ==========
+if [ -z "$1" ]; then
+  echo "Usage: $0 <DAPP_ADDRESS>"
+  exit 1
+fi
+DAPP_ADDRESS="$1"
+
 # Ethereum addresses
 INPUT_BOX="0xB6b39Fb3dD926A9e3FBc7A129540eEbeA3016a6c"
-DAPP_ADDRESS="0xd663d0AA37631B1d7a9791cE5500215e96cd4c9C"
 PORTAL_ADDRESS="0x05355c2F9bA566c06199DEb17212c3B78C1A3C31"
 ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 ADMIN_PRIVATE_KEY="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
@@ -86,7 +92,6 @@ approveTokens() {
         "approve(address,uint256)" \
         $spender $amount \
         --private-key $privateKey \
-     \
         --rpc-url http://localhost:8080/anvil $GAS_FLAG
 }
 
@@ -102,7 +107,6 @@ depositERC20Tokens() {
         "depositERC20Tokens(address,address,uint256,bytes)" \
         $token $dapp $amount "$(stringToHex $execLayerData)" \
         --private-key $privateKey \
-     \
         --rpc-url http://localhost:8080/anvil $GAS_FLAG
 }
 
@@ -110,12 +114,8 @@ echo "Deploying contracts..."
 STABLECOIN_ADDRESS=$(deployToken "Stablecoin" "STABLECOIN")
 sleep $SLEEP_TIME
 
-echo "==================== STABLECOIN_ADDRESS: $STABLECOIN_ADDRESS ===================="
-
 TOKENIZED_RECEIVABLE_ADDRESS=$(deployToken "Pink" "PINK")
 sleep $SLEEP_TIME
-
-echo "==================== TOKENIZED_RECEIVABLE_ADDRESS: $TOKENIZED_RECEIVABLE_ADDRESS ===================="
 
 echo "Deployed contracts:"
 echo "STABLECOIN_ADDRESS=$STABLECOIN_ADDRESS"
@@ -164,15 +164,19 @@ sleep $SLEEP_TIME
 # Create crowdfunding
 echo "Creating crowdfunding..."
 current_timestamp=$(date +%s)
-closes_at=$((current_timestamp + 80))
-maturity_at=$((current_timestamp + 150))
-crowdfundingPayload='{"path":"crowdfunding/creator/create","data":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":50,"closes_at":'"$closes_at"',"maturity_at":'"$maturity_at"'}}'
+closes_at=$((current_timestamp + 300))
+maturity_at=$((current_timestamp + 320))
+crowdfundingPayload='{"path":"crowdfunding/creator/create","data":{"max_interest_rate":"10","debt_issued":"100000","fundraising_duration":240,"closes_at":'$closes_at',"maturity_at":'$maturity_at'}}'
 approveTokens $TOKENIZED_RECEIVABLE_ADDRESS $PORTAL_ADDRESS 10000 $CREATOR_PRIVATE_KEY
 sleep $SLEEP_TIME # +5s
 depositERC20Tokens $TOKENIZED_RECEIVABLE_ADDRESS $DAPP_ADDRESS 10000 "$crowdfundingPayload" $CREATOR_PRIVATE_KEY
-sleep $SLEEP_TIME # +5s
+
+sleep 30
 
 # 4. Update crowdfunding to ongoing (sent by admin)
 echo "Updating crowdfunding state to 'ongoing'..."
 updatePayload='{"path":"crowdfunding/admin/update","data":{"id":1,"state":"ongoing"}}'
 sendInput "$updatePayload" $ADMIN_PRIVATE_KEY
+
+echo "\nSTABLECOIN_ADDRESS=$STABLECOIN_ADDRESS"
+echo "State loaded successfully!"

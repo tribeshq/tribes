@@ -29,7 +29,7 @@ const (
 	TRIBES_CONTRACTS_APPLICATION_ADDRESS  = "TRIBES_CONTRACTS_APPLICATION_ADDRESS"
 	TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS = "TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS"
 	TRIBES_CONTRACTS_INPUT_BOX_ADDRESS    = "TRIBES_CONTRACTS_INPUT_BOX_ADDRESS"
-	TRIBES_CONTRACTS_TOKEN_ADDRESS        = "TRIBES_CONTRACTS_TOKEN_ADDRESS"
+	TRIBES_CONTRACTS_STABLECOIN_ADDRESS   = "TRIBES_CONTRACTS_STABLECOIN_ADDRESS"
 	TRIBES_LOG_COLOR                      = "TRIBES_LOG_COLOR"
 	TRIBES_LOG_LEVEL                      = "TRIBES_LOG_LEVEL"
 	TRIBES_INSPECT_ENDPOINT               = "TRIBES_INSPECT_ENDPOINT"
@@ -41,7 +41,7 @@ func SetDefaults() {
 
 	viper.SetDefault(TRIBES_AUTH_KIND, "mnemonic")
 
-	viper.SetDefault(TRIBES_AUTH_MNEMONIC, "test test test test test test test test test test test junk")
+	// no default for TRIBES_AUTH_MNEMONIC
 
 	viper.SetDefault(TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX, "0")
 
@@ -61,7 +61,7 @@ func SetDefaults() {
 
 	// no default for TRIBES_CONTRACTS_INPUT_BOX_ADDRESS
 
-	// no default for TRIBES_CONTRACTS_TOKEN_ADDRESS
+	// no default for TRIBES_CONTRACTS_STABLECOIN_ADDRESS
 
 	viper.SetDefault(TRIBES_LOG_COLOR, "true")
 
@@ -299,17 +299,17 @@ func GetTribesContractsInputBoxAddress() (Address, error) {
 	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_CONTRACTS_INPUT_BOX_ADDRESS, ErrNotDefined)
 }
 
-// GetTribesContractsTokenAddress returns the value for the environment variable TRIBES_CONTRACTS_TOKEN_ADDRESS.
-func GetTribesContractsTokenAddress() (Address, error) {
-	s := viper.GetString(TRIBES_CONTRACTS_TOKEN_ADDRESS)
+// GetTribesContractsStablecoinAddress returns the value for the environment variable TRIBES_CONTRACTS_STABLECOIN_ADDRESS.
+func GetTribesContractsStablecoinAddress() (Address, error) {
+	s := viper.GetString(TRIBES_CONTRACTS_STABLECOIN_ADDRESS)
 	if s != "" {
 		v, err := toAddress(s)
 		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_CONTRACTS_TOKEN_ADDRESS, err)
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_CONTRACTS_STABLECOIN_ADDRESS, err)
 		}
 		return v, nil
 	}
-	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_CONTRACTS_TOKEN_ADDRESS, ErrNotDefined)
+	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_CONTRACTS_STABLECOIN_ADDRESS, ErrNotDefined)
 }
 
 // GetTribesLogColor returns the value for the environment variable TRIBES_LOG_COLOR.
