@@ -4,10 +4,10 @@
 </p>
 <br>
 <div align="center">
-    <i>An EVM Linux-powered rollup as a launchpad for crowdfundings</i>
+    <i>A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy</i>
 </div>
 <div align="center">
-<b>Debt issuance through crowdfunding with collateralized tokenization of receivables</b>
+<b>Tokenized debt issuance through reverse auction mechanism with RWA collateralization</b>
 </div>
 <br>
 <p align="center">
@@ -26,7 +26,7 @@
 
 ##  Overview
 
-A crowdfunding platform designed for prominent content creators, enabling them to monetize their influence by issuing tokenized debt instruments collateralized exclusively by their tokenized future receivables. Based on Resolution No. 88 of the Brazilian Securities and Exchange Commission (CVM), the Brazilian SEC, the platform connects creators with a network of investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
+A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized by Real World Assets (RWA). Through a reverse auction mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
 <br>
 
 [![Docs]][Link-docs] [![Deck]][Link-deck]
@@ -42,7 +42,7 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 ###  Prerequisites
 1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/).
 
-    To install Docker RISC-V support without using Docker Desktop, run the following command:
+   To install Docker RISC-V support without using Docker Desktop, run the following command:
     
    ```shell
    docker run --privileged --rm tonistiigi/binfmt --install all
@@ -50,81 +50,34 @@ A crowdfunding platform designed for prominent content creators, enabling them t
 
 2. [Download and install the latest version of Node.js](https://nodejs.org/en/download).
 
-3. Cartesi CLI is an easy-to-use tool to build and deploy your dApps. To install it, run:
+3. Cartesi CLI is an easy-to-use tool to build and deploy your dApps on devnet. To install it, run:
 
    ```shell
    npm i -g @cartesi/cli
    ```
 
-> [!IMPORTANT]
->  To run the system in development mode, it is required to install:
->
-> 1. [Download and Install the latest version of Golang.](https://go.dev/doc/install)
-> 2. Install development node:
->
->   ```shell
->   npm i -g nonodo
->   ```
-> 3. Install air ( hot reload tool ):
->
->   ```shell
->   go install github.com/air-verse/air@latest
->   ```
-
 ###  Running
 
-1. Production mode:
+1. Devnet mode:
 
-   1.1 Generate rollup filesystem:
-
-   ```sh
-   cartesi build
-   ```
-
-   1.2 Run validator node:
-
-   ```sh
-   cartesi rollups start
-   ```
-
-   1.3 Deploy application:
-
-   ```sh
-   cartesi rollups deploy
-   ```
-
-2. Unsandboxed mode:
-
-   2.1 Generate rollup filesystem:
+   1.1 Build application:
 
    ```sh
    cartesi build
    ```
 
-   2.2 Run development node:
+   1.2 Run application on devnet:
 
    ```sh
-   nonodo
-   ``` 
-
-   2.3 Start the application inside a Cartesi Machine unsandboxed:
-
-   ```sh
-   cartesi-machine --network \
-         --flash-drive=label:root,filename:.cartesi/image.ext2 \
-         --env=ROLLUP_HTTP_SERVER_URL=http://10.0.2.2:5004 -- /var/opt/cartesi-app/app
+   cartesi run
    ```
 
-###  Development
+2. Production mode:
 
-1. Run development node and application w/ hot reload:
-
-   ```sh
-   nonodo -- air
-   ```
+- TODO
 
 > [!NOTE]
-> To reach the final state of the system, run the command bellow:
+> To reach the final state of the system for demo purposes, run the command below:
 >
 >   ```shell
 >   make state
