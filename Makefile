@@ -49,6 +49,15 @@ state-mcp: ## Run the application state for devnet (demo)
 	@chmod +x ./tools/state-mcp.sh
 	@./tools/state-mcp.sh $(DAPP_ADDRESS)
 
+.PHONY: contracts
+contracts: ## Deploy the contracts
+	@forge script ./contracts/script/Deploy.s.sol \
+			--root ./contracts \
+			--rpc-url http://localhost:8080/anvil \
+			--private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+			--broadcast \
+			-vvv
+
 .PHONY: help
 help: ## Show help for each of the Makefile recipes
 	@grep "##" $(MAKEFILE_LIST) | grep -v grep | sed -e 's/:.*##/:\t/'
