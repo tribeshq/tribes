@@ -21,7 +21,6 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Running](#running)
-  - [Development](#running)
   - [Testing](#testing)
 
 ##  Overview
