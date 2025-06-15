@@ -60,10 +60,10 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 	}
 
 	adminUser := entity.User{
-		Role:              entity.UserRoleAdmin,
-		Address:           HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9"),
-		InvestmentLimit:   uint256.NewInt(0),
-		CreatedAt:         time.Now().Unix(),
+		Role:            entity.UserRoleAdmin,
+		Address:         HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9"),
+		InvestmentLimit: uint256.NewInt(0),
+		CreatedAt:       time.Now().Unix(),
 	}
 
 	if err := db.Create(&adminUser).Error; err != nil {

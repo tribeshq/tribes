@@ -9,10 +9,10 @@ import (
 )
 
 type CreateSocialAccountInputDTO struct {
-	UserId    uint   `json:"user_id" validate:"required"`
-	Username  string `json:"username" validate:"required"`
-	Platform  string `json:"platform" validate:"required"`
-	Proof     string `json:"proof" validate:"required"`
+	UserId   uint   `json:"user_id" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Platform string `json:"platform" validate:"required"`
+	Proof    string `json:"proof" validate:"required"`
 }
 
 type CreateSocialAccountOutputDTO struct {

@@ -26,13 +26,13 @@ func (u *FindAllUsersUseCase) Execute(ctx context.Context) (*FindAllUsersOutputD
 	output := make(FindAllUsersOutputDTO, len(res))
 	for i, user := range res {
 		output[i] = &FindUserOutputDTO{
-			Id:                user.Id,
-			Role:              string(user.Role),
-			Address:           user.Address,
-			SocialAccounts:    user.SocialAccounts,
-			InvestmentLimit:   user.InvestmentLimit,
-			CreatedAt:         user.CreatedAt,
-			UpdatedAt:         user.UpdatedAt,
+			Id:              user.Id,
+			Role:            string(user.Role),
+			Address:         user.Address,
+			SocialAccounts:  user.SocialAccounts,
+			InvestmentLimit: user.InvestmentLimit,
+			CreatedAt:       user.CreatedAt,
+			UpdatedAt:       user.UpdatedAt,
 		}
 	}
 	return &output, nil

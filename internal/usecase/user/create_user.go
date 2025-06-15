@@ -16,12 +16,12 @@ type CreateUserInputDTO struct {
 }
 
 type CreateUserOutputDTO struct {
-	Id                uint                    `json:"id"`
-	Role              string                  `json:"role"`
-	Address           Address                 `json:"address"`
-	SocialAccounts    []*entity.SocialAccount `json:"social_accounts"`
-	InvestmentLimit   *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
-	CreatedAt         int64                   `json:"created_at"`
+	Id              uint                    `json:"id"`
+	Role            string                  `json:"role"`
+	Address         Address                 `json:"address"`
+	SocialAccounts  []*entity.SocialAccount `json:"social_accounts"`
+	InvestmentLimit *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
+	CreatedAt       int64                   `json:"created_at"`
 }
 
 type CreateUserUseCase struct {
@@ -57,11 +57,11 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputD
 	}
 
 	return &CreateUserOutputDTO{
-		Id:                res.Id,
-		Role:              string(res.Role),
-		Address:           res.Address,
-		SocialAccounts:    res.SocialAccounts,
-		InvestmentLimit:   res.InvestmentLimit,
-		CreatedAt:         res.CreatedAt,
+		Id:              res.Id,
+		Role:            string(res.Role),
+		Address:         res.Address,
+		SocialAccounts:  res.SocialAccounts,
+		InvestmentLimit: res.InvestmentLimit,
+		CreatedAt:       res.CreatedAt,
 	}, nil
 }

@@ -23,22 +23,22 @@ const (
 )
 
 type User struct {
-	Id                uint             `json:"id" gorm:"primaryKey"`
-	Role              UserRole         `json:"role,omitempty" gorm:"not null"`
-	Address           Address          `json:"address,omitempty" gorm:"custom_type:text;uniqueIndex;not null"`
-	InvestmentLimit   *uint256.Int     `json:"investment_limit,omitempty" gorm:"custom_type:text"`
-	SocialAccounts    []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
-	CreatedAt         int64            `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt         int64            `json:"updated_at,omitempty" gorm:"default:0"`
+	Id              uint             `json:"id" gorm:"primaryKey"`
+	Role            UserRole         `json:"role,omitempty" gorm:"not null"`
+	Address         Address          `json:"address,omitempty" gorm:"custom_type:text;uniqueIndex;not null"`
+	InvestmentLimit *uint256.Int     `json:"investment_limit,omitempty" gorm:"custom_type:text"`
+	SocialAccounts  []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
+	CreatedAt       int64            `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt       int64            `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
 func NewUser(role string, investmentLimit *uint256.Int, address Address, createdAt int64) (*User, error) {
 	user := &User{
-		Role:              UserRole(role),
-		InvestmentLimit:   investmentLimit,
-		SocialAccounts:    []*SocialAccount{},
-		Address:           address,
-		CreatedAt:         createdAt,
+		Role:            UserRole(role),
+		InvestmentLimit: investmentLimit,
+		SocialAccounts:  []*SocialAccount{},
+		Address:         address,
+		CreatedAt:       createdAt,
 	}
 	if err := user.validate(); err != nil {
 		return nil, err

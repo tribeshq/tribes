@@ -35,7 +35,6 @@ func (s *TribesRollupSuite) SetupTest() {
 	s.tester = rollmelette.NewTester(dapp)
 }
 
-
 func (s *TribesRollupSuite) TestCreateAuction() {
 	admin := common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")

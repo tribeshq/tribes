@@ -58,7 +58,7 @@ func (s *SocialAccountAdvanceHandlers) DeleteSocialAccount(env rollmelette.Env, 
 	if err := validator.Struct(input); err != nil {
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
-	
+
 	ctx := context.Background()
 	deleteSocialAccount := social_account.NewDeleteSocialAccountUseCase(s.SocialAccountRepository)
 	err = deleteSocialAccount.Execute(ctx, &input)
