@@ -1,0 +1,133 @@
+#
+# Logging
+#
+
+[logging.TRIBES_LOG_LEVEL]
+default = "info"
+go-type = "LogLevel"
+description = """
+One of "debug", "info", "warn", "error"."""
+used-by = ["mcp"]
+
+[logging.TRIBES_LOG_COLOR]
+default = "true"
+go-type = "bool"
+description = """
+If set to true, the node will add colors to its log output."""
+used-by = ["mcp"]
+
+#
+# Blockchain
+#
+
+[blockchain.TRIBES_BLOCKCHAIN_ID]
+go-type = "uint64"
+description = """
+An unique identifier representing a blockchain network."""
+used-by = ["mcp"]
+
+[blockchain.TRIBES_BLOCKCHAIN_HTTP_ENDPOINT]
+go-type = "URL"
+description = """
+HTTP endpoint for the blockchain RPC provider."""
+used-by = ["mcp"]
+
+#
+# Rollup
+#
+
+[rollup.TRIBES_JSONRPC_ENDPOINT]
+go-type = "string"
+description = """
+JSONRPC API service url."""
+used-by = ["mcp"]
+
+[rollup.TRIBES_INSPECT_ENDPOINT]
+go-type = "string"
+description = """
+Inspect API service url."""
+used-by = ["mcp"]
+
+#
+# Contracts
+#
+
+[contracts.TRIBES_CONTRACTS_INPUT_BOX_ADDRESS]
+go-type = "Address"
+description = """
+Address of the InputBox contract. Required for interacting with the blockchain."""
+omit = true
+used-by = ["mcp"]
+
+[contracts.TRIBES_CONTRACTS_ERC20_PORTAL_ADDRESS]
+go-type = "Address"
+description = """
+Address of the ERC20 Portal contract. Required for token operations."""
+omit = true
+used-by = ["mcp"]
+
+[contracts.TRIBES_CONTRACTS_APPLICATION_ADDRESS]
+go-type = "Address"
+description = """
+Address of the Tribes application contract. Required for application interactions."""
+omit = true
+used-by = ["mcp"]
+
+[contracts.TRIBES_CONTRACTS_STABLECOIN_ADDRESS]
+go-type = "Address"
+description = """
+Address of the token contract. Required for token operations."""
+omit = true
+used-by = ["mcp"]
+
+#
+# Auth
+#
+
+[auth.TRIBES_AUTH_KIND]
+default = "mnemonic"
+go-type = "AuthKind"
+description = """
+One of "private_key", "private_key_file", "mnemonic", "mnemonic_file", "aws".
+
+The auth variable for the kind defined here is required. Eg.: TRIBES_AUTH_MNEMONIC"""
+omit = true
+used-by = ["mcp"]
+
+[auth.TRIBES_AUTH_PRIVATE_KEY]
+go-type = "RedactedString"
+description = """
+The node will use this private key to sign transactions."""
+omit = true
+used-by = ["mcp"]
+
+[auth.TRIBES_AUTH_PRIVATE_KEY_FILE]
+go-type = "string"
+description = """
+The node will use the private key contained in this file to sign transactions."""
+omit = true
+used-by = ["mcp"]
+
+[auth.TRIBES_AUTH_MNEMONIC]
+go-type = "RedactedString"
+description = """
+The node will use the private key generated from this mnemonic to sign transactions."""
+omit = true
+used-by = ["mcp"]
+
+[auth.TRIBES_AUTH_MNEMONIC_FILE]
+go-type = "string"
+description = """
+The node will use the private key generated from the mnemonic contained in this file
+to sign transactions."""
+omit = true
+used-by = ["mcp"]
+
+[auth.TRIBES_AUTH_MNEMONIC_ACCOUNT_INDEX]
+default = "0"
+go-type = "RedactedUint"
+description = """
+When using mnemonics to sign transactions,
+the node will use this account index to generate the private key."""
+omit = true
+used-by = ["mcp"]

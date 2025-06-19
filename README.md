@@ -1,0 +1,89 @@
+<br>
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/b137a21e-2b96-4774-ac0e-8a7163c269c2" align="center" width="20%">
+</p>
+<br>
+<div align="center">
+    <i>A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy</i>
+</div>
+<div align="center">
+<b>Tokenized debt issuance through reverse auction mechanism with RWA collateralization</b>
+</div>
+<br>
+<p align="center">
+	<img src="https://img.shields.io/github/license/tribeshq/tribes?style=default&logo=opensourceinitiative&logoColor=white&color=959CD0" alt="license">
+	<img src="https://img.shields.io/github/last-commit/tribeshq/tribes?style=default&logo=git&logoColor=white&color=D1DCCB" alt="last-commit">
+</p>
+
+##  Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Running](#running)
+  - [Testing](#testing)
+
+##  Overview
+
+A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized by Real World Assets (RWA). Through a reverse auction mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
+<br>
+
+[![Docs]][Link-docs] [![Deck]][Link-deck]
+	
+[Docs]: https://img.shields.io/badge/Documentation-959CD0?style=for-the-badge
+[Link-docs]: https://docs.google.com/document/d/1l5D6sn9DBbaJFtTCfIM1gxoH7-10fVi9t2tsNr942Rw/edit?tab=t.0#heading=h.dfmi5re7vy34
+
+[Deck]: https://img.shields.io/badge/Pitch%20Deck-D1DCCB?style=for-the-badge
+[Link-deck]: https://www.canva.com/design/DAGVvlTnNpM/GsV9c1XuhYRYCrPK5811GA/view?utm_content=DAGVvlTnNpM&utm_campaign=designshare&utm_medium=link&utm_source=editor
+
+##  Getting Started
+
+###  Prerequisites
+1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/).
+
+   To install Docker RISC-V support without using Docker Desktop, run the following command:
+    
+   ```shell
+   docker run --privileged --rm tonistiigi/binfmt --install all
+   ```
+
+2. [Download and install the latest version of Node.js](https://nodejs.org/en/download).
+
+3. Cartesi CLI is an easy-to-use tool to build and deploy your dApps on devnet. To install it, run:
+
+   ```shell
+   npm i -g @cartesi/cli
+   ```
+
+###  Running
+
+1. Devnet mode:
+
+   1.1 Build application:
+
+   ```sh
+   cartesi build
+   ```
+
+   1.2 Run application on devnet:
+
+   ```sh
+   cartesi run
+   ```
+
+2. Production mode:
+
+- TODO
+
+> [!NOTE]
+> To reach the final state of the system for demo purposes, run the command below:
+>
+>   ```shell
+>   make state
+>   ```
+
+###  Testing
+
+```sh
+make test
+```
