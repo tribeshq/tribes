@@ -1,24 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Script, console} from "forge-std-1.9.7/src/Script.sol";
-import {ERC20Token} from "../src/ERC20Token.sol";
+import {ERC20Collateral} from "../src/ERC20Collateral.sol";
 import {SafeERC20Transfer} from "../src/SafeERC20Transfer.sol";
+import {Script, console} from "forge-std-1.9.7/src/Script.sol";
+import {WebProofXProver} from "../src/vlayer/WebProofXProver.sol";
+import {WebProofXVerifier} from "../src/vlayer/WebProofXVerifier.sol";
 
 contract Deploy is Script {
-    ERC20Token public erc20token;
+    ERC20Collateral public erc20Collateral;
     SafeERC20Transfer public safeERC20Transfer;
+    WebProofXProver public webProofXProver;
+    WebProofXVerifier public webProofXVerifier;
 
     function setUp() public {}
 
-    function run() public returns (ERC20Token, SafeERC20Transfer) {
+    function run() public returns (WebProofXVerifier, WebProofXProver, ERC20Collateral, SafeERC20Transfer) {
         vm.startBroadcast();
+        webProofXProver = new WebProofXProver();
+        webProofXVerifier = new WebProofXVerifier(address(webProofXProver));
 
-        erc20token = new ERC20Token();
+        erc20Collateral = new ERC20Collateral();
         safeERC20Transfer = new SafeERC20Transfer();
-
         vm.stopBroadcast();
-
-        return (erc20token, safeERC20Transfer);
+        return (webProofXVerifier, webProofXProver, erc20Collateral, safeERC20Transfer);
     }
 }
