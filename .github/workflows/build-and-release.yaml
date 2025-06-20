@@ -13,7 +13,6 @@ jobs:
   build:
     env:
       REGISTRY: ghcr.io
-      TRIBES_MCP_IMAGE_NAME: ${{ github.repository }}-mcp
     permissions:
       contents: read
       packages: write
