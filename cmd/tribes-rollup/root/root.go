@@ -9,7 +9,7 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
-	"github.com/tribeshq/tribes/pkg/rollups/router"
+	"github.com/tribeshq/tribes/pkg/router"
 )
 
 const (

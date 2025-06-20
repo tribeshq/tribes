@@ -100,7 +100,7 @@ jobs:
       - name: Build Tribes Rollup initial snapshot
         run: make build
 
-      - name: Create artifact archive for Tribes Rollup initial snapshot
+      - name: Create artifact archive for initial snapshot
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           tar -czf tribes-snapshot.tar.gz .cartesi/image/*

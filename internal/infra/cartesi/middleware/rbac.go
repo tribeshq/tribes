@@ -8,7 +8,7 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
 	. "github.com/tribeshq/tribes/pkg/custom_type"
-	"github.com/tribeshq/tribes/pkg/rollups/router"
+	"github.com/tribeshq/tribes/pkg/router"
 )
 
 type RBACFactory struct {
