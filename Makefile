@@ -1,17 +1,10 @@
 START_LOG = @echo "======================= START OF LOG ======================="
 END_LOG = @echo "======================== END OF LOG ======================="
 
-.PHONY: verifier
-verifier: ## Build the verifier library
-	$(START_LOG)
-	@cd ./tools/tlsnotary/verifier && cargo build --release
-	@cp ./tools/tlsnotary/verifier/target/release/libverifier.a ./internal/usecase/auction/
-	$(END_LOG)
-
 .PHONY: build
 build: ## Build the application RISC-V image with sunodo
 	$(START_LOG)
-	cartesi build
+	@cartesi build
 	$(END_LOG)
 	
 .PHONY: generate
