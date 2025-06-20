@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
@@ -55,7 +56,7 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 					}
 				}
 				if !hasRole {
-					return fmt.Errorf("user with address: %v does not have necessary permissions: %v", user.Address, roles)
+					return fmt.Errorf("user %s lacks required permissions: %v", common.Address(user.Address), roles)
 				}
 
 				return h(env, metadata, deposit, payload)

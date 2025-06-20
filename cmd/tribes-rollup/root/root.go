@@ -100,22 +100,24 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 
 	userGroup := r.Group("user")
 	{
-		userGroup.Use(rbacFactory.AdminOnly())
-		userGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
-		userGroup.HandleAdvance("update", handlers.UserAdvanceHandlers.UpdateUser)
-		userGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
-		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
-
+		adminGroup := userGroup.Group("admin")
+		adminGroup.Use(rbacFactory.AdminOnly())
+		adminGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
+		adminGroup.HandleAdvance("update", handlers.UserAdvanceHandlers.UpdateUser)
+		adminGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
+		
 		// Public operations
+		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
 	}
 
 	socialGroup := r.Group("social")
 	{
-		socialGroup.Use(rbacFactory.AdminOnly())
-		socialGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
-		socialGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
+		creatorGroup := socialGroup.Group("creator")
+		creatorGroup.Use(rbacFactory.CreatorOnly())
+		creatorGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
+		creatorGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
 
 		// Public operations
 		socialGroup.HandleInspect("id", handlers.SocialAccountHandlers.FindSocialAccountById)

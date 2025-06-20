@@ -46,7 +46,7 @@ func (s *TribesRollupSuite) TestCreateAuction() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -54,8 +54,8 @@ func (s *TribesRollupSuite) TestCreateAuction() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
@@ -88,7 +88,7 @@ func (s *TribesRollupSuite) TestCloseAuction() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -96,43 +96,43 @@ func (s *TribesRollupSuite) TestCloseAuction() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountResult.Notices[0].Payload))
 
 	// create investors users
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":3,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor01, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor02, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor03, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor04, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -214,7 +214,7 @@ func (s *TribesRollupSuite) TestSettleAuction() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -222,43 +222,43 @@ func (s *TribesRollupSuite) TestSettleAuction() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountResult.Notices[0].Payload))
 
 	// create investors users
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":3,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor01, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor02, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor03, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor04, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -369,7 +369,7 @@ func (s *TribesRollupSuite) TestExecuteAuctionCollateral() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -377,43 +377,43 @@ func (s *TribesRollupSuite) TestExecuteAuctionCollateral() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountResult.Notices[0].Payload))
 
 	// create investors users
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":3,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor01, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor02, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor03, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor04, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -548,7 +548,7 @@ func (s *TribesRollupSuite) TestFindAllAuctions() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -556,8 +556,8 @@ func (s *TribesRollupSuite) TestFindAllAuctions() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
@@ -591,7 +591,7 @@ func (s *TribesRollupSuite) TestFindAuctionById() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -599,8 +599,8 @@ func (s *TribesRollupSuite) TestFindAuctionById() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
@@ -634,7 +634,7 @@ func (s *TribesRollupSuite) TestFindAuctionsByCreator() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -642,8 +642,8 @@ func (s *TribesRollupSuite) TestFindAuctionsByCreator() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
@@ -684,7 +684,7 @@ func (s *TribesRollupSuite) TestFindAuctionsByInvestor() {
 	maturityAt := baseTime + 10
 
 	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
 	createUserResult := s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
@@ -692,43 +692,43 @@ func (s *TribesRollupSuite) TestFindAuctionsByInvestor() {
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
-	createSocialAccountResult := s.tester.Advance(admin, createSocialAccountInput)
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":2,"username":"test","platform":"twitter","proof":"0x0"}}`))
+	createSocialAccountResult := s.tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountResult.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":2,"username":"test","platform":"twitter","proof":"0x0","created_at":%d}`, baseTime)
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountResult.Notices[0].Payload))
 
 	// create investors users
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor01))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":3,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor01, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"qualified_investor"}}`, investor02))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"qualified_investor","address":"%s","social_accounts":[],"investment_limit":"115792089237316195423570985008687907853269984665640564039457584007913129639935","created_at":%d}`, investor02, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor03))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor03, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor04))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"non_qualified_investor","address":"%s","social_accounts":[],"investment_limit":"20000","created_at":%d}`, investor04, baseTime)
 	s.Equal(expectedCreateUserOutput, string(createUserResult.Notices[0].Payload))
 
-	createUserInput = []byte(fmt.Sprintf(`{"path":"user/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
+	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"non_qualified_investor"}}`, investor05))
 	createUserResult = s.tester.Advance(admin, createUserInput)
 	s.Len(createUserResult.Notices, 1)
 
