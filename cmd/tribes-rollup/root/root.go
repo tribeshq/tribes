@@ -105,7 +105,7 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		adminGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
 		adminGroup.HandleAdvance("update", handlers.UserAdvanceHandlers.UpdateUser)
 		adminGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
-		
+
 		// Public operations
 		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
