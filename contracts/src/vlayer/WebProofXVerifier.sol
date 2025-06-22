@@ -9,8 +9,6 @@ import {Verifier} from "vlayer-1.2.0/src/Verifier.sol";
 contract WebProofXVerifier is Verifier {
     address public prover;
 
-    mapping(uint256 => string) public tokenIdToMetadataUri;
-
     constructor(address _prover) {
         prover = _prover;
     }

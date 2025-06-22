@@ -1,6 +1,6 @@
 mode: set
-github.com/tribeshq/tribes/cmd/tribes-rollup/main.go:9.13,11.16 2 0
-github.com/tribeshq/tribes/cmd/tribes-rollup/main.go:11.16,13.3 1 0
+github.com/tribeshq/tribes/cmd/tribes-rollup/main.go:8.13,10.16 2 0
+github.com/tribeshq/tribes/cmd/tribes-rollup/main.go:10.16,12.3 1 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:29.13,36.2 1 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:38.45,42.16 2 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:42.16,45.3 2 0
