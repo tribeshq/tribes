@@ -46,10 +46,10 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputD
 	}
 
 	return &CreateUserOutputDTO{
-		Id:              res.Id,
-		Role:            string(res.Role),
-		Address:         res.Address,
-		SocialAccounts:  res.SocialAccounts,
-		CreatedAt:       res.CreatedAt,
+		Id:             res.Id,
+		Role:           string(res.Role),
+		Address:        res.Address,
+		SocialAccounts: res.SocialAccounts,
+		CreatedAt:      res.CreatedAt,
 	}, nil
 }
