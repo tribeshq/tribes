@@ -4,10 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/big"
-	"strings"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/holiman/uint256"
@@ -15,10 +12,6 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/auction"
-)
-
-var (
-	safeERC20TransferAddress = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
 )
 
 type AuctionAdvanceHandlers struct {
@@ -114,27 +107,9 @@ func (h *AuctionAdvanceHandlers) CloseAuction(env rollmelette.Env, metadata roll
 		}
 	}
 
-	abiJSON := `[{
-			"type":"function",
-			"name":"safeTransferTargeted",
-			"inputs":[
-				{"type":"address"},
-				{"type":"address"},
-				{"type":"address"},
-				{"type":"uint256"}
-			]
-		}]`
-	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
-	if err != nil {
-		return err
+	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator), res.TotalRaised.ToBig()); err != nil {
+		return fmt.Errorf("failed to transfer total raised: %w", err)
 	}
-
-	delegateCallVoucherTargeted, err := abiInterface.Pack("safeTransferTargeted", token, res.Creator, env.AppAddress(), res.TotalRaised.ToBig())
-	if err != nil {
-		return err
-	}
-	env.SetERC20Balance(token, env.AppAddress(), new(big.Int).Sub(env.ERC20BalanceOf(token, env.AppAddress()), res.TotalRaised.ToBig()))
-	env.DelegateCallVoucher(safeERC20TransferAddress, delegateCallVoucherTargeted)
 
 	auction, err := json.Marshal(res)
 	if err != nil {
@@ -167,16 +142,14 @@ func (h *AuctionAdvanceHandlers) SettleAuction(env rollmelette.Env, metadata rol
 		return fmt.Errorf("failed to settle auction: %w", err)
 	}
 
-	// Reuse variables for calculations
-	interest := new(uint256.Int)
 	contractAddr := common.Address(res.Token)
 	creatorAddr := common.Address(res.Creator)
 
 	// Process settled orders
 	for _, order := range res.Orders {
 		if order.State == entity.OrderStateSettled {
-			// Calculate interest
-			interest.Mul(order.Amount, order.InterestRate)
+			// Calculate interest for this order
+			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
 			interest.Div(interest, uint256.NewInt(100))
 
 			// Calculate total payment
@@ -221,20 +194,20 @@ func (h *AuctionAdvanceHandlers) ExecuteAuctionCollateral(env rollmelette.Env, m
 	}
 
 	totalFinalValue := uint256.NewInt(0)
-	orderFinalValues := make(map[*entity.Order]*uint256.Int)
+	orderFinalValues := make(map[uint]*uint256.Int)
 	for _, order := range res.Orders {
-		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
+		if order.State == entity.OrderStateSettledByCollateral {
 			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
 			interest.Div(interest, uint256.NewInt(100))
 			finalValue := new(uint256.Int).Add(order.Amount, interest)
-			orderFinalValues[order] = finalValue
+			orderFinalValues[order.Id] = finalValue
 			totalFinalValue.Add(totalFinalValue, finalValue)
 		}
 	}
 
 	for _, order := range res.Orders {
-		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
-			finalValue := orderFinalValues[order]
+		if order.State == entity.OrderStateSettledByCollateral {
+			finalValue := orderFinalValues[order.Id]
 			orderShare := new(uint256.Int).Mul(finalValue, res.CollateralAmount)
 			orderShare.Div(orderShare, totalFinalValue)
 

@@ -7,8 +7,8 @@ import (
 )
 
 type BalanceOfInputDTO struct {
-	Address Address `json:"address" validate:"required"`
 	Token   Address `json:"token"`
+	Address Address `json:"address" validate:"required"`
 }
 
 type FindUserOutputDTO struct {

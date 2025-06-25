@@ -108,9 +108,11 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
-		userGroup.HandleInspect("balance", handlers.UserInspectHandlers.BalanceOf)
-		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
+		userGroup.HandleAdvance("erc20-withdraw", handlers.UserAdvanceHandlers.ERC20Withdraw)
+		userGroup.HandleAdvance("eth-withdraw", handlers.UserAdvanceHandlers.EtherWithdraw)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
+		userGroup.HandleInspect("eth-balance", handlers.UserInspectHandlers.EtherBalanceOf)
+		userGroup.HandleInspect("erc20-balance", handlers.UserInspectHandlers.ERC20BalanceOf)
 	}
 
 	socialGroup := r.Group("social")

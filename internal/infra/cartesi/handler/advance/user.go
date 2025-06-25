@@ -104,7 +104,7 @@ func (h *UserAdvanceHandlers) DeleteUser(env rollmelette.Env, metadata rollmelet
 	return nil
 }
 
-func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 	var input user.WithdrawInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
@@ -124,38 +124,79 @@ func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	tokenAddr := common.Address(input.Token)
-	amount := input.Amount.ToBig()
-	msgSender := metadata.MsgSender
-
-	switch entity.UserRole(res.Role) {
-	case entity.UserRoleAdmin:
+	// For admin, transfer from app address to admin first, then withdraw
+	if entity.UserRole(res.Role) == entity.UserRoleAdmin {
 		if err := env.ERC20Transfer(
-			tokenAddr,
+			common.Address(input.Token),
 			env.AppAddress(),
-			msgSender,
-			amount,
+			metadata.MsgSender,
+			input.Amount.ToBig(),
 		); err != nil {
-			return fmt.Errorf("failed to transfer ERC20: %w", err)
-		}
-
-		if _, err := env.ERC20Withdraw(
-			tokenAddr,
-			msgSender,
-			amount,
-		); err != nil {
-			return fmt.Errorf("failed to withdraw ERC20: %w", err)
-		}
-
-	default:
-		if _, err := env.ERC20Withdraw(
-			tokenAddr,
-			msgSender,
-			amount,
-		); err != nil {
-			return fmt.Errorf("failed to withdraw ERC20: %w", err)
+			return fmt.Errorf("failed to transfer ERC20 from app to admin: %w", err)
 		}
 	}
+
+	// Withdraw tokens to the user's address
+	if _, err := env.ERC20Withdraw(
+		common.Address(input.Token),
+		metadata.MsgSender,
+		input.Amount.ToBig(),
+	); err != nil {
+		return fmt.Errorf("failed to withdraw ERC20: %w", err)
+	}
+
+	env.Notice([]byte(
+		fmt.Sprintf(
+			"ERC20 withdrawn - token: %s, amount: %s, user: %s", common.Address(input.Token), input.Amount.ToBig(), metadata.MsgSender,
+		),
+	))
+	return nil
+}
+
+func (h *UserAdvanceHandlers) EtherWithdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input user.WithdrawInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	validator := validator.New()
+	if err := validator.Struct(input); err != nil {
+		return fmt.Errorf("failed to validate input: %w", err)
+	}
+
+	ctx := context.Background()
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
+	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
+		Address: Address(metadata.MsgSender),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to find user: %w", err)
+	}
+
+	// For admin, transfer from app address to admin first, then withdraw
+	if entity.UserRole(res.Role) == entity.UserRoleAdmin {
+		if err := env.EtherTransfer(
+			env.AppAddress(),
+			metadata.MsgSender,
+			input.Amount.ToBig(),
+		); err != nil {
+			return fmt.Errorf("failed to transfer ETH from app to admin: %w", err)
+		}
+	}
+
+	// Withdraw ETH to the user's address
+	if _, err := env.EtherWithdraw(
+		metadata.MsgSender,
+		input.Amount.ToBig(),
+	); err != nil {
+		return fmt.Errorf("failed to withdraw ETH: %w", err)
+	}
+
+	env.Notice([]byte(
+		fmt.Sprintf(
+			"ETH withdrawn - amount: %s wei user: %s", input.Amount.ToBig(), metadata.MsgSender,
+		),
+	))
 
 	return nil
 }
