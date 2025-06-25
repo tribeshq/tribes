@@ -34,7 +34,6 @@ func (u *FindUserByRoleUseCase) Execute(ctx context.Context, input *FindUserByRo
 			Role:            string(user.Role),
 			Address:         user.Address,
 			SocialAccounts:  user.SocialAccounts,
-			InvestmentLimit: user.InvestmentLimit,
 			CreatedAt:       user.CreatedAt,
 			UpdatedAt:       user.UpdatedAt,
 		}

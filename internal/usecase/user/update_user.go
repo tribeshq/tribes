@@ -40,7 +40,6 @@ func (u *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateUserInputD
 	user, err := u.UserRepository.UpdateUser(ctx, &entity.User{
 		Role:            entity.UserRole(input.Role),
 		Address:         input.Address,
-		InvestmentLimit: input.InvestmentLimit,
 		UpdatedAt:       metadata.BlockTimestamp,
 	})
 	if err != nil {
@@ -51,7 +50,6 @@ func (u *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateUserInputD
 		Role:            string(user.Role),
 		Address:         user.Address,
 		SocialAccounts:  user.SocialAccounts,
-		InvestmentLimit: user.InvestmentLimit,
 		CreatedAt:       user.CreatedAt,
 		UpdatedAt:       user.UpdatedAt,
 	}, nil

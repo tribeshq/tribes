@@ -10,10 +10,6 @@ contract SafeERC20Transfer {
 
     error NotTarget(address target);
 
-    function safeTransfer(IERC20 token, address to, uint256 value) external {
-        token.safeTransfer(to, value);
-    }
-
     function safeTransferTargeted(IERC20 token, address target, address to, uint256 value) external {
         if (msg.sender != target) {
             revert NotTarget(target);

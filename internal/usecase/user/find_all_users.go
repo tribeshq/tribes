@@ -30,7 +30,6 @@ func (u *FindAllUsersUseCase) Execute(ctx context.Context) (*FindAllUsersOutputD
 			Role:            string(user.Role),
 			Address:         user.Address,
 			SocialAccounts:  user.SocialAccounts,
-			InvestmentLimit: user.InvestmentLimit,
 			CreatedAt:       user.CreatedAt,
 			UpdatedAt:       user.UpdatedAt,
 		}

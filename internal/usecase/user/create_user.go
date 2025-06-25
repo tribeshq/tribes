@@ -35,18 +35,7 @@ func NewCreateUserUseCase(userRepository repository.UserRepository) *CreateUserU
 }
 
 func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputDTO, metadata rollmelette.Metadata) (*CreateUserOutputDTO, error) {
-	var investmentLimit *uint256.Int
-
-	switch input.Role {
-	case string(entity.UserRoleQualifiedInvestor):
-		investmentLimit = new(uint256.Int).SetAllOne()
-	case string(entity.UserRoleNonQualifiedInvestor):
-		investmentLimit = uint256.NewInt(20000)
-	default:
-		investmentLimit = uint256.NewInt(0)
-	}
-
-	user, err := entity.NewUser(input.Role, investmentLimit, input.Address, metadata.BlockTimestamp)
+	user, err := entity.NewUser(input.Role, input.Address, metadata.BlockTimestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +50,6 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputD
 		Role:            string(res.Role),
 		Address:         res.Address,
 		SocialAccounts:  res.SocialAccounts,
-		InvestmentLimit: res.InvestmentLimit,
 		CreatedAt:       res.CreatedAt,
 	}, nil
 }

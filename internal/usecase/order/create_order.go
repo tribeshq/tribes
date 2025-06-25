@@ -46,15 +46,6 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 		return nil, fmt.Errorf("invalid deposit custom_type provided for order creation: %T", deposit)
 	}
 
-	// check if user has reached the investment limit
-	user, err := c.UserRepository.FindUserByAddress(ctx, Address(erc20Deposit.Sender))
-	if err != nil {
-		return nil, fmt.Errorf("error finding user: %w", err)
-	}
-	if user.InvestmentLimit.Lt(uint256.MustFromBig(erc20Deposit.Value)) {
-		return nil, fmt.Errorf("investor has reached the investment limit")
-	}
-
 	auction, err := c.AuctionRepository.FindAuctionById(ctx, input.AuctionId)
 	if err != nil {
 		return nil, fmt.Errorf("error finding auction campaigns: %w", err)
@@ -86,12 +77,6 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 	res, err := c.OrderRepository.CreateOrder(ctx, order)
 	if err != nil {
 		return nil, err
-	}
-
-	user.InvestmentLimit.Sub(user.InvestmentLimit, uint256.MustFromBig(erc20Deposit.Value))
-	_, err = c.UserRepository.UpdateUser(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("error updating user: %w", err)
 	}
 
 	return &CreateOrderOutputDTO{

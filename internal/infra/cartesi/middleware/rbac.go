@@ -23,7 +23,7 @@ func NewRBACFactory(userRepository repository.UserRepository) *RBACFactory {
 }
 
 func (f *RBACFactory) Create(roles []string) router.Middleware {
-	return func(handler interface{}) interface{} {
+	return func(handler any) any {
 		switch h := handler.(type) {
 		case router.AdvanceHandlerFunc:
 			return router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
@@ -74,7 +74,7 @@ func (f *RBACFactory) AdminOnly() router.Middleware {
 }
 
 func (f *RBACFactory) InvestorOnly() router.Middleware {
-	return f.Create([]string{"qualified_investor", "non_qualified_investor"})
+	return f.Create([]string{"investor"})
 }
 
 func (f *RBACFactory) CreatorOnly() router.Middleware {

@@ -13,7 +13,6 @@ import (
 
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 
-	"github.com/holiman/uint256"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 )
 
@@ -67,10 +66,9 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 	}
 
 	adminUser := entity.User{
-		Role:            entity.UserRoleAdmin,
-		Address:         HexToAddress(adminAddress),
-		InvestmentLimit: uint256.NewInt(0),
-		CreatedAt:       time.Now().Unix(),
+		Role:      entity.UserRoleAdmin,
+		Address:   HexToAddress(adminAddress),
+		CreatedAt: time.Now().Unix(),
 	}
 
 	if err := db.Create(&adminUser).Error; err != nil {

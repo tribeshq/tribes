@@ -14,7 +14,7 @@ func HexToAddress(hex string) Address {
 	return Address(common.HexToAddress(hex))
 }
 
-func (a *Address) Scan(value interface{}) error {
+func (a *Address) Scan(value any) error {
 	switch v := value.(type) {
 	case string:
 		*a = HexToAddress(v)

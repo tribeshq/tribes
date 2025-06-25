@@ -130,8 +130,7 @@ func (uc *SettleAuctionUseCase) Validate(
 	}
 
 	if Auction.Creator != Address(deposit.Sender) {
-		return fmt.Errorf("auction creator is not the same as the deposit from address")
+		return fmt.Errorf("only the auction creator can settle the auction")
 	}
-
 	return nil
 }
