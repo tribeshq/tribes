@@ -116,10 +116,10 @@ func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette
 	}
 
 	ctx := context.Background()
-	findUserByAddress := user.NewCreateUserUseCase(h.UserRepository)
-	res, err := findUserByAddress.Execute(ctx, &user.CreateUserInputDTO{
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
+	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
 		Address: Address(metadata.MsgSender),
-	}, metadata)
+	})
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)
 	}
@@ -130,7 +130,6 @@ func (h *UserAdvanceHandlers) Withdraw(env rollmelette.Env, metadata rollmelette
 
 	switch entity.UserRole(res.Role) {
 	case entity.UserRoleAdmin:
-		// The Admin role can withdraw the entire Application Balance if wanted
 		if err := env.ERC20Transfer(
 			tokenAddr,
 			env.AppAddress(),

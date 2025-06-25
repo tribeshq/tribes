@@ -78,8 +78,8 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		// Public operations
 		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
 		orderGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
-		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
 		orderGroup.HandleInspect("auction", handlers.OrderInspectHandlers.FindBidsByAuctionId)
+		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
 	}
 
 	auctionGroup := r.Group("auction")
@@ -90,12 +90,12 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		creatorGroup.HandleAdvance("settle", handlers.AuctionAdvanceHandlers.SettleAuction)
 
 		// Public operations
-		auctionGroup.HandleAdvance("execute-collateral", handlers.AuctionAdvanceHandlers.ExecuteAuctionCollateral)
-		auctionGroup.HandleAdvance("close", handlers.AuctionAdvanceHandlers.CloseAuction)
 		auctionGroup.HandleInspect("", handlers.AuctionInspectHandlers.FindAllAuctions)
 		auctionGroup.HandleInspect("id", handlers.AuctionInspectHandlers.FindAuctionById)
+		auctionGroup.HandleAdvance("close", handlers.AuctionAdvanceHandlers.CloseAuction)
 		auctionGroup.HandleInspect("creator", handlers.AuctionInspectHandlers.FindAuctionsByCreator)
 		auctionGroup.HandleInspect("investor", handlers.AuctionInspectHandlers.FindAuctionsByInvestor)
+		auctionGroup.HandleAdvance("execute-collateral", handlers.AuctionAdvanceHandlers.ExecuteAuctionCollateral)
 	}
 
 	userGroup := r.Group("user")
@@ -107,8 +107,9 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		adminGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
 
 		// Public operations
-		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
+		userGroup.HandleInspect("balance", handlers.UserInspectHandlers.BalanceOf)
+		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.Withdraw)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
 	}
 

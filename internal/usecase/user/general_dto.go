@@ -6,6 +6,11 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
+type BalanceOfInputDTO struct {
+	Address Address `json:"address" validate:"required"`
+	Token   Address `json:"token"`
+}
+
 type FindUserOutputDTO struct {
 	Id              uint                    `json:"id"`
 	Role            string                  `json:"role"`
