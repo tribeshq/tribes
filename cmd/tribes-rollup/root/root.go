@@ -37,7 +37,7 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) {
 	repo, err := factory.NewRepositoryFromConnectionString(
-		map[bool]string{true: "sqlite://:memory:", false: "sqlite://tribes.db"}[useMemoryDB],
+		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/tribes.db"}[useMemoryDB],
 	)
 	if err != nil {
 		slog.Error("Failed to setup database", "error", err, "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
@@ -109,8 +109,6 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
-		userGroup.HandleInspect("eth-balance", handlers.UserInspectHandlers.EtherBalanceOf)
-		userGroup.HandleAdvance("eth-withdraw", handlers.UserAdvanceHandlers.EtherWithdraw)
 		userGroup.HandleInspect("erc20-balance", handlers.UserInspectHandlers.ERC20BalanceOf)
 		userGroup.HandleAdvance("erc20-withdraw", handlers.UserAdvanceHandlers.ERC20Withdraw)
 	}

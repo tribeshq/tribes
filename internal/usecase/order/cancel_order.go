@@ -6,6 +6,7 @@ import (
 
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
+	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
@@ -50,7 +51,7 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	if err != nil {
 		return nil, err
 	}
-	if auction.ClosesAt < metadata.BlockTimestamp {
+	if auction.State == entity.AuctionStateClosed {
 		return nil, errors.New("cannot cancel order after Auction closes")
 	}
 	err = c.OrderRepository.DeleteOrder(ctx, input.Id)

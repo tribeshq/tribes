@@ -95,36 +95,3 @@ func (h *UserInspectHandlers) ERC20BalanceOf(env rollmelette.EnvInspector, paylo
 	env.Report(balanceBytes)
 	return nil
 }
-
-func (h *UserInspectHandlers) EtherBalanceOf(env rollmelette.EnvInspector, payload []byte) error {
-	var input user.BalanceOfInputDTO
-	if err := json.Unmarshal(payload, &input); err != nil {
-		return fmt.Errorf("failed to unmarshal input: %w", err)
-	}
-
-	validator := validator.New()
-	if err := validator.Struct(input); err != nil {
-		return fmt.Errorf("failed to validate input: %w", err)
-	}
-
-	ctx := context.Background()
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
-	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
-		Address: input.Address,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to find User: %w", err)
-	}
-
-	balance := env.EtherBalanceOf(
-		common.Address(res.Address),
-	).String()
-
-	balanceBytes, err := json.Marshal(balance)
-	if err != nil {
-		return fmt.Errorf("failed to marshal balance: %w", err)
-	}
-
-	env.Report(balanceBytes)
-	return nil
-}

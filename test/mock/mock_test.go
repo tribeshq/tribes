@@ -646,9 +646,9 @@ func (s *TribesRollupSuite) TestExecuteAuctionCollateral() {
 	// investor04: 5300/108195 * 10000 = 489 (rounded down)
 	// investor05: 5720/108195 * 10000 = 528 (rounded down)
 	// Total distributed: 5994 + 2794 + 192 + 489 + 528 = 9997
-	// Remaining: 10000 - 9997 = 3 goes to investor03 (lowest interest rate: 4%)
+	// Remaining: 10000 - 9997 = 3 tokens remain in the application (not distributed)
 	// Final distribution:
-	// investor01: 5994, investor02: 2794, investor03: 195, investor04: 489, investor05: 528
+	// investor01: 5994, investor02: 2794, investor03: 192, investor04: 489, investor05: 528
 	// creator: no additional deposit, just execution of existing collateral
 
 	// Verify investor01 balance (received 5994 collateral)

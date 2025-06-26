@@ -16,7 +16,7 @@ github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:101.2,102.2 2 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:102.2,116.3 11 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:118.2,119.2 2 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:119.2,128.3 6 0
-github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:130.2,130.10 1 0
+github.com/tribeshq/tribes/cmd/tribes-rollup/root/root.go:129.2,129.10 1 0
 github.com/tribeshq/tribes/cmd/tribes-rollup/root/wire_gen.go:17.65,37.2 10 0
 github.com/tribeshq/tribes/internal/domain/entity/auction.go:44.234,58.43 2 0
 github.com/tribeshq/tribes/internal/domain/entity/auction.go:58.43,60.3 1 0
