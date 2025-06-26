@@ -18,20 +18,20 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo)
-	auctionAdvanceHandlers := advance.NewAuctionAdvanceHandlers(repo, repo, repo)
+	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)
-	auctionInspectHandlers := inspect.NewAuctionInspectHandlers(repo)
+	campaignInspectHandlers := inspect.NewCampaignInspectHandlers(repo)
 	handlers := &Handlers{
-		OrderAdvanceHandlers:   orderAdvanceHandlers,
-		UserAdvanceHandlers:    userAdvanceHandlers,
-		SocialAccountsHandlers: socialAccountAdvanceHandlers,
-		AuctionAdvanceHandlers: auctionAdvanceHandlers,
-		OrderInspectHandlers:   orderInspectHandlers,
-		UserInspectHandlers:    userInspectHandlers,
-		SocialAccountHandlers:  socialAccountInspectHandlers,
-		AuctionInspectHandlers: auctionInspectHandlers,
+		OrderAdvanceHandlers:    orderAdvanceHandlers,
+		UserAdvanceHandlers:     userAdvanceHandlers,
+		SocialAccountsHandlers:  socialAccountAdvanceHandlers,
+		CampaignAdvanceHandlers: campaignAdvanceHandlers,
+		OrderInspectHandlers:    orderInspectHandlers,
+		UserInspectHandlers:     userInspectHandlers,
+		SocialAccountHandlers:   socialAccountInspectHandlers,
+		CampaignInspectHandlers: campaignInspectHandlers,
 	}
 	return handlers, nil
 }
@@ -41,14 +41,14 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 // Handlers contains all handler dependencies
 type Handlers struct {
 	// Advance handlers
-	OrderAdvanceHandlers   *advance.OrderAdvanceHandlers
-	UserAdvanceHandlers    *advance.UserAdvanceHandlers
-	SocialAccountsHandlers *advance.SocialAccountAdvanceHandlers
-	AuctionAdvanceHandlers *advance.AuctionAdvanceHandlers
+	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
+	UserAdvanceHandlers     *advance.UserAdvanceHandlers
+	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
+	CampaignAdvanceHandlers *advance.CampaignAdvanceHandlers
 
 	// Inspect handlers
-	OrderInspectHandlers   *inspect.OrderInspectHandlers
-	UserInspectHandlers    *inspect.UserInspectHandlers
-	SocialAccountHandlers  *inspect.SocialAccountInspectHandlers
-	AuctionInspectHandlers *inspect.AuctionInspectHandlers
+	OrderInspectHandlers    *inspect.OrderInspectHandlers
+	UserInspectHandlers     *inspect.UserInspectHandlers
+	SocialAccountHandlers   *inspect.SocialAccountInspectHandlers
+	CampaignInspectHandlers *inspect.CampaignInspectHandlers
 }

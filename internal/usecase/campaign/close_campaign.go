@@ -1,4 +1,4 @@
-package auction
+package campaign
 
 import (
 	"context"
@@ -12,11 +12,11 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type CloseAuctionInputDTO struct {
+type CloseCampaignInputDTO struct {
 	Creator Address `json:"creator" validate:"required"`
 }
 
-type CloseAuctionOutputDTO struct {
+type CloseCampaignOutputDTO struct {
 	Id                uint            `json:"id"`
 	Token             Address         `json:"token,omitempty"`
 	Creator           Address         `json:"creator,omitempty"`
@@ -34,48 +34,48 @@ type CloseAuctionOutputDTO struct {
 	UpdatedAt         int64           `json:"updated_at,omitempty"`
 }
 
-type CloseAuctionUseCase struct {
-	OrderRepository   repository.OrderRepository
-	AuctionRepository repository.AuctionRepository
+type CloseCampaignUseCase struct {
+	OrderRepository    repository.OrderRepository
+	CampaignRepository repository.CampaignRepository
 }
 
-func NewCloseAuctionUseCase(AuctionRepository repository.AuctionRepository, orderRepository repository.OrderRepository) *CloseAuctionUseCase {
-	return &CloseAuctionUseCase{
-		OrderRepository:   orderRepository,
-		AuctionRepository: AuctionRepository,
+func NewCloseCampaignUseCase(CampaignRepository repository.CampaignRepository, orderRepository repository.OrderRepository) *CloseCampaignUseCase {
+	return &CloseCampaignUseCase{
+		OrderRepository:    orderRepository,
+		CampaignRepository: CampaignRepository,
 	}
 }
 
-func (u *CloseAuctionUseCase) Execute(ctx context.Context, input *CloseAuctionInputDTO, metadata rollmelette.Metadata) (*CloseAuctionOutputDTO, error) {
+func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaignInputDTO, metadata rollmelette.Metadata) (*CloseCampaignOutputDTO, error) {
 	// -------------------------------------------------------------------------
-	// 1. Find ongoing auction for the creator
+	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	auctions, err := u.AuctionRepository.FindAuctionsByCreator(ctx, input.Creator)
+	campaigns, err := u.CampaignRepository.FindCampaignsByCreator(ctx, input.Creator)
 	if err != nil {
 		return nil, err
 	}
-	var ongoingAuction *entity.Auction
-	for _, auction := range auctions {
-		if auction.State == entity.AuctionStateOngoing {
-			ongoingAuction = auction
+	var ongoingCampaign *entity.Campaign
+	for _, campaign := range campaigns {
+		if campaign.State == entity.CampaignStateOngoing {
+			ongoingCampaign = campaign
 			break
 		}
 	}
-	if ongoingAuction == nil {
-		return nil, fmt.Errorf("no ongoing auction found, cannot close it")
+	if ongoingCampaign == nil {
+		return nil, fmt.Errorf("no ongoing campaign found, cannot close it")
 	}
 
 	// -------------------------------------------------------------------------
-	// 2. Validate auction expiration
+	// 2. Validate campaign expiration
 	// -------------------------------------------------------------------------
-	if metadata.BlockTimestamp < ongoingAuction.ClosesAt {
-		return nil, fmt.Errorf("auction not expired yet, cannot close it")
+	if metadata.BlockTimestamp < ongoingCampaign.ClosesAt {
+		return nil, fmt.Errorf("campaign not expired yet, cannot close it")
 	}
 
 	// -------------------------------------------------------------------------
-	// 3. Fetch and sort auction orders
+	// 3. Fetch and sort campaign orders
 	// -------------------------------------------------------------------------
-	orders, err := u.OrderRepository.FindOrdersByAuctionId(ctx, ongoingAuction.Id)
+	orders, err := u.OrderRepository.FindOrdersByCampaignId(ctx, ongoingCampaign.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (u *CloseAuctionUseCase) Execute(ctx context.Context, input *CloseAuctionIn
 	// -------------------------------------------------------------------------
 	// 4. Select winning orders and calculate obligations
 	// -------------------------------------------------------------------------
-	debtRemaining := new(uint256.Int).Set(ongoingAuction.DebtIssued)
+	debtRemaining := new(uint256.Int).Set(ongoingCampaign.DebtIssued)
 	totalCollected := uint256.NewInt(0)
 	totalObligation := uint256.NewInt(0)
 
@@ -124,7 +124,7 @@ func (u *CloseAuctionUseCase) Execute(ctx context.Context, input *CloseAuctionIn
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(ctx, &entity.Order{
-				AuctionId:    order.AuctionId,
+				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       rejectedAmount,
 				InterestRate: order.InterestRate,
@@ -147,10 +147,10 @@ func (u *CloseAuctionUseCase) Execute(ctx context.Context, input *CloseAuctionIn
 	// -------------------------------------------------------------------------
 	// 5. Check if minimum funding (2/3) was reached
 	// -------------------------------------------------------------------------
-	twoThirds := new(uint256.Int).Mul(ongoingAuction.DebtIssued, uint256.NewInt(2))
+	twoThirds := new(uint256.Int).Mul(ongoingCampaign.DebtIssued, uint256.NewInt(2))
 	twoThirds.Div(twoThirds, uint256.NewInt(3))
 	if totalCollected.Lt(twoThirds) {
-		// Cancel auction and reject all orders
+		// Cancel campaign and reject all orders
 		for _, order := range orders {
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
@@ -158,27 +158,27 @@ func (u *CloseAuctionUseCase) Execute(ctx context.Context, input *CloseAuctionIn
 				return nil, err
 			}
 		}
-		ongoingAuction.State = entity.AuctionStateCanceled
-		ongoingAuction.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.AuctionRepository.UpdateAuction(ctx, ongoingAuction); err != nil {
+		ongoingCampaign.State = entity.CampaignStateCanceled
+		ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
+		if _, err := u.CampaignRepository.UpdateCampaign(ctx, ongoingCampaign); err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("auction canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
+		return nil, fmt.Errorf("campaign canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
 	}
 
 	// -------------------------------------------------------------------------
-	// 6. Close auction and return result
+	// 6. Close campaign and return result
 	// -------------------------------------------------------------------------
-	ongoingAuction.State = entity.AuctionStateClosed
-	ongoingAuction.TotalObligation = totalObligation
-	ongoingAuction.TotalRaised = totalCollected
-	ongoingAuction.UpdatedAt = metadata.BlockTimestamp
-	res, err := u.AuctionRepository.UpdateAuction(ctx, ongoingAuction)
+	ongoingCampaign.State = entity.CampaignStateClosed
+	ongoingCampaign.TotalObligation = totalObligation
+	ongoingCampaign.TotalRaised = totalCollected
+	ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
+	res, err := u.CampaignRepository.UpdateCampaign(ctx, ongoingCampaign)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CloseAuctionOutputDTO{
+	return &CloseCampaignOutputDTO{
 		Id:                res.Id,
 		Token:             res.Token,
 		Creator:           res.Creator,

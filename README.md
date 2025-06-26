@@ -7,7 +7,7 @@
     <i>A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy</i>
 </div>
 <div align="center">
-<b>Tokenized debt issuance through reverse auction mechanism with collateralization</b>
+<b>Tokenized debt issuance through reverse campaign mechanism with collateralization</b>
 </div>
 <br>
 <p align="center">
@@ -25,7 +25,7 @@
 
 ##  Overview
 
-A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse auction mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
+A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse campaign mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
 <br>
 
 [![Docs]][Link-docs] [![Deck]][Link-deck]

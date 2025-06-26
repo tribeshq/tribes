@@ -78,24 +78,24 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		// Public operations
 		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
 		orderGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
-		orderGroup.HandleInspect("auction", handlers.OrderInspectHandlers.FindBidsByAuctionId)
+		orderGroup.HandleInspect("campaign", handlers.OrderInspectHandlers.FindBidsByCampaignId)
 		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
 	}
 
-	auctionGroup := r.Group("auction")
+	campaignGroup := r.Group("campaign")
 	{
-		creatorGroup := auctionGroup.Group("creator")
+		creatorGroup := campaignGroup.Group("creator")
 		creatorGroup.Use(rbacFactory.CreatorOnly())
-		creatorGroup.HandleAdvance("create", handlers.AuctionAdvanceHandlers.CreateAuction)
-		creatorGroup.HandleAdvance("settle", handlers.AuctionAdvanceHandlers.SettleAuction)
+		creatorGroup.HandleAdvance("create", handlers.CampaignAdvanceHandlers.CreateCampaign)
+		creatorGroup.HandleAdvance("settle", handlers.CampaignAdvanceHandlers.SettleCampaign)
 
 		// Public operations
-		auctionGroup.HandleInspect("", handlers.AuctionInspectHandlers.FindAllAuctions)
-		auctionGroup.HandleInspect("id", handlers.AuctionInspectHandlers.FindAuctionById)
-		auctionGroup.HandleAdvance("close", handlers.AuctionAdvanceHandlers.CloseAuction)
-		auctionGroup.HandleInspect("creator", handlers.AuctionInspectHandlers.FindAuctionsByCreator)
-		auctionGroup.HandleInspect("investor", handlers.AuctionInspectHandlers.FindAuctionsByInvestor)
-		auctionGroup.HandleAdvance("execute-collateral", handlers.AuctionAdvanceHandlers.ExecuteAuctionCollateral)
+		campaignGroup.HandleInspect("", handlers.CampaignInspectHandlers.FindAllCampaigns)
+		campaignGroup.HandleInspect("id", handlers.CampaignInspectHandlers.FindCampaignById)
+		campaignGroup.HandleAdvance("close", handlers.CampaignAdvanceHandlers.CloseCampaign)
+		campaignGroup.HandleInspect("creator", handlers.CampaignInspectHandlers.FindCampaignsByCreator)
+		campaignGroup.HandleInspect("investor", handlers.CampaignInspectHandlers.FindCampaignsByInvestor)
+		campaignGroup.HandleAdvance("execute-collateral", handlers.CampaignAdvanceHandlers.ExecuteCampaignCollateral)
 	}
 
 	userGroup := r.Group("user")
@@ -103,8 +103,9 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		adminGroup := userGroup.Group("admin")
 		adminGroup.Use(rbacFactory.AdminOnly())
 		adminGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
-		adminGroup.HandleAdvance("update", handlers.UserAdvanceHandlers.UpdateUser)
 		adminGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
+		adminGroup.HandleAdvance("emergency-erc20-withdraw", handlers.UserAdvanceHandlers.EmergencyERC20Withdraw)
+		adminGroup.HandleAdvance("emergency-ether-withdraw", handlers.UserAdvanceHandlers.EmergencyEtherWithdraw)
 
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)

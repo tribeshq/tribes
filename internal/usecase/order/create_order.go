@@ -12,13 +12,13 @@ import (
 )
 
 type CreateOrderInputDTO struct {
-	AuctionId    uint         `json:"auction_id" validate:"required"`
+	CampaignId   uint         `json:"campaign_id" validate:"required"`
 	InterestRate *uint256.Int `json:"interest_rate" validate:"required"`
 }
 
 type CreateOrderOutputDTO struct {
 	Id           uint         `json:"id"`
-	AuctionId    uint         `json:"auction_id"`
+	CampaignId   uint         `json:"campaign_id"`
 	Investor     Address      `json:"investor"`
 	Amount       *uint256.Int `json:"amount"`
 	InterestRate *uint256.Int `json:"interest_rate"`
@@ -27,16 +27,14 @@ type CreateOrderOutputDTO struct {
 }
 
 type CreateOrderUseCase struct {
-	OrderRepository   repository.OrderRepository
-	UserRepository    repository.UserRepository
-	AuctionRepository repository.AuctionRepository
+	OrderRepository    repository.OrderRepository
+	CampaignRepository repository.CampaignRepository
 }
 
-func NewCreateOrderUseCase(orderRepository repository.OrderRepository, userRepository repository.UserRepository, auctionRepository repository.AuctionRepository) *CreateOrderUseCase {
+func NewCreateOrderUseCase(orderRepository repository.OrderRepository, campaignRepository repository.CampaignRepository) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
-		OrderRepository:   orderRepository,
-		UserRepository:    userRepository,
-		AuctionRepository: auctionRepository,
+		OrderRepository:    orderRepository,
+		CampaignRepository: campaignRepository,
 	}
 }
 
@@ -46,25 +44,25 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 		return nil, fmt.Errorf("invalid deposit custom_type provided for order creation: %T", deposit)
 	}
 
-	auction, err := c.AuctionRepository.FindAuctionById(ctx, input.AuctionId)
+	campaign, err := c.CampaignRepository.FindCampaignById(ctx, input.CampaignId)
 	if err != nil {
-		return nil, fmt.Errorf("error finding auction campaigns: %w", err)
+		return nil, fmt.Errorf("error finding campaign campaigns: %w", err)
 	}
 
-	if auction.ClosesAt < metadata.BlockTimestamp {
-		return nil, fmt.Errorf("auction campaign closed, order cannot be placed")
+	if campaign.ClosesAt < metadata.BlockTimestamp {
+		return nil, fmt.Errorf("campaign campaign closed, order cannot be placed")
 	}
 
-	if Address(erc20Deposit.Token) != auction.Token {
+	if Address(erc20Deposit.Token) != campaign.Token {
 		return nil, fmt.Errorf("invalid contract address provided for order creation: %v", erc20Deposit.Token)
 	}
 
-	if input.InterestRate.Gt(auction.MaxInterestRate) {
-		return nil, fmt.Errorf("order interest rate exceeds active Auction max interest rate")
+	if input.InterestRate.Gt(campaign.MaxInterestRate) {
+		return nil, fmt.Errorf("order interest rate exceeds active Campaign max interest rate")
 	}
 
 	order, err := entity.NewOrder(
-		auction.Id,
+		campaign.Id,
 		Address(erc20Deposit.Sender),
 		uint256.MustFromBig(erc20Deposit.Value),
 		input.InterestRate,
@@ -81,7 +79,7 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 
 	return &CreateOrderOutputDTO{
 		Id:           res.Id,
-		AuctionId:    res.AuctionId,
+		CampaignId:   res.CampaignId,
 		Investor:     res.Investor,
 		Amount:       res.Amount,
 		InterestRate: res.InterestRate,

@@ -32,7 +32,7 @@ func (o *FindOrdersByInvestorUseCase) Execute(ctx context.Context, input *FindOr
 	for i, order := range res {
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
-			AuctionId:    order.AuctionId,
+			CampaignId:   order.CampaignId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

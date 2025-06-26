@@ -43,17 +43,6 @@ func (r *SQLiteRepository) FindAllUsers(ctx context.Context) ([]*entity.User, er
 	return users, nil
 }
 
-func (r *SQLiteRepository) UpdateUser(ctx context.Context, input *entity.User) (*entity.User, error) {
-	if err := r.Db.WithContext(ctx).Updates(&input).Error; err != nil {
-		return nil, fmt.Errorf("failed to update user: %w", err)
-	}
-	user, err := r.FindUserByAddress(ctx, input.Address)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 func (r *SQLiteRepository) DeleteUser(ctx context.Context, address Address) error {
 	res := r.Db.WithContext(ctx).Where("address = ?", address).Delete(&entity.User{})
 	if res.Error != nil {

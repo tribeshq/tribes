@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/rollmelette/rollmelette"
@@ -15,7 +17,7 @@ import (
 )
 
 type UserAdvanceHandlers struct {
-	UserRepository repository.UserRepository
+	UserRepository           repository.UserRepository
 }
 
 func NewUserAdvanceHandlers(userRepository repository.UserRepository) *UserAdvanceHandlers {
@@ -48,33 +50,6 @@ func (h *UserAdvanceHandlers) CreateUser(env rollmelette.Env, metadata rollmelet
 	}
 
 	env.Notice(append([]byte("user created - "), user...))
-	return nil
-}
-
-func (h *UserAdvanceHandlers) UpdateUser(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input user.UpdateUserInputDTO
-	if err := json.Unmarshal(payload, &input); err != nil {
-		return fmt.Errorf("failed to unmarshal input: %w", err)
-	}
-
-	validator := validator.New()
-	if err := validator.Struct(input); err != nil {
-		return fmt.Errorf("failed to validate input: %w", err)
-	}
-
-	ctx := context.Background()
-	updateUser := user.NewUpdateUserUseCase(h.UserRepository)
-	res, err := updateUser.Execute(ctx, &input, metadata)
-	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
-	}
-
-	user, err := json.Marshal(res)
-	if err != nil {
-		return fmt.Errorf("failed to marshal response: %w", err)
-	}
-
-	env.Notice(append([]byte("user updated - "), user...))
 	return nil
 }
 
@@ -150,5 +125,87 @@ func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollme
 			"ERC20 withdrawn - token: %s, amount: %s, user: %s", common.Address(input.Token), input.Amount.ToBig(), metadata.MsgSender,
 		),
 	))
+	return nil
+}
+
+func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input user.EmergencyERC20WithdrawInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	validator := validator.New()
+	if err := validator.Struct(input); err != nil {
+		return fmt.Errorf("failed to validate input: %w", err)
+	}
+
+	abiJSON := `[{
+		"type":"function",
+		"name":"emergencyERC20Withdraw",
+		"inputs":[
+			{"type":"address"},
+			{"type":"address"},
+			{"type":"address"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
+
+	delegateCallVoucher, err := abiInterface.Pack(
+		"emergencyERC20Withdraw",
+		metadata.MsgSender,
+		input.Token,
+		input.To,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to pack ABI: %w", err)
+	}
+
+	env.DelegateCallVoucher(
+		common.Address(input.EmergencyWithdrawAddress),
+		delegateCallVoucher,
+	)
+	return nil
+}
+
+func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input user.EmergencyEtherWithdrawInputDTO
+	if err := json.Unmarshal(payload, &input); err != nil {
+		return fmt.Errorf("failed to unmarshal input: %w", err)
+	}
+
+	validator := validator.New()
+	if err := validator.Struct(input); err != nil {
+		return fmt.Errorf("failed to validate input: %w", err)
+	}
+
+	abiJSON := `[{
+		"type":"function",
+		"name":"emergencyETHWithdraw",
+		"inputs":[
+			{"type":"address"},
+			{"type":"address"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
+
+	delegateCallVoucher, err := abiInterface.Pack(
+		"emergencyETHWithdraw",
+		metadata.MsgSender,
+		input.To,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to pack ABI: %w", err)
+	}
+
+	env.DelegateCallVoucher(
+		common.Address(input.EmergencyWithdrawAddress),
+		delegateCallVoucher,
+	)
 	return nil
 }

@@ -1,4 +1,4 @@
-package auction
+package campaign
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type SettleAuctionInputDTO struct {
-	AuctionId uint `json:"auction_id" validate:"required"`
+type SettleCampaignInputDTO struct {
+	CampaignId uint `json:"campaign_id" validate:"required"`
 }
 
-type SettleAuctionOutputDTO struct {
+type SettleCampaignOutputDTO struct {
 	Id                uint            `json:"id"`
 	Token             Address         `json:"token"`
 	Creator           Address         `json:"creator"`
@@ -33,43 +33,43 @@ type SettleAuctionOutputDTO struct {
 	UpdatedAt         int64           `json:"updated_at"`
 }
 
-type SettleAuctionUseCase struct {
-	AuctionRepository repository.AuctionRepository
-	OrderRepository   repository.OrderRepository
+type SettleCampaignUseCase struct {
+	CampaignRepository repository.CampaignRepository
+	OrderRepository    repository.OrderRepository
 }
 
-func NewSettleAuctionUseCase(
-	AuctionRepository repository.AuctionRepository,
+func NewSettleCampaignUseCase(
+	CampaignRepository repository.CampaignRepository,
 	orderRepository repository.OrderRepository,
-) *SettleAuctionUseCase {
-	return &SettleAuctionUseCase{
-		AuctionRepository: AuctionRepository,
-		OrderRepository:   orderRepository,
+) *SettleCampaignUseCase {
+	return &SettleCampaignUseCase{
+		CampaignRepository: CampaignRepository,
+		OrderRepository:    orderRepository,
 	}
 }
 
-func (uc *SettleAuctionUseCase) Execute(
+func (uc *SettleCampaignUseCase) Execute(
 	ctx context.Context,
-	input *SettleAuctionInputDTO,
+	input *SettleCampaignInputDTO,
 	deposit rollmelette.Deposit,
 	metadata rollmelette.Metadata,
-) (*SettleAuctionOutputDTO, error) {
+) (*SettleCampaignOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	auction, err := uc.AuctionRepository.FindAuctionById(ctx, input.AuctionId)
+	campaign, err := uc.CampaignRepository.FindCampaignById(ctx, input.CampaignId)
 	if err != nil {
-		return nil, fmt.Errorf("error finding auction: %w", err)
+		return nil, fmt.Errorf("error finding campaign: %w", err)
 	}
 
-	if err := uc.Validate(auction, erc20Deposit, metadata); err != nil {
+	if err := uc.Validate(campaign, erc20Deposit, metadata); err != nil {
 		return nil, err
 	}
 
 	var ordersToUpdate []*entity.Order
-	for _, order := range auction.Orders {
+	for _, order := range campaign.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
 			order.State = entity.OrderStateSettled
 			order.UpdatedAt = metadata.BlockTimestamp
@@ -82,14 +82,14 @@ func (uc *SettleAuctionUseCase) Execute(
 		}
 	}
 
-	auction.State = entity.AuctionStateSettled
-	auction.UpdatedAt = metadata.BlockTimestamp
-	res, err := uc.AuctionRepository.UpdateAuction(ctx, auction)
+	campaign.State = entity.CampaignStateSettled
+	campaign.UpdatedAt = metadata.BlockTimestamp
+	res, err := uc.CampaignRepository.UpdateCampaign(ctx, campaign)
 	if err != nil {
-		return nil, fmt.Errorf("error updating auction: %w", err)
+		return nil, fmt.Errorf("error updating campaign: %w", err)
 	}
 
-	return &SettleAuctionOutputDTO{
+	return &SettleCampaignOutputDTO{
 		Id:                res.Id,
 		Token:             res.Token,
 		Creator:           res.Creator,
@@ -108,29 +108,29 @@ func (uc *SettleAuctionUseCase) Execute(
 	}, nil
 }
 
-func (uc *SettleAuctionUseCase) Validate(
-	Auction *entity.Auction,
+func (uc *SettleCampaignUseCase) Validate(
+	Campaign *entity.Campaign,
 	deposit *rollmelette.ERC20Deposit,
 	metadata rollmelette.Metadata,
 ) error {
-	if metadata.BlockTimestamp > Auction.MaturityAt {
-		return fmt.Errorf("the maturity date of the auction campaign has passed")
+	if metadata.BlockTimestamp > Campaign.MaturityAt {
+		return fmt.Errorf("the maturity date of the campaign campaign has passed")
 	}
 
-	if Auction.State == entity.AuctionStateSettled {
-		return fmt.Errorf("auction campaign already settled")
+	if Campaign.State == entity.CampaignStateSettled {
+		return fmt.Errorf("campaign campaign already settled")
 	}
 
-	if Auction.State != entity.AuctionStateClosed {
-		return fmt.Errorf("auction campaign not closed")
+	if Campaign.State != entity.CampaignStateClosed {
+		return fmt.Errorf("campaign campaign not closed")
 	}
 
-	if deposit.Value.Cmp(Auction.TotalObligation.ToBig()) < 0 {
+	if deposit.Value.Cmp(Campaign.TotalObligation.ToBig()) < 0 {
 		return fmt.Errorf("deposit amount is lower than the total obligation")
 	}
 
-	if Auction.Creator != Address(deposit.Sender) {
-		return fmt.Errorf("only the auction creator can settle the auction")
+	if Campaign.Creator != Address(deposit.Sender) {
+		return fmt.Errorf("only the campaign creator can settle the campaign")
 	}
 	return nil
 }

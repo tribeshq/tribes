@@ -1,4 +1,4 @@
-package auction
+package campaign
 
 import (
 	"context"
@@ -7,20 +7,20 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-type FindAuctionByIdInputDTO struct {
+type FindCampaignByIdInputDTO struct {
 	Id uint `json:"id" validate:"required"`
 }
 
-type FindAuctionByIdUseCase struct {
-	AuctionRepository repository.AuctionRepository
+type FindCampaignByIdUseCase struct {
+	CampaignRepository repository.CampaignRepository
 }
 
-func NewFindAuctionByIdUseCase(AuctionRepository repository.AuctionRepository) *FindAuctionByIdUseCase {
-	return &FindAuctionByIdUseCase{AuctionRepository: AuctionRepository}
+func NewFindCampaignByIdUseCase(CampaignRepository repository.CampaignRepository) *FindCampaignByIdUseCase {
+	return &FindCampaignByIdUseCase{CampaignRepository: CampaignRepository}
 }
 
-func (f *FindAuctionByIdUseCase) Execute(ctx context.Context, input *FindAuctionByIdInputDTO) (*FindAuctionOutputDTO, error) {
-	res, err := f.AuctionRepository.FindAuctionById(ctx, input.Id)
+func (f *FindCampaignByIdUseCase) Execute(ctx context.Context, input *FindCampaignByIdInputDTO) (*FindCampaignOutputDTO, error) {
+	res, err := f.CampaignRepository.FindCampaignById(ctx, input.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (f *FindAuctionByIdUseCase) Execute(ctx context.Context, input *FindAuction
 	for i, order := range res.Orders {
 		orders[i] = &entity.Order{
 			Id:           order.Id,
-			AuctionId:    order.AuctionId,
+			CampaignId:   order.CampaignId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,
@@ -37,7 +37,7 @@ func (f *FindAuctionByIdUseCase) Execute(ctx context.Context, input *FindAuction
 			UpdatedAt:    order.UpdatedAt,
 		}
 	}
-	return &FindAuctionOutputDTO{
+	return &FindCampaignOutputDTO{
 		Id:                res.Id,
 		Token:             res.Token,
 		Creator:           res.Creator,

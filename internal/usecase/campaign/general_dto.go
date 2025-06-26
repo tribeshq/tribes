@@ -1,4 +1,4 @@
-package auction
+package campaign
 
 import (
 	"github.com/holiman/uint256"
@@ -6,7 +6,7 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type FindAuctionOutputDTO struct {
+type FindCampaignOutputDTO struct {
 	Id                uint            `json:"id"`
 	Token             Address         `json:"token"`
 	Creator           Address         `json:"creator"`

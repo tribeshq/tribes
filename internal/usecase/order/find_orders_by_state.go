@@ -7,8 +7,8 @@ import (
 )
 
 type FindOrdersByStateInputDTO struct {
-	AuctionId uint   `json:"auction_id" validate:"required"`
-	State     string `json:"state" validate:"required"`
+	CampaignId uint   `json:"campaign_id" validate:"required"`
+	State      string `json:"state" validate:"required"`
 }
 
 type FindOrdersByStateOutputDTO []*FindOrderOutputDTO
@@ -24,7 +24,7 @@ func NewFindOrdersByStateUseCase(orderRepository repository.OrderRepository) *Fi
 }
 
 func (f *FindOrdersByStateUseCase) Execute(ctx context.Context, input *FindOrdersByStateInputDTO) (FindOrdersByStateOutputDTO, error) {
-	res, err := f.OrderRepository.FindOrdersByState(ctx, input.AuctionId, input.State)
+	res, err := f.OrderRepository.FindOrdersByState(ctx, input.CampaignId, input.State)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (f *FindOrdersByStateUseCase) Execute(ctx context.Context, input *FindOrder
 	for i, order := range res {
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
-			AuctionId:    order.AuctionId,
+			CampaignId:   order.CampaignId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

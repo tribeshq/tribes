@@ -27,7 +27,7 @@ func (c *FindOrderByIdUseCase) Execute(ctx context.Context, input *FindOrderById
 	}
 	return &FindOrderOutputDTO{
 		Id:           res.Id,
-		AuctionId:    res.AuctionId,
+		CampaignId:   res.CampaignId,
 		Investor:     res.Investor,
 		Amount:       res.Amount,
 		InterestRate: res.InterestRate,

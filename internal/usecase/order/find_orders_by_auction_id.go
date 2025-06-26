@@ -6,32 +6,32 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-type FindOrdersByAuctionIdInputDTO struct {
-	AuctionId uint `json:"auction_id" validate:"required"`
+type FindOrdersByCampaignIdInputDTO struct {
+	CampaignId uint `json:"campaign_id" validate:"required"`
 }
 
-type FindOrdersByAuctionIdOutputDTO []*FindOrderOutputDTO
+type FindOrdersByCampaignIdOutputDTO []*FindOrderOutputDTO
 
-type FindOrdersByAuctionIdUseCase struct {
+type FindOrdersByCampaignIdUseCase struct {
 	OrderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByAuctionIdUseCase(orderRepository repository.OrderRepository) *FindOrdersByAuctionIdUseCase {
-	return &FindOrdersByAuctionIdUseCase{
+func NewFindOrdersByCampaignIdUseCase(orderRepository repository.OrderRepository) *FindOrdersByCampaignIdUseCase {
+	return &FindOrdersByCampaignIdUseCase{
 		OrderRepository: orderRepository,
 	}
 }
 
-func (c *FindOrdersByAuctionIdUseCase) Execute(ctx context.Context, input *FindOrdersByAuctionIdInputDTO) (*FindOrdersByAuctionIdOutputDTO, error) {
-	res, err := c.OrderRepository.FindOrdersByAuctionId(ctx, input.AuctionId)
+func (c *FindOrdersByCampaignIdUseCase) Execute(ctx context.Context, input *FindOrdersByCampaignIdInputDTO) (*FindOrdersByCampaignIdOutputDTO, error) {
+	res, err := c.OrderRepository.FindOrdersByCampaignId(ctx, input.CampaignId)
 	if err != nil {
 		return nil, err
 	}
-	output := make(FindOrdersByAuctionIdOutputDTO, len(res))
+	output := make(FindOrdersByCampaignIdOutputDTO, len(res))
 	for i, order := range res {
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
-			AuctionId:    order.AuctionId,
+			CampaignId:   order.CampaignId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

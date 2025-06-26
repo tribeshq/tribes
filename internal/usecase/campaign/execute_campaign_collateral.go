@@ -1,4 +1,4 @@
-package auction
+package campaign
 
 import (
 	"context"
@@ -11,12 +11,12 @@ import (
 	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type ExecuteAuctionCollateralInputDTO struct {
-	AuctionId uint `json:"auction_id" validate:"required"`
+type ExecuteCampaignCollateralInputDTO struct {
+	CampaignId uint `json:"campaign_id" validate:"required"`
 }
 
-type ExecuteAuctionCollateralOutputDTO struct {
-	AuctionId         uint            `json:"auction_id"`
+type ExecuteCampaignCollateralOutputDTO struct {
+	CampaignId        uint            `json:"campaign_id"`
 	Token             Address         `json:"token"`
 	Creator           Address         `json:"creator"`
 	CollateralAddress Address         `json:"collateral_address"`
@@ -33,30 +33,30 @@ type ExecuteAuctionCollateralOutputDTO struct {
 	UpdatedAt         int64           `json:"updated_at"`
 }
 
-type ExecuteAuctionCollateralUseCase struct {
-	AuctionRepository repository.AuctionRepository
-	OrderRepository   repository.OrderRepository
+type ExecuteCampaignCollateralUseCase struct {
+	CampaignRepository repository.CampaignRepository
+	OrderRepository    repository.OrderRepository
 }
 
-func NewExecuteAuctionCollateralUseCase(auctionRepository repository.AuctionRepository, orderRepository repository.OrderRepository) *ExecuteAuctionCollateralUseCase {
-	return &ExecuteAuctionCollateralUseCase{
-		AuctionRepository: auctionRepository,
-		OrderRepository:   orderRepository,
+func NewExecuteCampaignCollateralUseCase(campaignRepository repository.CampaignRepository, orderRepository repository.OrderRepository) *ExecuteCampaignCollateralUseCase {
+	return &ExecuteCampaignCollateralUseCase{
+		CampaignRepository: campaignRepository,
+		OrderRepository:    orderRepository,
 	}
 }
 
-func (uc *ExecuteAuctionCollateralUseCase) Execute(ctx context.Context, input *ExecuteAuctionCollateralInputDTO, metadata rollmelette.Metadata) (*ExecuteAuctionCollateralOutputDTO, error) {
-	auction, err := uc.AuctionRepository.FindAuctionById(ctx, input.AuctionId)
+func (uc *ExecuteCampaignCollateralUseCase) Execute(ctx context.Context, input *ExecuteCampaignCollateralInputDTO, metadata rollmelette.Metadata) (*ExecuteCampaignCollateralOutputDTO, error) {
+	campaign, err := uc.CampaignRepository.FindCampaignById(ctx, input.CampaignId)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := uc.Validate(auction, metadata); err != nil {
+	if err := uc.Validate(campaign, metadata); err != nil {
 		return nil, err
 	}
 
 	var ordersToUpdate []*entity.Order
-	for _, order := range auction.Orders {
+	for _, order := range campaign.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
 			order.State = entity.OrderStateSettledByCollateral
 			order.UpdatedAt = metadata.BlockTimestamp
@@ -69,15 +69,15 @@ func (uc *ExecuteAuctionCollateralUseCase) Execute(ctx context.Context, input *E
 		}
 	}
 
-	auction.State = entity.AuctionStateCollateralExecuted
+	campaign.State = entity.CampaignStateCollateralExecuted
 
-	res, err := uc.AuctionRepository.UpdateAuction(ctx, auction)
+	res, err := uc.CampaignRepository.UpdateCampaign(ctx, campaign)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ExecuteAuctionCollateralOutputDTO{
-		AuctionId:         res.Id,
+	return &ExecuteCampaignCollateralOutputDTO{
+		CampaignId:        res.Id,
 		Token:             res.Token,
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
@@ -95,12 +95,12 @@ func (uc *ExecuteAuctionCollateralUseCase) Execute(ctx context.Context, input *E
 	}, nil
 }
 
-func (uc *ExecuteAuctionCollateralUseCase) Validate(auction *entity.Auction, metadata rollmelette.Metadata) error {
-	if metadata.BlockTimestamp < auction.MaturityAt {
-		return fmt.Errorf("the maturity date of the auction campaign has not passed")
+func (uc *ExecuteCampaignCollateralUseCase) Validate(campaign *entity.Campaign, metadata rollmelette.Metadata) error {
+	if metadata.BlockTimestamp < campaign.MaturityAt {
+		return fmt.Errorf("the maturity date of the campaign campaign has not passed")
 	}
-	if auction.State != entity.AuctionStateClosed {
-		return fmt.Errorf("auction campaign not closed")
+	if campaign.State != entity.CampaignStateClosed {
+		return fmt.Errorf("campaign campaign not closed")
 	}
 	return nil
 }

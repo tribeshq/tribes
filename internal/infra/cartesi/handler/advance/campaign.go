@@ -11,29 +11,29 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	"github.com/tribeshq/tribes/internal/usecase/auction"
+	"github.com/tribeshq/tribes/internal/usecase/campaign"
 )
 
-type AuctionAdvanceHandlers struct {
-	OrderRepository   repository.OrderRepository
-	UserRepository    repository.UserRepository
-	AuctionRepository repository.AuctionRepository
+type CampaignAdvanceHandlers struct {
+	OrderRepository    repository.OrderRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
-func NewAuctionAdvanceHandlers(
+func NewCampaignAdvanceHandlers(
 	orderRepository repository.OrderRepository,
 	userRepository repository.UserRepository,
-	auctionRepository repository.AuctionRepository,
-) *AuctionAdvanceHandlers {
-	return &AuctionAdvanceHandlers{
-		OrderRepository:   orderRepository,
-		UserRepository:    userRepository,
-		AuctionRepository: auctionRepository,
+	campaignRepository repository.CampaignRepository,
+) *CampaignAdvanceHandlers {
+	return &CampaignAdvanceHandlers{
+		OrderRepository:    orderRepository,
+		UserRepository:     userRepository,
+		CampaignRepository: campaignRepository,
 	}
 }
 
-func (h *AuctionAdvanceHandlers) CreateAuction(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input auction.CreateAuctionInputDTO
+func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input campaign.CreateCampaignInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -44,14 +44,14 @@ func (h *AuctionAdvanceHandlers) CreateAuction(env rollmelette.Env, metadata rol
 	}
 
 	ctx := context.Background()
-	createAuction := auction.NewCreateAuctionUseCase(
-		h.AuctionRepository,
+	createCampaign := campaign.NewCreateCampaignUseCase(
+		h.CampaignRepository,
 		h.UserRepository,
 	)
 
-	res, err := createAuction.Execute(ctx, &input, deposit, metadata)
+	res, err := createCampaign.Execute(ctx, &input, deposit, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to create auction: %w", err)
+		return fmt.Errorf("failed to create campaign: %w", err)
 	}
 
 	erc20Deposit := deposit.(*rollmelette.ERC20Deposit)
@@ -64,17 +64,17 @@ func (h *AuctionAdvanceHandlers) CreateAuction(env rollmelette.Env, metadata rol
 		return fmt.Errorf("failed to transfer ERC20: %w", err)
 	}
 
-	auction, err := json.Marshal(res)
+	campaign, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("auction created - "), auction...))
+	env.Notice(append([]byte("campaign created - "), campaign...))
 	return nil
 }
 
-func (h *AuctionAdvanceHandlers) CloseAuction(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input auction.CloseAuctionInputDTO
+func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input campaign.CloseCampaignInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -85,10 +85,10 @@ func (h *AuctionAdvanceHandlers) CloseAuction(env rollmelette.Env, metadata roll
 	}
 
 	ctx := context.Background()
-	closeAuction := auction.NewCloseAuctionUseCase(h.AuctionRepository, h.OrderRepository)
-	res, err := closeAuction.Execute(ctx, &input, metadata)
+	closeCampaign := campaign.NewCloseCampaignUseCase(h.CampaignRepository, h.OrderRepository)
+	res, err := closeCampaign.Execute(ctx, &input, metadata)
 	if err != nil && res == nil {
-		return fmt.Errorf("failed to close auction: %w", err)
+		return fmt.Errorf("failed to close campaign: %w", err)
 	}
 
 	token := common.Address(res.Token)
@@ -111,17 +111,17 @@ func (h *AuctionAdvanceHandlers) CloseAuction(env rollmelette.Env, metadata roll
 		return fmt.Errorf("failed to transfer total raised: %w", err)
 	}
 
-	auction, err := json.Marshal(res)
+	campaign, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte(fmt.Sprintf("auction %v - ", res.State)), auction...))
+	env.Notice(append([]byte(fmt.Sprintf("campaign %v - ", res.State)), campaign...))
 	return nil
 }
 
-func (h *AuctionAdvanceHandlers) SettleAuction(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input auction.SettleAuctionInputDTO
+func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input campaign.SettleCampaignInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -132,14 +132,14 @@ func (h *AuctionAdvanceHandlers) SettleAuction(env rollmelette.Env, metadata rol
 	}
 
 	ctx := context.Background()
-	settleAuction := auction.NewSettleAuctionUseCase(
-		h.AuctionRepository,
+	settleCampaign := campaign.NewSettleCampaignUseCase(
+		h.CampaignRepository,
 		h.OrderRepository,
 	)
 
-	res, err := settleAuction.Execute(ctx, &input, deposit, metadata)
+	res, err := settleCampaign.Execute(ctx, &input, deposit, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to settle auction: %w", err)
+		return fmt.Errorf("failed to settle campaign: %w", err)
 	}
 
 	contractAddr := common.Address(res.Token)
@@ -166,17 +166,17 @@ func (h *AuctionAdvanceHandlers) SettleAuction(env rollmelette.Env, metadata rol
 		}
 	}
 
-	auction, err := json.Marshal(res)
+	campaign, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("auction settled - "), auction...))
+	env.Notice(append([]byte("campaign settled - "), campaign...))
 	return nil
 }
 
-func (h *AuctionAdvanceHandlers) ExecuteAuctionCollateral(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input auction.ExecuteAuctionCollateralInputDTO
+func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input campaign.ExecuteCampaignCollateralInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -187,10 +187,10 @@ func (h *AuctionAdvanceHandlers) ExecuteAuctionCollateral(env rollmelette.Env, m
 	}
 
 	ctx := context.Background()
-	executeAuctionCollateral := auction.NewExecuteAuctionCollateralUseCase(h.AuctionRepository, h.OrderRepository)
-	res, err := executeAuctionCollateral.Execute(ctx, &input, metadata)
+	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.CampaignRepository, h.OrderRepository)
+	res, err := executeCampaignCollateral.Execute(ctx, &input, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to execute auction collateral: %w", err)
+		return fmt.Errorf("failed to execute campaign collateral: %w", err)
 	}
 
 	totalFinalValue := uint256.NewInt(0)
@@ -222,11 +222,11 @@ func (h *AuctionAdvanceHandlers) ExecuteAuctionCollateral(env rollmelette.Env, m
 		}
 	}
 
-	auction, err := json.Marshal(res)
+	campaign, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("auction collateral executed - "), auction...))
+	env.Notice(append([]byte("campaign collateral executed - "), campaign...))
 	return nil
 }

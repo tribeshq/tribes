@@ -49,7 +49,7 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 	}
 
 	err = db.AutoMigrate(
-		&entity.Auction{},
+		&entity.Campaign{},
 		&entity.Order{},
 		&entity.User{},
 		&entity.SocialAccount{},

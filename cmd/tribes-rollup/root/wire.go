@@ -15,18 +15,18 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 		// Bind repository interfaces
 		wire.Bind(new(repository.UserRepository), new(repository.Repository)),
 		wire.Bind(new(repository.OrderRepository), new(repository.Repository)),
-		wire.Bind(new(repository.AuctionRepository), new(repository.Repository)),
+		wire.Bind(new(repository.CampaignRepository), new(repository.Repository)),
 		wire.Bind(new(repository.SocialAccountRepository), new(repository.Repository)),
 		// Advance handlers
 		advance.NewOrderAdvanceHandlers,
 		advance.NewUserAdvanceHandlers,
 		advance.NewSocialAccountAdvanceHandlers,
-		advance.NewAuctionAdvanceHandlers,
+		advance.NewCampaignAdvanceHandlers,
 		// Inspect handlers
 		inspect.NewOrderInspectHandlers,
 		inspect.NewUserInspectHandlers,
 		inspect.NewSocialAccountInspectHandlers,
-		inspect.NewAuctionInspectHandlers,
+		inspect.NewCampaignInspectHandlers,
 		wire.Struct(new(Handlers), "*"),
 	)
 	return &Handlers{}, nil
@@ -35,14 +35,14 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 // Handlers contains all handler dependencies
 type Handlers struct {
 	// Advance handlers
-	OrderAdvanceHandlers   *advance.OrderAdvanceHandlers
-	UserAdvanceHandlers    *advance.UserAdvanceHandlers
-	SocialAccountsHandlers *advance.SocialAccountAdvanceHandlers
-	AuctionAdvanceHandlers *advance.AuctionAdvanceHandlers
+	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
+	UserAdvanceHandlers     *advance.UserAdvanceHandlers
+	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
+	CampaignAdvanceHandlers *advance.CampaignAdvanceHandlers
 
 	// Inspect handlers
-	OrderInspectHandlers   *inspect.OrderInspectHandlers
-	UserInspectHandlers    *inspect.UserInspectHandlers
-	SocialAccountHandlers  *inspect.SocialAccountInspectHandlers
-	AuctionInspectHandlers *inspect.AuctionInspectHandlers
+	OrderInspectHandlers    *inspect.OrderInspectHandlers
+	UserInspectHandlers     *inspect.UserInspectHandlers
+	SocialAccountHandlers   *inspect.SocialAccountInspectHandlers
+	CampaignInspectHandlers *inspect.CampaignInspectHandlers
 }

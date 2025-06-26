@@ -17,7 +17,7 @@ type CancelOrderInputDTO struct {
 
 type CancelOrderOutputDTO struct {
 	Id           uint
-	AuctionId    uint
+	CampaignId   uint
 	Token        Address
 	Investor     Address
 	Amount       *uint256.Int
@@ -28,14 +28,14 @@ type CancelOrderOutputDTO struct {
 }
 
 type CancelOrderUseCase struct {
-	OrderRepository   repository.OrderRepository
-	AuctionRepository repository.AuctionRepository
+	OrderRepository    repository.OrderRepository
+	CampaignRepository repository.CampaignRepository
 }
 
-func NewCancelOrderUseCase(orderRepository repository.OrderRepository, auctionRepository repository.AuctionRepository) *CancelOrderUseCase {
+func NewCancelOrderUseCase(orderRepository repository.OrderRepository, campaignRepository repository.CampaignRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
-		OrderRepository:   orderRepository,
-		AuctionRepository: auctionRepository,
+		OrderRepository:    orderRepository,
+		CampaignRepository: campaignRepository,
 	}
 }
 
@@ -47,12 +47,12 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	if order.Investor != Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
-	auction, err := c.AuctionRepository.FindAuctionById(ctx, order.AuctionId)
+	campaign, err := c.CampaignRepository.FindCampaignById(ctx, order.CampaignId)
 	if err != nil {
 		return nil, err
 	}
-	if auction.State == entity.AuctionStateClosed {
-		return nil, errors.New("cannot cancel order after Auction closes")
+	if campaign.State == entity.CampaignStateClosed {
+		return nil, errors.New("cannot cancel order after Campaign closes")
 	}
 	err = c.OrderRepository.DeleteOrder(ctx, input.Id)
 	if err != nil {
@@ -60,8 +60,8 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	}
 	return &CancelOrderOutputDTO{
 		Id:           order.Id,
-		AuctionId:    order.AuctionId,
-		Token:        auction.Token,
+		CampaignId:   order.CampaignId,
+		Token:        campaign.Token,
 		Investor:     order.Investor,
 		Amount:       order.Amount,
 		InterestRate: order.InterestRate,
