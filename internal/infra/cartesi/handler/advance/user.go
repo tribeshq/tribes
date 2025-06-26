@@ -17,7 +17,7 @@ import (
 )
 
 type UserAdvanceHandlers struct {
-	UserRepository           repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewUserAdvanceHandlers(userRepository repository.UserRepository) *UserAdvanceHandlers {

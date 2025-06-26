@@ -1,8 +1,8 @@
 package user
 
 import (
-	. "github.com/tribeshq/tribes/pkg/custom_type"
 	"github.com/holiman/uint256"
+	. "github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type WithdrawInputDTO struct {
