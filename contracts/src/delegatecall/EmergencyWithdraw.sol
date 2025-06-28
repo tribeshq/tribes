@@ -25,7 +25,7 @@ contract EmergencyWithdraw {
         if (balance == 0) {
             revert ZeroBalance();
         }
-        (bool success, ) = to.call{value: balance}("");
+        (bool success,) = to.call{value: balance}("");
         if (!success) {
             revert ETHTransferFailed();
         }

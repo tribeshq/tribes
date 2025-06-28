@@ -1,5 +1,8 @@
 forge-std-1.9.7/=dependencies/forge-std-1.9.7/
 openzeppelin-contracts/=dependencies/@openzeppelin-contracts-5.0.1/
+@chainlink/contracts/=dependencies/chainlink-evm-v2.24.0/contracts/
+@chainlink/local/=dependencies/chainlink-local-v0.2.6-beta/
+@chainlink/contracts-ccip/=dependencies/chainlink-ccip-contracts-ccip-v1.6.0/chains/evm/
 cartesi-rollups-contracts-2.0.0/=dependencies/cartesi-rollups-contracts-2.0.0/
 risc0-ethereum-2.1.1/=dependencies/risc0-ethereum-2.1.1/
 vlayer-1.2.0/=dependencies/vlayer-1.2.0/
