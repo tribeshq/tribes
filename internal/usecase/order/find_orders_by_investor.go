@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindOrdersByInvestorInputDTO struct {
-	Investor Address `json:"investor" validate:"required"`
+	Investor custom_type.Address `json:"investor" validate:"required"`
 }
 
 type FindOrdersByInvestorOutputDTO []*FindOrderOutputDTO
@@ -33,6 +33,7 @@ func (o *FindOrdersByInvestorUseCase) Execute(ctx context.Context, input *FindOr
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
 			CampaignId:   order.CampaignId,
+			BadgeChainId: order.BadgeChainId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

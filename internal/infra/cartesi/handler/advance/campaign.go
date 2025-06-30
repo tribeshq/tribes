@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
+	"strings"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/holiman/uint256"
@@ -104,6 +107,34 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 			); err != nil {
 				return fmt.Errorf("failed to transfer rejected order: %w", err)
 			}
+		}
+	}
+
+	abiJSON := `[{
+		"type":"function",
+		"name":"mint",
+		"inputs":[
+			{"type":"uint64"},
+			{"type":"address"}
+		]
+	}]`
+
+	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
+
+	for _, order := range res.Orders {
+		if order.State != entity.OrderStateRejected {
+			voucher, err := abiInterface.Pack(
+				"mint",
+				order.BadgeChainId,
+				common.Address(order.Investor),
+			)
+			if err != nil {
+				return fmt.Errorf("failed to pack ABI: %w", err)
+			}
+			env.Voucher(common.Address(res.BadgeMinter), big.NewInt(0), voucher)
 		}
 	}
 

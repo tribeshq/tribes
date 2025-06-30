@@ -13,7 +13,7 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type UserAdvanceHandlers struct {
@@ -93,7 +93,7 @@ func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollme
 	ctx := context.Background()
 	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
-		Address: Address(metadata.MsgSender),
+		Address: custom_type.Address(metadata.MsgSender),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)

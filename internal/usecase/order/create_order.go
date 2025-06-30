@@ -8,22 +8,24 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateOrderInputDTO struct {
 	CampaignId   uint         `json:"campaign_id" validate:"required"`
+	BadgeChainId uint64       `json:"badge_chain_id" validate:"required"`
 	InterestRate *uint256.Int `json:"interest_rate" validate:"required"`
 }
 
 type CreateOrderOutputDTO struct {
-	Id           uint         `json:"id"`
-	CampaignId   uint         `json:"campaign_id"`
-	Investor     Address      `json:"investor"`
-	Amount       *uint256.Int `json:"amount"`
-	InterestRate *uint256.Int `json:"interest_rate"`
-	State        string       `json:"state"`
-	CreatedAt    int64        `json:"created_at"`
+	Id           uint                `json:"id"`
+	CampaignId   uint                `json:"campaign_id"`
+	BadgeChainId uint64              `json:"badge_chain_id"`
+	Investor     custom_type.Address `json:"investor"`
+	Amount       *uint256.Int        `json:"amount"`
+	InterestRate *uint256.Int        `json:"interest_rate"`
+	State        string              `json:"state"`
+	CreatedAt    int64               `json:"created_at"`
 }
 
 type CreateOrderUseCase struct {
@@ -53,7 +55,7 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 		return nil, fmt.Errorf("campaign campaign closed, order cannot be placed")
 	}
 
-	if Address(erc20Deposit.Token) != campaign.Token {
+	if custom_type.Address(erc20Deposit.Token) != campaign.Token {
 		return nil, fmt.Errorf("invalid contract address provided for order creation: %v", erc20Deposit.Token)
 	}
 
@@ -63,7 +65,8 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 
 	order, err := entity.NewOrder(
 		campaign.Id,
-		Address(erc20Deposit.Sender),
+		input.BadgeChainId,
+		custom_type.Address(erc20Deposit.Sender),
 		uint256.MustFromBig(erc20Deposit.Value),
 		input.InterestRate,
 		metadata.BlockTimestamp,
@@ -80,6 +83,7 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 	return &CreateOrderOutputDTO{
 		Id:           res.Id,
 		CampaignId:   res.CampaignId,
+		BadgeChainId: res.BadgeChainId,
 		Investor:     res.Investor,
 		Amount:       res.Amount,
 		InterestRate: res.InterestRate,

@@ -5,11 +5,11 @@ import (
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindCampaignsByInvestorInputDTO struct {
-	Investor Address `json:"investor" validate:"required"`
+	Investor custom_type.Address `json:"investor" validate:"required"`
 }
 
 type FindCampaignsByInvestorOutputDTO []*FindCampaignOutputDTO
@@ -34,6 +34,7 @@ func (f *FindCampaignsByInvestorUseCase) Execute(ctx context.Context, input *Fin
 			orders[j] = &entity.Order{
 				Id:           order.Id,
 				CampaignId:   order.CampaignId,
+				BadgeChainId: order.BadgeChainId,
 				Investor:     order.Investor,
 				Amount:       order.Amount,
 				InterestRate: order.InterestRate,
@@ -48,6 +49,7 @@ func (f *FindCampaignsByInvestorUseCase) Execute(ctx context.Context, input *Fin
 			Creator:           Campaign.Creator,
 			CollateralAddress: Campaign.CollateralAddress,
 			CollateralAmount:  Campaign.CollateralAmount,
+			BadgeMinter:       Campaign.BadgeMinter,
 			DebtIssued:        Campaign.DebtIssued,
 			MaxInterestRate:   Campaign.MaxInterestRate,
 			TotalObligation:   Campaign.TotalObligation,

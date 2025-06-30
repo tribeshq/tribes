@@ -9,29 +9,30 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CloseCampaignInputDTO struct {
-	Creator Address `json:"creator" validate:"required"`
+	Creator custom_type.Address `json:"creator" validate:"required"`
 }
 
 type CloseCampaignOutputDTO struct {
-	Id                uint            `json:"id"`
-	Token             Address         `json:"token,omitempty"`
-	Creator           Address         `json:"creator,omitempty"`
-	CollateralAddress Address         `json:"collateral_address,omitempty"`
-	CollateralAmount  *uint256.Int    `json:"collateral_amount,omitempty"`
-	DebtIssued        *uint256.Int    `json:"debt_issued,omitempty"`
-	MaxInterestRate   *uint256.Int    `json:"max_interest_rate,omitempty"`
-	TotalObligation   *uint256.Int    `json:"total_obligation,omitempty"`
-	TotalRaised       *uint256.Int    `json:"total_raised,omitempty"`
-	State             string          `json:"state,omitempty"`
-	Orders            []*entity.Order `json:"orders,omitempty"`
-	CreatedAt         int64           `json:"created_at,omitempty"`
-	ClosesAt          int64           `json:"closes_at,omitempty"`
-	MaturityAt        int64           `json:"maturity_at,omitempty"`
-	UpdatedAt         int64           `json:"updated_at,omitempty"`
+	Id                uint                `json:"id"`
+	Token             custom_type.Address `json:"token,omitempty"`
+	Creator           custom_type.Address `json:"creator,omitempty"`
+	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
+	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
+	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
+	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty"`
+	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty"`
+	TotalObligation   *uint256.Int        `json:"total_obligation,omitempty"`
+	TotalRaised       *uint256.Int        `json:"total_raised,omitempty"`
+	State             string              `json:"state,omitempty"`
+	Orders            []*entity.Order     `json:"orders,omitempty"`
+	CreatedAt         int64               `json:"created_at,omitempty"`
+	ClosesAt          int64               `json:"closes_at,omitempty"`
+	MaturityAt        int64               `json:"maturity_at,omitempty"`
+	UpdatedAt         int64               `json:"updated_at,omitempty"`
 }
 
 type CloseCampaignUseCase struct {
@@ -125,6 +126,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(ctx, &entity.Order{
 				CampaignId:   order.CampaignId,
+				BadgeChainId: order.BadgeChainId,
 				Investor:     order.Investor,
 				Amount:       rejectedAmount,
 				InterestRate: order.InterestRate,
@@ -184,6 +186,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
+		BadgeMinter:       res.BadgeMinter,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,
 		TotalObligation:   res.TotalObligation,

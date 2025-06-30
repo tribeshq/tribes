@@ -7,18 +7,18 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateUserInputDTO struct {
-	Role    string  `json:"role" validate:"required"`
-	Address Address `json:"address" validate:"required"`
+	Role    string              `json:"role" validate:"required"`
+	Address custom_type.Address `json:"address" validate:"required"`
 }
 
 type CreateUserOutputDTO struct {
 	Id              uint                    `json:"id"`
 	Role            string                  `json:"role"`
-	Address         Address                 `json:"address"`
+	Address         custom_type.Address     `json:"address"`
 	SocialAccounts  []*entity.SocialAccount `json:"social_accounts"`
 	InvestmentLimit *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
 	CreatedAt       int64                   `json:"created_at"`

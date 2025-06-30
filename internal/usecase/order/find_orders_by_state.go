@@ -33,6 +33,7 @@ func (f *FindOrdersByStateUseCase) Execute(ctx context.Context, input *FindOrder
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
 			CampaignId:   order.CampaignId,
+			BadgeChainId: order.BadgeChainId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

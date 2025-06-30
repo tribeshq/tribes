@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/holiman/uint256"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 var (
@@ -24,29 +24,31 @@ const (
 )
 
 type Campaign struct {
-	Id                uint          `json:"id" gorm:"primaryKey"`
-	Token             Address       `json:"token,omitempty" gorm:"custom_type:text;not null"`
-	Creator           Address       `json:"creator,omitempty" gorm:"custom_type:text;not null"`
-	CollateralAddress Address       `json:"collateral_address,omitempty" gorm:"custom_type:text;not null"`
-	CollateralAmount  *uint256.Int  `json:"collateral_amount,omitempty" gorm:"custom_type:text;not null"`
-	DebtIssued        *uint256.Int  `json:"debt_issued,omitempty" gorm:"custom_type:text;not null"`
-	MaxInterestRate   *uint256.Int  `json:"max_interest_rate,omitempty" gorm:"custom_type:text;not null"`
-	TotalObligation   *uint256.Int  `json:"total_obligation,omitempty" gorm:"custom_type:text;not null;default:0"`
-	TotalRaised       *uint256.Int  `json:"total_raised,omitempty" gorm:"custom_type:text;not null;default:0"`
-	State             CampaignState `json:"state,omitempty" gorm:"custom_type:text;not null"`
-	Orders            []*Order      `json:"orders,omitempty" gorm:"foreignKey:CampaignId;constraint:OnDelete:CASCADE"`
-	ClosesAt          int64         `json:"closes_at,omitempty" gorm:"not null"`
-	MaturityAt        int64         `json:"maturity_at,omitempty" gorm:"not null"`
-	CreatedAt         int64         `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt         int64         `json:"updated_at,omitempty" gorm:"default:0"`
+	Id                uint                `json:"id" gorm:"primaryKey"`
+	Token             custom_type.Address `json:"token,omitempty" gorm:"custom_type:text;not null"`
+	Creator           custom_type.Address `json:"creator,omitempty" gorm:"custom_type:text;not null"`
+	CollateralAddress custom_type.Address `json:"collateral_address,omitempty" gorm:"custom_type:text;not null"`
+	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty" gorm:"custom_type:text;not null"`
+	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty" gorm:"custom_type:text;not null"`
+	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty" gorm:"custom_type:text;not null"`
+	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"custom_type:text;not null"`
+	TotalObligation   *uint256.Int        `json:"total_obligation,omitempty" gorm:"custom_type:text;not null;default:0"`
+	TotalRaised       *uint256.Int        `json:"total_raised,omitempty" gorm:"custom_type:text;not null;default:0"`
+	State             CampaignState       `json:"state,omitempty" gorm:"custom_type:text;not null"`
+	Orders            []*Order            `json:"orders,omitempty" gorm:"foreignKey:CampaignId;constraint:OnDelete:CASCADE"`
+	ClosesAt          int64               `json:"closes_at,omitempty" gorm:"not null"`
+	MaturityAt        int64               `json:"maturity_at,omitempty" gorm:"not null"`
+	CreatedAt         int64               `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt         int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(token Address, creator Address, collateral_address Address, collateral_amount *uint256.Int, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
+func NewCampaign(token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_minter custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
 	Campaign := &Campaign{
 		Token:             token,
 		Creator:           creator,
 		CollateralAddress: collateral_address,
 		CollateralAmount:  collateral_amount,
+		BadgeMinter:       badge_minter,
 		DebtIssued:        debt_issued,
 		MaxInterestRate:   maxInterestRate,
 		State:             CampaignStateOngoing,
@@ -62,17 +64,20 @@ func NewCampaign(token Address, creator Address, collateral_address Address, col
 }
 
 func (a *Campaign) validate() error {
-	if a.Token == (Address{}) {
+	if a.Token == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidCampaign)
 	}
-	if a.Creator == (Address{}) {
+	if a.Creator == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid creator address", ErrInvalidCampaign)
 	}
-	if a.CollateralAddress == (Address{}) {
+	if a.CollateralAddress == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid collateral_address address", ErrInvalidCampaign)
 	}
 	if a.CollateralAmount.Sign() == 0 {
 		return fmt.Errorf("%w: collateral amount cannot be zero", ErrInvalidCampaign)
+	}
+	if a.BadgeMinter == (custom_type.Address{}) {
+		return fmt.Errorf("%w: invalid badge minter address", ErrInvalidCampaign)
 	}
 	if a.DebtIssued.Sign() == 0 {
 		return fmt.Errorf("%w: debt issued cannot be zero", ErrInvalidCampaign)

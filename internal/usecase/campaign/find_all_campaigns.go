@@ -29,6 +29,7 @@ func (f *FindAllCampaignsUseCase) Execute(ctx context.Context) (*FindAllCampaign
 			orders[j] = &entity.Order{
 				Id:           order.Id,
 				CampaignId:   order.CampaignId,
+				BadgeChainId: order.BadgeChainId,
 				Investor:     order.Investor,
 				Amount:       order.Amount,
 				InterestRate: order.InterestRate,
@@ -43,6 +44,7 @@ func (f *FindAllCampaignsUseCase) Execute(ctx context.Context) (*FindAllCampaign
 			Creator:           Campaign.Creator,
 			CollateralAddress: Campaign.CollateralAddress,
 			CollateralAmount:  Campaign.CollateralAmount,
+			BadgeMinter:       Campaign.BadgeMinter,
 			DebtIssued:        Campaign.DebtIssued,
 			MaxInterestRate:   Campaign.MaxInterestRate,
 			TotalObligation:   Campaign.TotalObligation,

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 var (
@@ -21,15 +21,15 @@ const (
 )
 
 type User struct {
-	Id             uint             `json:"id" gorm:"primaryKey"`
-	Role           UserRole         `json:"role,omitempty" gorm:"not null"`
-	Address        Address          `json:"address,omitempty" gorm:"custom_type:text;uniqueIndex;not null"`
-	SocialAccounts []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
-	CreatedAt      int64            `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt      int64            `json:"updated_at,omitempty" gorm:"default:0"`
+	Id             uint                `json:"id" gorm:"primaryKey"`
+	Role           UserRole            `json:"role,omitempty" gorm:"not null"`
+	Address        custom_type.Address `json:"address,omitempty" gorm:"custom_type:text;uniqueIndex;not null"`
+	SocialAccounts []*SocialAccount    `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
+	CreatedAt      int64               `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt      int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewUser(role string, address Address, createdAt int64) (*User, error) {
+func NewUser(role string, address custom_type.Address, createdAt int64) (*User, error) {
 	user := &User{
 		Role:           UserRole(role),
 		SocialAccounts: []*SocialAccount{},
@@ -49,7 +49,7 @@ func (u *User) validate() error {
 	if u.Role != UserRoleAdmin && u.Role != UserRoleCreator && u.Role != UserRoleInvestor {
 		return fmt.Errorf("%w: invalid role", ErrInvalidUser)
 	}
-	if u.Address == (Address{}) {
+	if u.Address == (custom_type.Address{}) {
 		return fmt.Errorf("%w: address cannot be empty", ErrInvalidUser)
 	}
 	if u.CreatedAt == 0 {

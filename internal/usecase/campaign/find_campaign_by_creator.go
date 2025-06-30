@@ -5,11 +5,11 @@ import (
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type FindCampaignsByCreatorInputDTO struct {
-	Creator Address `json:"creator" validate:"required"`
+	Creator custom_type.Address `json:"creator" validate:"required"`
 }
 
 type FindCampaignsByCreatorOutputDTO []*FindCampaignOutputDTO
@@ -34,6 +34,7 @@ func (f *FindCampaignsByCreatorUseCase) Execute(ctx context.Context, input *Find
 			orders[j] = &entity.Order{
 				Id:           order.Id,
 				CampaignId:   order.CampaignId,
+				BadgeChainId: order.BadgeChainId,
 				Investor:     order.Investor,
 				Amount:       order.Amount,
 				InterestRate: order.InterestRate,
@@ -48,6 +49,7 @@ func (f *FindCampaignsByCreatorUseCase) Execute(ctx context.Context, input *Find
 			Creator:           Campaign.Creator,
 			CollateralAddress: Campaign.CollateralAddress,
 			CollateralAmount:  Campaign.CollateralAmount,
+			BadgeMinter:       Campaign.BadgeMinter,
 			DebtIssued:        Campaign.DebtIssued,
 			MaxInterestRate:   Campaign.MaxInterestRate,
 			TotalObligation:   Campaign.TotalObligation,

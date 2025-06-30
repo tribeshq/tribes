@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/holiman/uint256"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 var (
@@ -18,7 +18,7 @@ type OrderState string
 const (
 	OrderStatePending             OrderState = "pending"
 	OrderStateAccepted            OrderState = "accepted"
-	OrderCancelled                OrderState = "cancelled"
+	OrderStateCancelled           OrderState = "cancelled"
 	OrderStatePartiallyAccepted   OrderState = "partially_accepted"
 	OrderStateRejected            OrderState = "rejected"
 	OrderStateSettled             OrderState = "settled"
@@ -26,19 +26,21 @@ const (
 )
 
 type Order struct {
-	Id           uint         `json:"id" gorm:"primaryKey"`
-	CampaignId   uint         `json:"campaign_id" gorm:"not null;index"`
-	Investor     Address      `json:"investor,omitempty" gorm:"not null"`
-	Amount       *uint256.Int `json:"amount,omitempty" gorm:"custom_type:text;not null"`
-	InterestRate *uint256.Int `json:"interest_rate,omitempty" gorm:"custom_type:text;not null"`
-	State        OrderState   `json:"state,omitempty" gorm:"custom_type:text;not null"`
-	CreatedAt    int64        `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt    int64        `json:"updated_at,omitempty" gorm:"default:0"`
+	Id           uint                `json:"id" gorm:"primaryKey"`
+	CampaignId   uint                `json:"campaign_id" gorm:"not null;index"`
+	BadgeChainId uint64              `json:"badge_chain_id" gorm:"not null"`
+	Investor     custom_type.Address `json:"investor,omitempty" gorm:"not null"`
+	Amount       *uint256.Int        `json:"amount,omitempty" gorm:"custom_type:text;not null"`
+	InterestRate *uint256.Int        `json:"interest_rate,omitempty" gorm:"custom_type:text;not null"`
+	State        OrderState          `json:"state,omitempty" gorm:"custom_type:text;not null"`
+	CreatedAt    int64               `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt    int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewOrder(CampaignId uint, investor Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
+func NewOrder(CampaignId uint, BadgeChainId uint64, investor custom_type.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
 	order := &Order{
 		CampaignId:   CampaignId,
+		BadgeChainId: BadgeChainId,
 		Investor:     investor,
 		Amount:       amount,
 		InterestRate: interestRate,
@@ -55,7 +57,10 @@ func (b *Order) validate() error {
 	if b.CampaignId == 0 {
 		return fmt.Errorf("%w: Campaign ID cannot be zero", ErrInvalidOrder)
 	}
-	if b.Investor == (Address{}) {
+	if b.BadgeChainId == 0 {
+		return fmt.Errorf("%w: Badge Chain ID cannot be zero", ErrInvalidOrder)
+	}
+	if b.Investor == (custom_type.Address{}) {
 		return fmt.Errorf("%w: investor address cannot be empty", ErrInvalidOrder)
 	}
 	if b.Amount.Sign() <= 0 {

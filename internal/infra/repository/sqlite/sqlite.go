@@ -11,9 +11,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	. "github.com/tribeshq/tribes/pkg/custom_type"
-
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type SQLiteRepository struct {
@@ -67,7 +66,7 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 
 	adminUser := entity.User{
 		Role:      entity.UserRoleAdmin,
-		Address:   HexToAddress(adminAddress),
+		Address:   custom_type.HexToAddress(adminAddress),
 		CreatedAt: time.Now().Unix(),
 	}
 

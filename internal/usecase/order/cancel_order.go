@@ -8,7 +8,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CancelOrderInputDTO struct {
@@ -18,8 +18,9 @@ type CancelOrderInputDTO struct {
 type CancelOrderOutputDTO struct {
 	Id           uint
 	CampaignId   uint
-	Token        Address
-	Investor     Address
+	BadgeChainId uint64
+	Token        custom_type.Address
+	Investor     custom_type.Address
 	Amount       *uint256.Int
 	InterestRate *uint256.Int
 	State        string
@@ -44,7 +45,7 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	if err != nil {
 		return nil, err
 	}
-	if order.Investor != Address(metadata.MsgSender) {
+	if order.Investor != custom_type.Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
 	campaign, err := c.CampaignRepository.FindCampaignById(ctx, order.CampaignId)
@@ -54,19 +55,21 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	if campaign.State == entity.CampaignStateClosed {
 		return nil, errors.New("cannot cancel order after Campaign closes")
 	}
-	err = c.OrderRepository.DeleteOrder(ctx, input.Id)
+	order.State = entity.OrderStateCancelled;
+	res, err := c.OrderRepository.UpdateOrder(ctx, order)
 	if err != nil {
 		return nil, err
 	}
 	return &CancelOrderOutputDTO{
-		Id:           order.Id,
-		CampaignId:   order.CampaignId,
+		Id:           res.Id,
+		CampaignId:   res.CampaignId,
+		BadgeChainId: res.BadgeChainId,
 		Token:        campaign.Token,
-		Investor:     order.Investor,
-		Amount:       order.Amount,
-		InterestRate: order.InterestRate,
-		State:        string(order.State),
-		CreatedAt:    order.CreatedAt,
-		UpdatedAt:    order.UpdatedAt,
+		Investor:     res.Investor,
+		Amount:       res.Amount,
+		InterestRate: res.InterestRate,
+		State:        string(res.State),
+		CreatedAt:    res.CreatedAt,
+		UpdatedAt:    res.UpdatedAt,
 	}, nil
 }

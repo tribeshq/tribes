@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type DeleteUserInputDTO struct {
-	Address Address `json:"address" validate:"required"`
+	Address custom_type.Address `json:"address" validate:"required"`
 }
 
 type DeleteUserUseCase struct {

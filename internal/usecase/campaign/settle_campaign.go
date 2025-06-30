@@ -8,7 +8,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type SettleCampaignInputDTO struct {
@@ -16,21 +16,22 @@ type SettleCampaignInputDTO struct {
 }
 
 type SettleCampaignOutputDTO struct {
-	Id                uint            `json:"id"`
-	Token             Address         `json:"token"`
-	Creator           Address         `json:"creator"`
-	CollateralAddress Address         `json:"collateral_address"`
-	CollateralAmount  *uint256.Int    `json:"collateral_amount"`
-	DebtIssued        *uint256.Int    `json:"debt_issued"`
-	MaxInterestRate   *uint256.Int    `json:"max_interest_rate"`
-	TotalObligation   *uint256.Int    `json:"total_obligation"`
-	TotalRaised       *uint256.Int    `json:"total_raised"`
-	State             string          `json:"state"`
-	Orders            []*entity.Order `json:"orders"`
-	CreatedAt         int64           `json:"created_at"`
-	ClosesAt          int64           `json:"closes_at"`
-	MaturityAt        int64           `json:"maturity_at"`
-	UpdatedAt         int64           `json:"updated_at"`
+	Id                uint                `json:"id"`
+	Token             custom_type.Address `json:"token"`
+	Creator           custom_type.Address `json:"creator"`
+	CollateralAddress custom_type.Address `json:"collateral_address"`
+	CollateralAmount  *uint256.Int        `json:"collateral_amount"`
+	BadgeMinter       custom_type.Address `json:"badge_minter"`
+	DebtIssued        *uint256.Int        `json:"debt_issued"`
+	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
+	TotalObligation   *uint256.Int        `json:"total_obligation"`
+	TotalRaised       *uint256.Int        `json:"total_raised"`
+	State             string              `json:"state"`
+	Orders            []*entity.Order     `json:"orders"`
+	CreatedAt         int64               `json:"created_at"`
+	ClosesAt          int64               `json:"closes_at"`
+	MaturityAt        int64               `json:"maturity_at"`
+	UpdatedAt         int64               `json:"updated_at"`
 }
 
 type SettleCampaignUseCase struct {
@@ -95,6 +96,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
+		BadgeMinter:       res.BadgeMinter,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,
 		TotalObligation:   res.TotalObligation,
@@ -129,7 +131,7 @@ func (uc *SettleCampaignUseCase) Validate(
 		return fmt.Errorf("deposit amount is lower than the total obligation")
 	}
 
-	if Campaign.Creator != Address(deposit.Sender) {
+	if Campaign.Creator != custom_type.Address(deposit.Sender) {
 		return fmt.Errorf("only the campaign creator can settle the campaign")
 	}
 	return nil

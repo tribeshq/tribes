@@ -8,7 +8,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 	"github.com/tribeshq/tribes/pkg/router"
 )
 
@@ -27,15 +27,15 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 		switch h := handler.(type) {
 		case router.AdvanceHandlerFunc:
 			return router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-				var address Address
+				var address custom_type.Address
 				ctx := context.Background()
 
 				// Get the sender address from either ERC20 deposit or metadata
 				erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 				if ok {
-					address = Address(erc20Deposit.Sender)
+					address = custom_type.Address(erc20Deposit.Sender)
 				} else {
-					address = Address(metadata.MsgSender)
+					address = custom_type.Address(metadata.MsgSender)
 				}
 
 				// Find user and check roles

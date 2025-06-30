@@ -28,6 +28,7 @@ func (f *FindAllOrdersUseCase) Execute(ctx context.Context) (*FindAllOrdersOutpu
 		output[i] = &FindOrderOutputDTO{
 			Id:           order.Id,
 			CampaignId:   order.CampaignId,
+			BadgeChainId: order.BadgeChainId,
 			Investor:     order.Investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

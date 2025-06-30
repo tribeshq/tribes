@@ -8,30 +8,32 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateCampaignInputDTO struct {
-	Token           Address      `json:"token" validate:"required"`
-	DebtIssued      *uint256.Int `json:"debt_issued" validate:"required"`
-	MaxInterestRate *uint256.Int `json:"max_interest_rate" validate:"required"`
-	ClosesAt        int64        `json:"closes_at" validate:"required"`
-	MaturityAt      int64        `json:"maturity_at" validate:"required"`
+	Token           custom_type.Address `json:"token" validate:"required"`
+	DebtIssued      *uint256.Int        `json:"debt_issued" validate:"required"`
+	MaxInterestRate *uint256.Int        `json:"max_interest_rate" validate:"required"`
+	BadgeMinter     custom_type.Address `json:"badge_minter" validate:"required"`
+	ClosesAt        int64               `json:"closes_at" validate:"required"`
+	MaturityAt      int64               `json:"maturity_at" validate:"required"`
 }
 
 type CreateCampaignOutputDTO struct {
-	Id                uint            `json:"id"`
-	Token             Address         `json:"token,omitempty"`
-	Creator           Address         `json:"creator,omitempty"`
-	CollateralAddress Address         `json:"collateral_address,omitempty"`
-	CollateralAmount  *uint256.Int    `json:"collateral_amount,omitempty"`
-	DebtIssued        *uint256.Int    `json:"debt_issued"`
-	MaxInterestRate   *uint256.Int    `json:"max_interest_rate"`
-	State             string          `json:"state"`
-	Orders            []*entity.Order `json:"orders"`
-	CreatedAt         int64           `json:"created_at"`
-	ClosesAt          int64           `json:"closes_at"`
-	MaturityAt        int64           `json:"maturity_at"`
+	Id                uint                `json:"id"`
+	Token             custom_type.Address `json:"token,omitempty"`
+	Creator           custom_type.Address `json:"creator,omitempty"`
+	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
+	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
+	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
+	DebtIssued        *uint256.Int        `json:"debt_issued"`
+	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
+	State             string              `json:"state"`
+	Orders            []*entity.Order     `json:"orders"`
+	CreatedAt         int64               `json:"created_at"`
+	ClosesAt          int64               `json:"closes_at"`
+	MaturityAt        int64               `json:"maturity_at"`
 }
 
 type CreateCampaignUseCase struct {
@@ -55,7 +57,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	user, err := c.UserRepository.FindUserByAddress(ctx, Address(erc20Deposit.Sender))
+	user, err := c.UserRepository.FindUserByAddress(ctx, custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
@@ -64,7 +66,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, err
 	}
 
-	campaigns, err := c.CampaignRepository.FindCampaignsByCreator(ctx, Address(erc20Deposit.Sender))
+	campaigns, err := c.CampaignRepository.FindCampaignsByCreator(ctx, custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Campaigns: %w", err)
 	}
@@ -76,9 +78,10 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 
 	Campaign, err := entity.NewCampaign(
 		input.Token,
-		Address(erc20Deposit.Sender),
-		Address(erc20Deposit.Token),
+		custom_type.Address(erc20Deposit.Sender),
+		custom_type.Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Value),
+		input.BadgeMinter,
 		input.DebtIssued,
 		input.MaxInterestRate,
 		input.ClosesAt,
@@ -100,6 +103,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		Creator:           createdCampaign.Creator,
 		CollateralAddress: createdCampaign.CollateralAddress,
 		CollateralAmount:  createdCampaign.CollateralAmount,
+		BadgeMinter:       createdCampaign.BadgeMinter,
 		DebtIssued:        createdCampaign.DebtIssued,
 		MaxInterestRate:   createdCampaign.MaxInterestRate,
 		Orders:            createdCampaign.Orders,

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
-	. "github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +39,7 @@ func (r *SQLiteRepository) FindAllCampaigns(ctx context.Context) ([]*entity.Camp
 	return Campaigns, nil
 }
 
-func (r *SQLiteRepository) FindCampaignsByInvestor(ctx context.Context, investor Address) ([]*entity.Campaign, error) {
+func (r *SQLiteRepository) FindCampaignsByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
 	if err := r.Db.WithContext(ctx).
 		Joins("JOIN orders ON orders.campaign_id = campaigns.id").
@@ -51,7 +51,7 @@ func (r *SQLiteRepository) FindCampaignsByInvestor(ctx context.Context, investor
 	return Campaigns, nil
 }
 
-func (r *SQLiteRepository) FindCampaignsByCreator(ctx context.Context, creator Address) ([]*entity.Campaign, error) {
+func (r *SQLiteRepository) FindCampaignsByCreator(ctx context.Context, creator custom_type.Address) ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
 	if err := r.Db.WithContext(ctx).
 		Where("creator = ?", creator).
