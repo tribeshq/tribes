@@ -1,7 +1,7 @@
 [profile.default]
 src = "src"
 out = "out"
-libs = ["lib", "dependencies"]
+libs = ["lib", "dependencies", "node_modules"]
 
 [dependencies]
 forge-std = "1.9.7"
@@ -10,7 +10,6 @@ cartesi-rollups-contracts = "2.0.0"
 vlayer = "1.2.0"
 risc0-ethereum = { version = "2.1.1", url = "https://github.com/vlayer-xyz/risc0-ethereum/releases/download/v2.1.1-soldeer/contracts.zip" }
 chainlink-ccip = { version = "contracts-ccip-v1.6.0", url = "https://github.com/smartcontractkit/chainlink-ccip/archive/refs/tags/contracts-ccip-v1.6.0.zip" }
-chainlink-local = { version = "v0.2.6-beta", git = "https://github.com/smartcontractkit/chainlink-local.git", rev = "e0954c83b816c1dee859d8dafb25bdcb99981065" }
 chainlink-evm = { version = "v2.24.0", git = "https://github.com/smartcontractkit/chainlink.git", rev = "6f755cc676b9907a9fdc9af7e30a9b47e6621a61" }
 
 [soldeer]
@@ -43,3 +42,30 @@ fantomSonicTestnet = "${FANTOM_SONIC_TESTNET_RPC_URL}"
 cornTestnet = "${CORN_TESTNET_RPC_URL}"
 hashkeySepolia = "${HASHKEY_SEPOLIA_RPC_URL}"
 inkSepolia = "${INK_SEPOLIA_RPC_URL}"
+
+[etherscan]
+ethereumSepolia = { key = "${ETHEREUM_SEPOLIA_API_KEY}" }
+optimismGoerli = { key = "${OPTIMISM_GOERLI_API_KEY}" }
+avalancheFuji = { key = "${AVALANCHE_FUJI_API_KEY}" }
+arbitrumSepolia = { key = "${ARBITRUM_SEPOLIA_API_KEY}" }
+polygonMumbai = { key = "${POLYGON_MUMBAI_API_KEY}" }
+bnbChainTestnet = { key = "${BNB_CHAIN_TESTNET_API_KEY}" }
+baseSepolia = { key = "${BASE_SEPOLIA_API_KEY}" }
+metisSepolia = { key = "${METIS_SEPOLIA_API_KEY}" }
+zksyncSepolia = { key = "${ZKSYNC_SEPOLIA_API_KEY}" }
+scrollSepolia = { key = "${SCROLL_SEPOLIA_API_KEY}" }
+zircuitSepolia = { key = "${ZIRCUIT_SEPOLIA_API_KEY}" }
+xlayerSepolia = { key = "${XLAYER_SEPOLIA_API_KEY}" }
+polygonZkevmSepolia = { key = "${POLYGON_ZKEVM_SEPOLIA_API_KEY}" }
+polkadotAstarShibuya = { key = "${POLKADOT_ASTAR_SHIBUYA_API_KEY}" }
+mantleSepolia = { key = "${MANTLE_SEPOLIA_API_KEY}" }
+soneiumMinatoSepolia = { key = "${SONEIUM_MINATO_SEPOLIA_API_KEY}" }
+bsquaredTestnet = { key = "${BSQUARED_TESTNET_API_KEY}" }
+bobSepolia = { key = "${BOB_SEPOLIA_API_KEY}" }
+worldchainSepolia = { key = "${WORLDCHAIN_SEPOLIA_API_KEY}" }
+shibariumTestnet = { key = "${SHIBARIUM_TESTNET_API_KEY}" }
+bitlayerTestnet = { key = "${BITLAYER_TESTNET_API_KEY}" }
+fantomSonicTestnet = { key = "${FANTOM_SONIC_TESTNET_API_KEY}" }
+cornTestnet = { key = "${CORN_TESTNET_API_KEY}" }
+hashkeySepolia = { key = "${HASHKEY_SEPOLIA_API_KEY}" }
+inkSepolia ={ key =  "${INK_SEPOLIA_API_KEY}" }

@@ -1,0 +1,6 @@
+{
+    "name": "tribes-contracts",
+    "dependencies": {
+        "@chainlink/local": "^0.2.5"
+    }
+}

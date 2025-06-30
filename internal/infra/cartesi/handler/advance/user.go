@@ -155,9 +155,9 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 
 	delegateCallVoucher, err := abiInterface.Pack(
 		"emergencyERC20Withdraw",
+		input.To,
 		metadata.MsgSender,
 		input.Token,
-		input.To,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)
@@ -196,8 +196,8 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 
 	delegateCallVoucher, err := abiInterface.Pack(
 		"emergencyETHWithdraw",
-		metadata.MsgSender,
 		input.To,
+		metadata.MsgSender,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)

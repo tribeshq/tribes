@@ -16,11 +16,11 @@ contract EmergencyWithdraw {
         _;
     }
 
-    function emergencyERC20Withdraw(address admin, IERC20 token, address to) public onlyAdmin(admin) {
+    function emergencyERC20Withdraw(address to, address admin, IERC20 token) public onlyAdmin(admin) {
         token.transfer(to, token.balanceOf(address(this)));
     }
 
-    function emergencyETHWithdraw(address admin, address to) public onlyAdmin(admin) {
+    function emergencyETHWithdraw(address to, address admin) public onlyAdmin(admin) {
         uint256 balance = address(this).balance;
         if (balance == 0) {
             revert ZeroBalance();
