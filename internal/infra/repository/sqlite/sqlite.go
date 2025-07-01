@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
@@ -57,12 +58,31 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
+	// Set defaults before trying to get the values
+	configs.SetDefaults()
+
 	var adminAddress string
+	var verifierAddress string
+
 	if dbPath == ":memory:" {
-		adminAddress = "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+		adminAddr, err := configs.GetTribesAdminAddressTest()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
+		}
+		adminAddress = adminAddr.Hex()
 	} else {
-		adminAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" // TODO: change to admin address
+		adminAddr, err := configs.GetTribesAdminAddress()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS: %w", err)
+		}
+		adminAddress = adminAddr.Hex()
 	}
+
+	verifierAddr, err := configs.GetTribesVerifierAddress()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
+	}
+	verifierAddress = verifierAddr.Hex()
 
 	adminUser := entity.User{
 		Role:      entity.UserRoleAdmin,
@@ -70,8 +90,18 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		CreatedAt: time.Now().Unix(),
 	}
 
+	verifierUser := entity.User{
+		Role:      entity.UserRoleVerifier,
+		Address:   custom_type.HexToAddress(verifierAddress),
+		CreatedAt: time.Now().Unix(),
+	}
+
 	if err := db.Create(&adminUser).Error; err != nil {
 		return nil, fmt.Errorf("failed to create admin user: %w", err)
+	}
+
+	if err := db.Create(&verifierUser).Error; err != nil {
+		return nil, fmt.Errorf("failed to create verifier user: %w", err)
 	}
 
 	return &SQLiteRepository{Db: db}, nil

@@ -73,6 +73,10 @@ func (f *RBACFactory) AdminOnly() router.Middleware {
 	return f.Create([]string{"admin"})
 }
 
+func (f *RBACFactory) VerifierOnly() router.Middleware {
+	return f.Create([]string{"verifier"})
+}
+
 func (f *RBACFactory) InvestorOnly() router.Middleware {
 	return f.Create([]string{"investor"})
 }

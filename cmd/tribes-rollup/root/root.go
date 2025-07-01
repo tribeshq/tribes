@@ -6,6 +6,7 @@ import (
 
 	"github.com/rollmelette/rollmelette"
 	"github.com/spf13/cobra"
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
@@ -33,6 +34,13 @@ func init() {
 		false,
 		"Use in-memory SQLite database instead of persistent",
 	)
+	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		_, err := configs.LoadRollupConfig()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 }
 
 func run(cmd *cobra.Command, args []string) {
@@ -116,6 +124,11 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 
 	socialGroup := r.Group("social")
 	{
+		// verifierGroup := socialGroup.Group("verifier")
+		// verifierGroup.Use(rbacFactory.VerifierOnly())
+		// verifierGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
+		// verifierGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
+
 		creatorGroup := socialGroup.Group("creator")
 		creatorGroup.Use(rbacFactory.CreatorOnly())
 		creatorGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)

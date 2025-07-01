@@ -1,0 +1,21 @@
+#
+# Contracts
+#
+
+[contracts.TRIBES_ADMIN_ADDRESS]
+go-type = "Address"
+default = "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+description = """Address of the admin user"""
+used-by = ["rollup"]
+
+[contracts.TRIBES_ADMIN_ADDRESS_TEST]
+go-type = "Address"
+default = "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+description = """Address of the admin user"""
+used-by = ["rollup"]
+
+[contracts.TRIBES_VERIFIER_ADDRESS]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000025"
+description = """Address of the verifier user, who can verify the social accounts"""
+used-by = ["rollup"]

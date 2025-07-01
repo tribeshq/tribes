@@ -43,8 +43,6 @@ func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateS
 		return nil, err
 	}
 
-	// TODO: proof verification
-
 	socialAccount, err = s.SocialAccountRepository.CreateSocialAccount(ctx, socialAccount)
 	if err != nil {
 		return nil, err
