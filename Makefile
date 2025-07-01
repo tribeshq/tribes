@@ -16,7 +16,6 @@ generate: ## Generate the application code
 .PHONY: test
 test: ## Run the application tests
 	$(START_LOG)
-	@forge test --root contracts -vvvv
 	@go test -p=1 ./... -coverprofile=./coverage.md -v
 	$(END_LOG)
 
