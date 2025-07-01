@@ -10,6 +10,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: |
+          forge soldeer install & npm install 
+        working-directory: contracts
+
+      - name: Show Forge version
+        run: |
+          forge --version
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
+        working-directory: contracts
+
   build:
     env:
       REGISTRY: ghcr.io
