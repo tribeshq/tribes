@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          forge soldeer install & npm install 
+          forge soldeer install & pnpm i 
         working-directory: contracts
 
       - name: Show Forge version
