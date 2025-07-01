@@ -1,37 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
 import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
-import {Withdraw} from "./utils/Withdraw.sol";
+import {Ownable} from "openzeppelin-contracts/access/Ownable.sol";
+import {NFT} from "../token/ERC721/NFT.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
  * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
  * DO NOT USE THIS CODE IN PRODUCTION.
  */
-contract SourceMinter is Withdraw {
-    address immutable sourceRouter;
+contract SourceMinter is Ownable {
+    NFT public immutable nft;
+    address public immutable sourceRouter;
 
     event MessageSent(bytes32 messageId);
 
-    constructor(address _sourceRouter) {
+    constructor(NFT _nft, address _sourceRouter) Ownable(msg.sender) {
+        nft = _nft;
         sourceRouter = _sourceRouter;
     }
 
     receive() external payable {}
 
-    function mint(uint64 destinationChainSelector, address receiver) external {
+    function mint(uint64 destinationChainSelector, address to, address minter) external payable {
+        if (destinationChainSelector == block.chainid) {
+            nft.mint(to);
+            return;
+        }
+
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
-            receiver: abi.encode(receiver),
-            data: abi.encodeWithSignature("mint(address)", msg.sender),
+            receiver: abi.encode(minter),
+            data: abi.encodeWithSignature("mint(address)", to),
             tokenAmounts: new Client.EVMTokenAmount[](0),
             extraArgs: "",
             feeToken: address(0)
         });
 
         uint256 fee = IRouterClient(sourceRouter).getFee(destinationChainSelector, message);
+        require(msg.value >= fee, "Insufficient fee");
 
         bytes32 messageId = IRouterClient(sourceRouter).ccipSend{value: fee}(destinationChainSelector, message);
 

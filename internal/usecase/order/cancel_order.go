@@ -55,7 +55,7 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 	if campaign.State == entity.CampaignStateClosed {
 		return nil, errors.New("cannot cancel order after Campaign closes")
 	}
-	order.State = entity.OrderStateCancelled;
+	order.State = entity.OrderStateCancelled
 	res, err := c.OrderRepository.UpdateOrder(ctx, order)
 	if err != nil {
 		return nil, err

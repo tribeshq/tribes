@@ -29,6 +29,7 @@ type Campaign struct {
 	Creator           custom_type.Address `json:"creator,omitempty" gorm:"custom_type:text;not null"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty" gorm:"custom_type:text;not null"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty" gorm:"custom_type:text;not null"`
+	BadgeRouter       custom_type.Address `json:"badge_router,omitempty" gorm:"custom_type:text;not null"`
 	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty" gorm:"custom_type:text;not null"`
 	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty" gorm:"custom_type:text;not null"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty" gorm:"custom_type:text;not null"`
@@ -42,12 +43,13 @@ type Campaign struct {
 	UpdatedAt         int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_minter custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
+func NewCampaign(token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_router custom_type.Address, badge_minter custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
 	Campaign := &Campaign{
 		Token:             token,
 		Creator:           creator,
 		CollateralAddress: collateral_address,
 		CollateralAmount:  collateral_amount,
+		BadgeRouter:       badge_router,
 		BadgeMinter:       badge_minter,
 		DebtIssued:        debt_issued,
 		MaxInterestRate:   maxInterestRate,
@@ -75,6 +77,9 @@ func (a *Campaign) validate() error {
 	}
 	if a.CollateralAmount.Sign() == 0 {
 		return fmt.Errorf("%w: collateral amount cannot be zero", ErrInvalidCampaign)
+	}
+	if a.BadgeRouter == (custom_type.Address{}) {
+		return fmt.Errorf("%w: invalid badge router address", ErrInvalidCampaign)
 	}
 	if a.BadgeMinter == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid badge minter address", ErrInvalidCampaign)

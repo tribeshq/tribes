@@ -115,6 +115,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		"name":"mint",
 		"inputs":[
 			{"type":"uint64"},
+			{"type":"address"},
 			{"type":"address"}
 		]
 	}]`
@@ -130,11 +131,12 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 				"mint",
 				order.BadgeChainId,
 				common.Address(order.Investor),
+				common.Address(res.BadgeMinter),
 			)
 			if err != nil {
 				return fmt.Errorf("failed to pack ABI: %w", err)
 			}
-			env.Voucher(common.Address(res.BadgeMinter), big.NewInt(0), voucher)
+			env.Voucher(common.Address(res.BadgeRouter), big.NewInt(0), voucher)
 		}
 	}
 

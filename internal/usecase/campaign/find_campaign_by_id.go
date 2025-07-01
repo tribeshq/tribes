@@ -44,6 +44,7 @@ func (f *FindCampaignByIdUseCase) Execute(ctx context.Context, input *FindCampai
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
+		BadgeRouter:       res.BadgeRouter,
 		BadgeMinter:       res.BadgeMinter,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,

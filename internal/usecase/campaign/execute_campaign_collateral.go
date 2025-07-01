@@ -21,6 +21,7 @@ type ExecuteCampaignCollateralOutputDTO struct {
 	Creator           custom_type.Address `json:"creator"`
 	CollateralAddress custom_type.Address `json:"collateral_address"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount"`
+	BadgeRouter       custom_type.Address `json:"badge_router"`
 	BadgeMinter       custom_type.Address `json:"badge_minter"`
 	DebtIssued        *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
@@ -83,6 +84,7 @@ func (uc *ExecuteCampaignCollateralUseCase) Execute(ctx context.Context, input *
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
+		BadgeRouter:       res.BadgeRouter,
 		BadgeMinter:       res.BadgeMinter,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,

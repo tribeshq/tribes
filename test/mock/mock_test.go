@@ -42,6 +42,8 @@ func (s *TribesRollupSuite) TestCreateCampaign() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -64,11 +66,11 @@ func (s *TribesRollupSuite) TestCreateCampaign() {
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 }
 
@@ -78,6 +80,8 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -142,11 +146,11 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"badge_chain_id":1337,"interest_rate":"9"}}`)
@@ -175,7 +179,7 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
 	s.Len(closeCampaignOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -186,6 +190,8 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 		token.Hex(),
 		creator.Hex(),
 		collateral.Hex(),
+		badgeRouter.Hex(),
+		badgeMinter.Hex(),
 		investor01.Hex(), baseTime, closesAt, // Order 1
 		investor02.Hex(), baseTime, closesAt, // Order 2
 		investor03.Hex(), baseTime, closesAt, // Order 3
@@ -248,6 +254,7 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 		"name":"mint",
 		"inputs":[
 			{"type":"uint64"},
+			{"type":"address"},
 			{"type":"address"}
 		]
 	}]`
@@ -260,6 +267,7 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	s.Require().NoError(err)
 	s.Equal(unpacked[0], uint64(1337))
 	s.Equal(unpacked[1], investor01)
+	s.Equal(unpacked[2], badgeMinter)
 
 	// verify voucher payload for badge mint call (investor02)
 	unpacked, err = abiInterface.Methods["mint"].Inputs.Unpack(closeCampaignOutput.Vouchers[1].Payload[4:])
@@ -292,6 +300,8 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -356,11 +366,11 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_router":"0x0000000000000000000000000000000000000068", "badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"badge_chain_id":1337,"interest_rate":"9"}}`)
@@ -389,7 +399,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
 	s.Len(closeCampaignOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -400,6 +410,8 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 		token.Hex(),
 		creator.Hex(),
 		collateral.Hex(),
+		badgeRouter.Hex(),
+		badgeMinter.Hex(),
 		investor01.Hex(), baseTime, closesAt, // Order 1
 		investor02.Hex(), baseTime, closesAt, // Order 2
 		investor03.Hex(), baseTime, closesAt, // Order 3
@@ -426,7 +438,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 
 	settledAt := baseTime + 10 // baseTime
 
-	expectedSettleCampaignOutput := fmt.Sprintf(`campaign settled - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
+	expectedSettleCampaignOutput := fmt.Sprintf(`campaign settled - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
@@ -437,6 +449,8 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 		token.Hex(),
 		creator.Hex(),
 		collateral.Hex(),
+		badgeRouter.Hex(),
+		badgeMinter.Hex(),
 		investor01.Hex(), baseTime, settledAt, // Order 1
 		investor02.Hex(), baseTime, settledAt, // Order 2
 		investor03.Hex(), baseTime, settledAt, // Order 3
@@ -499,6 +513,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 		"name":"mint",
 		"inputs":[
 			{"type":"uint64"},
+			{"type":"address"},
 			{"type":"address"}
 		]
 	}]`
@@ -511,6 +526,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	s.Require().NoError(err)
 	s.Equal(unpacked[0], uint64(1337))
 	s.Equal(unpacked[1], investor01)
+	s.Equal(unpacked[2], badgeMinter)
 
 	// verify voucher payload for badge mint call (investor02)
 	unpacked, err = abiInterface.Methods["mint"].Inputs.Unpack(closeCampaignOutput.Vouchers[1].Payload[4:])
@@ -543,6 +559,8 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -607,11 +625,11 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"badge_chain_id":1337,"interest_rate":"9"}}`)
@@ -640,7 +658,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
 	s.Len(closeCampaignOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -651,6 +669,8 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 		token.Hex(),
 		creator.Hex(),
 		collateral.Hex(),
+		badgeRouter.Hex(),
+		badgeMinter.Hex(),
 		investor01.Hex(), baseTime, closesAt, // Order 1
 		investor02.Hex(), baseTime, closesAt, // Order 2
 		investor03.Hex(), baseTime, closesAt, // Order 3
@@ -674,7 +694,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	findCampaignByIdOutput := s.Tester.Inspect(findCampaignByIdInput)
 	s.Len(findCampaignByIdOutput.Reports, 1)
 
-	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -685,6 +705,8 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 		token.Hex(),
 		creator.Hex(),
 		collateral.Hex(),
+		badgeRouter.Hex(),
+		badgeMinter.Hex(),
 		investor01.Hex(), baseTime, closesAt, // Order 1
 		investor02.Hex(), baseTime, closesAt, // Order 2
 		investor03.Hex(), baseTime, closesAt, // Order 3
@@ -708,7 +730,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 
 	collateralExecutedAt := baseTime + 11 // baseTime
 
-	expectedExecuteCampaignCollateralOutput := fmt.Sprintf(`campaign collateral executed - {"campaign_id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
+	expectedExecuteCampaignCollateralOutput := fmt.Sprintf(`campaign collateral executed - {"campaign_id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
@@ -787,6 +809,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 		"name":"mint",
 		"inputs":[
 			{"type":"uint64"},
+			{"type":"address"},
 			{"type":"address"}
 		]
 	}]`
@@ -799,6 +822,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	s.Require().NoError(err)
 	s.Equal(unpacked[0], uint64(1337))
 	s.Equal(unpacked[1], investor01)
+	s.Equal(unpacked[2], badgeMinter)
 
 	// verify voucher payload for badge mint call (investor02)
 	unpacked, err = abiInterface.Methods["mint"].Inputs.Unpack(closeCampaignOutput.Vouchers[1].Payload[4:])
@@ -830,6 +854,8 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -852,11 +878,11 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	findAllCampaignsInput := []byte(`{"path":"campaign"}`)
@@ -864,7 +890,7 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	findAllCampaignsOutput := s.Tester.Inspect(findAllCampaignsInput)
 	s.Len(findAllCampaignsOutput.Reports, 1)
 
-	expectedFindAllCampaignsOutput := fmt.Sprintf(`[{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`, baseTime, closesAt, maturityAt)
+	expectedFindAllCampaignsOutput := fmt.Sprintf(`[{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`, baseTime, closesAt, maturityAt)
 	s.Equal(expectedFindAllCampaignsOutput, string(findAllCampaignsOutput.Reports[0].Payload))
 }
 
@@ -873,6 +899,8 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -895,11 +923,11 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	findCampaignByIdInput := []byte(fmt.Sprintf(`{"path":"campaign/id", "data":{"id":1}}`))
@@ -907,7 +935,7 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	findCampaignByIdOutput := s.Tester.Inspect(findCampaignByIdInput)
 	s.Len(findCampaignByIdOutput.Reports, 1)
 
-	expectedFindCampaignByIdOutput := fmt.Sprintf(`{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`, baseTime, closesAt, maturityAt)
+	expectedFindCampaignByIdOutput := fmt.Sprintf(`{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`, baseTime, closesAt, maturityAt)
 	s.Equal(expectedFindCampaignByIdOutput, string(findCampaignByIdOutput.Reports[0].Payload))
 }
 
@@ -916,6 +944,8 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreator() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -938,11 +968,11 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreator() {
 	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
@@ -950,7 +980,7 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreator() {
 	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
 	s.Len(findCampaignsByCreatorOutput.Reports, 1)
 
-	expectedFindCampaignsByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`, baseTime, closesAt, maturityAt)
+	expectedFindCampaignsByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`, baseTime, closesAt, maturityAt)
 	s.Equal(expectedFindCampaignsByCreatorOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
 }
 
@@ -960,6 +990,8 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestor() {
 	creator := common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
 	token := common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeRouter := common.HexToAddress("0x0000000000000000000000000000000000000068")
+	badgeMinter := common.HexToAddress("0x0000000000000000000000000000000000000069")
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -1024,11 +1056,11 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestor() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s", "max_interest_rate":"10", "debt_issued":"100000","badge_minter":"0x0000000000000000000000000000000000000069", "closes_at":%d,"maturity_at":%d}}`, token, closesAt, maturityAt))
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_router":"%s","badge_minter":"%s","closes_at":%d,"maturity_at":%d}}`, token, badgeRouter, badgeMinter, closesAt, maturityAt))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"0x0000000000000000000000000000000000000009","creator":"0x0000000000000000000000000000000000000007","collateral_address":"0x0000000000000000000000000000000000000008","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, baseTime, closesAt, maturityAt)
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"%s","badge_minter":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`, token.Hex(), creator.Hex(), collateral.Hex(), badgeRouter.Hex(), badgeMinter.Hex(), baseTime, closesAt, maturityAt)
 	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"badge_chain_id":1337,"interest_rate":"9"}}`)
@@ -1057,7 +1089,7 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestor() {
 	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
 	s.Len(closeCampaignOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
@@ -1086,7 +1118,7 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestor() {
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
-	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"token":"%s","creator":"%s","collateral_address":"%s","collateral_amount":"10000","badge_router":"0x0000000000000000000000000000000000000068","badge_minter":"0x0000000000000000000000000000000000000069","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":2,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
 		`{"id":3,"campaign_id":1,"badge_chain_id":1337,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+

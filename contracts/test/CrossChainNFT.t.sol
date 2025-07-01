@@ -9,7 +9,8 @@ import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRou
 import {CCIPLocalSimulator, IRouterClient} from "@chainlink/local/src/ccip/CCIPLocalSimulator.sol";
 
 contract CrossChainNFT is Test {
-    NFT public nft;
+    NFT public sourceNFT;
+    NFT public destinationNft;
     SourceMinter public sourceMinter;
     DestinationMinter public destinationMinter;
     CCIPLocalSimulator public ccipLocalSimulator;
@@ -29,11 +30,13 @@ contract CrossChainNFT is Test {
         sourceRouter = _sourceRouter;
         destinationRouter = _destinationRouter;
 
-        nft = new NFT(address(this), "NFT", "NFT");
-        destinationMinter = new DestinationMinter(address(nft), address(destinationRouter));
-        nft.transferOwnership(address(destinationMinter));
+        sourceNFT = new NFT("NFT", "NFT");
+        sourceMinter = new SourceMinter(sourceNFT, address(sourceRouter));
+        sourceNFT.transferOwnership(address(sourceMinter));
 
-        sourceMinter = new SourceMinter(address(sourceRouter));
+        destinationNft = new NFT("NFT", "NFT");
+        destinationMinter = new DestinationMinter(destinationNft, address(destinationRouter));
+        destinationNft.transferOwnership(address(destinationMinter));
 
         guest = makeAddr("guest");
         destinationChainSelector = chainSelector;
@@ -41,9 +44,8 @@ contract CrossChainNFT is Test {
 
     function test_executeReceivedMessageAsFunctionCall() external {
         vm.startPrank(guest);
-        sourceMinter.mint(destinationChainSelector, address(destinationMinter));
+        sourceMinter.mint(destinationChainSelector, guest, address(destinationMinter));
         vm.stopPrank();
-
-        assertEq(nft.balanceOf(guest), 1);
+        assertEq(destinationNft.balanceOf(guest), 1);
     }
 }

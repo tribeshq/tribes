@@ -22,6 +22,7 @@ type CloseCampaignOutputDTO struct {
 	Creator           custom_type.Address `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
+	BadgeRouter       custom_type.Address `json:"badge_router,omitempty"`
 	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty"`
@@ -186,6 +187,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		Creator:           res.Creator,
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
+		BadgeRouter:       res.BadgeRouter,
 		BadgeMinter:       res.BadgeMinter,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,

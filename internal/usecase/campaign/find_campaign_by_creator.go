@@ -49,6 +49,7 @@ func (f *FindCampaignsByCreatorUseCase) Execute(ctx context.Context, input *Find
 			Creator:           Campaign.Creator,
 			CollateralAddress: Campaign.CollateralAddress,
 			CollateralAmount:  Campaign.CollateralAmount,
+			BadgeRouter:       Campaign.BadgeRouter,
 			BadgeMinter:       Campaign.BadgeMinter,
 			DebtIssued:        Campaign.DebtIssued,
 			MaxInterestRate:   Campaign.MaxInterestRate,

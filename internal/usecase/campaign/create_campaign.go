@@ -15,6 +15,7 @@ type CreateCampaignInputDTO struct {
 	Token           custom_type.Address `json:"token" validate:"required"`
 	DebtIssued      *uint256.Int        `json:"debt_issued" validate:"required"`
 	MaxInterestRate *uint256.Int        `json:"max_interest_rate" validate:"required"`
+	BadgeRouter     custom_type.Address `json:"badge_router" validate:"required"`
 	BadgeMinter     custom_type.Address `json:"badge_minter" validate:"required"`
 	ClosesAt        int64               `json:"closes_at" validate:"required"`
 	MaturityAt      int64               `json:"maturity_at" validate:"required"`
@@ -26,6 +27,7 @@ type CreateCampaignOutputDTO struct {
 	Creator           custom_type.Address `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
+	BadgeRouter       custom_type.Address `json:"badge_router,omitempty"`
 	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
@@ -81,6 +83,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		custom_type.Address(erc20Deposit.Sender),
 		custom_type.Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Value),
+		input.BadgeRouter,
 		input.BadgeMinter,
 		input.DebtIssued,
 		input.MaxInterestRate,
@@ -103,6 +106,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		Creator:           createdCampaign.Creator,
 		CollateralAddress: createdCampaign.CollateralAddress,
 		CollateralAmount:  createdCampaign.CollateralAmount,
+		BadgeRouter:       createdCampaign.BadgeRouter,
 		BadgeMinter:       createdCampaign.BadgeMinter,
 		DebtIssued:        createdCampaign.DebtIssued,
 		MaxInterestRate:   createdCampaign.MaxInterestRate,
