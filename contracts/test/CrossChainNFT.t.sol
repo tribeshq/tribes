@@ -16,6 +16,7 @@ contract CrossChainNFT is Test {
     CCIPLocalSimulator public ccipLocalSimulator;
 
     address public guest;
+    address public application;
     uint64 public destinationChainSelector;
 
     IRouterClient public sourceRouter;
@@ -34,6 +35,9 @@ contract CrossChainNFT is Test {
         sourceMinter = new SourceMinter(sourceNFT, address(sourceRouter));
         sourceNFT.transferOwnership(address(sourceMinter));
 
+        application = makeAddr("application");
+        sourceMinter.transferOwnership(application);
+
         destinationNft = new NFT("NFT", "NFT");
         destinationMinter = new DestinationMinter(destinationNft, address(destinationRouter));
         destinationNft.transferOwnership(address(destinationMinter));
@@ -43,7 +47,7 @@ contract CrossChainNFT is Test {
     }
 
     function test_executeReceivedMessageAsFunctionCall() external {
-        vm.startPrank(guest);
+        vm.startPrank(application);
         sourceMinter.mint(destinationChainSelector, guest, address(destinationMinter));
         vm.stopPrank();
         assertEq(destinationNft.balanceOf(guest), 1);

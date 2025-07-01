@@ -3,7 +3,7 @@ pragma solidity ^0.8.27;
 
 import {NFT} from "../token/ERC721/NFT.sol";
 import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
-import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
+import {Ownable} from "openzeppelin-contracts/access/Ownable.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
 
 /**
@@ -11,13 +11,13 @@ import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRou
  * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
  * DO NOT USE THIS CODE IN PRODUCTION.
  */
-contract SourceMinter is OwnerIsCreator {
+contract SourceMinter is Ownable {
     NFT public immutable nft;
     address public immutable sourceRouter;
 
     event MessageSent(bytes32 messageId);
 
-    constructor(NFT _nft, address _sourceRouter) {
+    constructor(NFT _nft, address _sourceRouter) Ownable(msg.sender) {
         nft = _nft;
         sourceRouter = _sourceRouter;
     }
