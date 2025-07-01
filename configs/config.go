@@ -5,12 +5,9 @@ package configs
 import (
 	"encoding/hex"
 	"fmt"
-	"log/slog"
-	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -25,26 +22,7 @@ func (r Redacted[T]) String() string {
 }
 
 type (
-	URL             = *url.URL
-	Duration        = time.Duration
-	LogLevel        = slog.Level
-	RedactedString  = Redacted[string]
-	RedactedUint    = Redacted[uint32]
-	Address         = common.Address
-)
-
-// ------------------------------------------------------------------------------------------------
-// Auth Kind
-// ------------------------------------------------------------------------------------------------
-
-type AuthKind uint8
-
-const (
-	AuthKindPrivateKeyVar AuthKind = iota
-	AuthKindPrivateKeyFile
-	AuthKindMnemonicVar
-	AuthKindMnemonicFile
-	AuthKindAWS
+	Address = common.Address
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -65,21 +43,6 @@ func ToUint64FromDecimalOrHexString(s string) (uint64, error) {
 
 func ToStringFromString(s string) (string, error) {
 	return s, nil
-}
-
-func ToLogLevelFromString(s string) (LogLevel, error) {
-	var m = map[string]LogLevel{
-		"debug": slog.LevelDebug,
-		"info":  slog.LevelInfo,
-		"warn":  slog.LevelWarn,
-		"error": slog.LevelError,
-	}
-	if v, ok := m[s]; ok {
-		return v, nil
-	} else {
-		var zeroValue LogLevel
-		return zeroValue, fmt.Errorf("invalid log level '%s'", s)
-	}
 }
 
 func ToAddressFromString(s string) (Address, error) {
@@ -105,21 +68,17 @@ func ToApplicationNameFromString(s string) (string, error) {
 	return s, nil
 }
 
-
 // Aliases to be used by the generated functions.
 var (
-	toBool            = strconv.ParseBool
-	toUint64          = ToUint64FromString
-	toString          = ToStringFromString
-	toLogLevel        = ToLogLevelFromString
-	toAddress         = ToAddressFromString
+	toBool    = strconv.ParseBool
+	toUint64  = ToUint64FromString
+	toString  = ToStringFromString
+	toAddress = ToAddressFromString
 )
 
 var (
-	notDefinedbool            = func() bool { return false }
-	notDefineduint64          = func() uint64 { return 0 }
-	notDefinedstring          = func() string { return "" }
-	notDefinedDuration        = func() time.Duration { return 0 }
-	notDefinedLogLevel        = func() slog.Level { return slog.LevelInfo }
-	notDefinedAddress         = func() Address { return common.Address{} }
+	notDefinedbool    = func() bool { return false }
+	notDefineduint64  = func() uint64 { return 0 }
+	notDefinedstring  = func() string { return "" }
+	notDefinedAddress = func() Address { return common.Address{} }
 )

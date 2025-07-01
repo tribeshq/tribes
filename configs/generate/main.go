@@ -16,6 +16,6 @@ func main() {
 	for _, env := range envs {
 		env.validate()
 	}
-	generateDocsFile("../../docs/config.md", envs)
+	generateDocsFile("../../docs/configs.md", envs)
 	generateCodeFile("../generated.go", envs)
 }
