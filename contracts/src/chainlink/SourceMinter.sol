@@ -24,7 +24,7 @@ contract SourceMinter is Ownable {
 
     receive() external payable {}
 
-    function mint(uint64 destinationChainSelector, address to, address minter) external payable {
+    function mint(uint64 destinationChainSelector, address to, address minter) external payable onlyOwner {
         if (destinationChainSelector == block.chainid) {
             nft.mint(to);
             return;
