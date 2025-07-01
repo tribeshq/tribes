@@ -9,8 +9,6 @@ forge-std = "1.9.7"
 cartesi-rollups-contracts = "2.0.0"
 vlayer = "1.2.0"
 risc0-ethereum = { version = "2.1.1", url = "https://github.com/vlayer-xyz/risc0-ethereum/releases/download/v2.1.1-soldeer/contracts.zip" }
-chainlink-ccip = { version = "contracts-ccip-v1.6.0", url = "https://github.com/smartcontractkit/chainlink-ccip/archive/refs/tags/contracts-ccip-v1.6.0.zip" }
-chainlink-evm = { version = "v2.24.0", git = "https://github.com/smartcontractkit/chainlink.git", rev = "6f755cc676b9907a9fdc9af7e30a9b47e6621a61" }
 
 [soldeer]
 remappings_generate = false

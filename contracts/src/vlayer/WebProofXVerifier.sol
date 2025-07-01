@@ -3,7 +3,6 @@ pragma solidity ^0.8.21;
 
 import {Proof} from "vlayer-1.2.0/src/Proof.sol";
 import {WebProofXProver} from "./WebProofXProver.sol";
-import {IInputBox} from "cartesi-rollups-contracts-2.0.0/src/inputs/IInputBox.sol";
 import {Verifier} from "vlayer-1.2.0/src/Verifier.sol";
 
 contract WebProofXVerifier is Verifier {

@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import "openzeppelin-contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "openzeppelin-contracts/access/Ownable.sol";
+import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
+import {ERC721URIStorage, ERC721} from "openzeppelin-contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
  * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
  * DO NOT USE THIS CODE IN PRODUCTION.
  */
-contract NFT is ERC721URIStorage, Ownable {
+contract NFT is ERC721URIStorage, OwnerIsCreator {
     string constant TOKEN_URI = "https://ipfs.io/ipfs/QmYuKY45Aq87LeL1R5dhb1hqHLp6ZFbJaCP8jxqKM1MX6y/babe_ruth_1.json";
     uint256 internal tokenId;
 
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) Ownable(msg.sender) {}
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
     function mint(address to) public onlyOwner {
         _safeMint(to, tokenId);

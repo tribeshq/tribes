@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
-import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
-import {Ownable} from "openzeppelin-contracts/access/Ownable.sol";
 import {NFT} from "../token/ERC721/NFT.sol";
+import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
+import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
+import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
  * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
  * DO NOT USE THIS CODE IN PRODUCTION.
  */
-contract SourceMinter is Ownable {
+contract SourceMinter is OwnerIsCreator {
     NFT public immutable nft;
     address public immutable sourceRouter;
 
     event MessageSent(bytes32 messageId);
 
-    constructor(NFT _nft, address _sourceRouter) Ownable(msg.sender) {
+    constructor(NFT _nft, address _sourceRouter) {
         nft = _nft;
         sourceRouter = _sourceRouter;
     }
