@@ -17,7 +17,7 @@ import (
 func NewHandlers(repo repository.Repository) (*Handlers, error) {
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
-	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo)
+	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
 	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)

@@ -6,12 +6,13 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CreateSocialAccountInputDTO struct {
-	UserId   uint   `json:"user_id" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Platform string `json:"platform" validate:"required"`
+	Address  custom_type.Address `json:"address" validate:"required"`
+	Username string              `json:"username" validate:"required"`
+	Platform string              `json:"platform" validate:"required"`
 }
 
 type CreateSocialAccountOutputDTO struct {
@@ -23,18 +24,25 @@ type CreateSocialAccountOutputDTO struct {
 }
 
 type CreateSocialAccountUseCase struct {
+	UserRepository          repository.UserRepository
 	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewCreateSocialAccountUseCase(socialAccountRepository repository.SocialAccountRepository) *CreateSocialAccountUseCase {
+func NewCreateSocialAccountUseCase(userRepository repository.UserRepository, socialAccountRepository repository.SocialAccountRepository) *CreateSocialAccountUseCase {
 	return &CreateSocialAccountUseCase{
+		UserRepository:          userRepository,
 		SocialAccountRepository: socialAccountRepository,
 	}
 }
 
 func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateSocialAccountInputDTO, metadata *rollmelette.Metadata) (*CreateSocialAccountOutputDTO, error) {
+	user, err := s.UserRepository.FindUserByAddress(ctx, input.Address)
+	if err != nil {
+		return nil, err
+	}
+
 	socialAccount, err := entity.NewSocialAccount(
-		input.UserId,
+		user.Id,
 		input.Username,
 		input.Platform,
 		metadata.BlockTimestamp,

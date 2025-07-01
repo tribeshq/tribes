@@ -12,11 +12,13 @@ import (
 )
 
 type SocialAccountAdvanceHandlers struct {
+	UserRepository          repository.UserRepository
 	SocialAccountRepository repository.SocialAccountRepository
 }
 
-func NewSocialAccountAdvanceHandlers(socialAccountRepository repository.SocialAccountRepository) *SocialAccountAdvanceHandlers {
+func NewSocialAccountAdvanceHandlers(userRepository repository.UserRepository, socialAccountRepository repository.SocialAccountRepository) *SocialAccountAdvanceHandlers {
 	return &SocialAccountAdvanceHandlers{
+		UserRepository:          userRepository,
 		SocialAccountRepository: socialAccountRepository,
 	}
 }
@@ -34,7 +36,7 @@ func (s *SocialAccountAdvanceHandlers) CreateSocialAccount(env rollmelette.Env, 
 	}
 
 	ctx := context.Background()
-	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.SocialAccountRepository)
+	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.UserRepository, s.SocialAccountRepository)
 	res, err := createSocialAccount.Execute(ctx, &input, &metadata)
 	if err != nil {
 		return err

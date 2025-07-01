@@ -58,7 +58,7 @@ func (s *TribesRollupSuite) TestCreateCampaign() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -102,7 +102,7 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -322,7 +322,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -581,7 +581,7 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -870,7 +870,7 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -915,7 +915,7 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -960,7 +960,7 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreator() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
@@ -1012,7 +1012,7 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestor() {
 	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// create social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"user_id":3,"username":"test","platform":"twitter"}}`))
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/creator/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	createSocialAccountOutput := s.Tester.Advance(creator, createSocialAccountInput)
 	s.Len(createSocialAccountOutput.Notices, 1)
 
