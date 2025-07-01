@@ -22,17 +22,15 @@ type SocialAccount struct {
 	UserId    uint     `json:"user_id,omitempty" gorm:"not null"`
 	Username  string   `json:"username,omitempty" gorm:"custom_type:text;not null;uniqueIndex:idx_username_platform"`
 	Platform  Platform `json:"platform,omitempty" gorm:"not null;uniqueIndex:idx_username_platform"`
-	Proof     string   `json:"proof,omitempty" gorm:"not null"`
 	CreatedAt int64    `json:"created_at,omitempty" gorm:"not null"`
 	UpdatedAt int64    `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewSocialAccount(userID uint, username string, platform string, proof string, createdAt int64) (*SocialAccount, error) {
+func NewSocialAccount(userID uint, username string, platform string, createdAt int64) (*SocialAccount, error) {
 	socialAccount := &SocialAccount{
 		UserId:    userID,
 		Username:  username,
 		Platform:  Platform(platform),
-		Proof:     proof,
 		CreatedAt: createdAt,
 	}
 	if err := socialAccount.validate(); err != nil {
@@ -53,9 +51,6 @@ func (s *SocialAccount) validate() error {
 	}
 	if s.Platform != PlatformTwitter && s.Platform != PlatformInstagram {
 		return fmt.Errorf("%w: platform must be 'twitter' or 'instagram'", ErrInvalidSocialAccount)
-	}
-	if s.Proof == "" {
-		return fmt.Errorf("%w: proof cannot be empty", ErrInvalidSocialAccount)
 	}
 	if s.CreatedAt == 0 {
 		return fmt.Errorf("%w: creation date is missing", ErrInvalidSocialAccount)

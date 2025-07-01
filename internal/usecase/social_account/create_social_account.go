@@ -12,7 +12,6 @@ type CreateSocialAccountInputDTO struct {
 	UserId   uint   `json:"user_id" validate:"required"`
 	Username string `json:"username" validate:"required"`
 	Platform string `json:"platform" validate:"required"`
-	Proof    string `json:"proof" validate:"required"`
 }
 
 type CreateSocialAccountOutputDTO struct {
@@ -20,7 +19,6 @@ type CreateSocialAccountOutputDTO struct {
 	UserId    uint   `json:"user_id"`
 	Username  string `json:"username"`
 	Platform  string `json:"platform"`
-	Proof     string `json:"proof"`
 	CreatedAt int64  `json:"created_at"`
 }
 
@@ -39,7 +37,6 @@ func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateS
 		input.UserId,
 		input.Username,
 		input.Platform,
-		input.Proof,
 		metadata.BlockTimestamp,
 	)
 	if err != nil {
@@ -57,7 +54,6 @@ func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateS
 		UserId:    socialAccount.UserId,
 		Username:  socialAccount.Username,
 		Platform:  string(socialAccount.Platform),
-		Proof:     socialAccount.Proof,
 		CreatedAt: socialAccount.CreatedAt,
 	}, nil
 }
