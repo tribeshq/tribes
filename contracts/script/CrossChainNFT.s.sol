@@ -55,7 +55,9 @@ contract SetupApplication is Script, Helper {
         // Transfer ownership of NFT to application
         vm.createSelectFork("arbitrumSepolia");
         vm.startBroadcast();
-        SourceMinter(payable(vm.envAddress("ARBITRUM_SEPOLIA_SOURCE_MINTER"))).transferOwnership(vm.envAddress("APPLICATION"));
+        SourceMinter(payable(vm.envAddress("ARBITRUM_SEPOLIA_SOURCE_MINTER"))).transferOwnership(
+            vm.envAddress("APPLICATION")
+        );
         address arbitrumSepoliaMinter = SourceMinter(payable(vm.envAddress("ARBITRUM_SEPOLIA_SOURCE_MINTER"))).owner();
         console.log("Minter role granted to: ", arbitrumSepoliaMinter);
         vm.stopBroadcast();
