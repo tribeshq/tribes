@@ -7,17 +7,18 @@ x-env: &env
   CARTESI_SNAPSHOTS_DIR: /var/lib/cartesi-rollups-node/snapshots
   CARTESI_BLOCKCHAIN_WS_ENDPOINT: ${CARTESI_BLOCKCHAIN_WS_ENDPOINT}
   CARTESI_BLOCKCHAIN_HTTP_ENDPOINT: ${CARTESI_BLOCKCHAIN_HTTP_ENDPOINT}
-  CARTESI_CONTRACTS_INPUT_BOX_ADDRESS: 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051
-  CARTESI_CONTRACTS_AUTHORITY_FACTORY_ADDRESS: 0xC7003566dD09Aa0fC0Ce201aC2769aFAe3BF0051
-  CARTESI_CONTRACTS_APPLICATION_FACTORY_ADDRESS: 0xc7006f70875BaDe89032001262A846D3Ee160051
-  CARTESI_CONTRACTS_SELF_HOSTED_APPLICATION_FACTORY_ADDRESS: 0xc700285Ab555eeB5201BC00CFD4b2CC8DED90051
-  CARTESI_DATABASE_CONNECTION: postgres://postgres:password@database:5432/rollupsdb?sslmode=disable
+  CARTESI_CONTRACTS_INPUT_BOX_ADDRESS: ${CARTESI_CONTRACTS_INPUT_BOX_ADDRESS}
+  CARTESI_CONTRACTS_AUTHORITY_FACTORY_ADDRESS: ${CARTESI_CONTRACTS_AUTHORITY_FACTORY_ADDRESS}
+  CARTESI_CONTRACTS_APPLICATION_FACTORY_ADDRESS: ${CARTESI_CONTRACTS_APPLICATION_FACTORY_ADDRESS}
+  CARTESI_CONTRACTS_SELF_HOSTED_APPLICATION_FACTORY_ADDRESS: ${CARTESI_CONTRACTS_SELF_HOSTED_APPLICATION_FACTORY_ADDRESS}
+  CARTESI_DATABASE_CONNECTION: ${CARTESI_DATABASE_CONNECTION}
 
 secrets:
   mnemonic:
     file: ./secrets/mnemonic
 
 services:
+  # PostgreSQL database for Cartesi state
   database:
     image: cartesi/rollups-database:0.12.0-alpha.20
     environment:
@@ -34,6 +35,7 @@ services:
       start_period: 10s
       start_interval: 200ms
 
+  # Reads blockchain events
   evmreader:
     image: cartesi/rollups-runtime:0.12.0-alpha.20
     command: cartesi-rollups-evm-reader
@@ -47,6 +49,7 @@ services:
     environment:
       <<: *env
 
+  # Processes inputs and manages state
   advancer:
     image: cartesi/rollups-runtime:0.12.0-alpha.20
     command: cartesi-rollups-advancer
@@ -64,6 +67,7 @@ services:
     environment:
       <<: *env
 
+  # Validates rollups state and consensus
   validator:
     image: cartesi/rollups-runtime:0.12.0-alpha.20
     command: cartesi-rollups-validator
@@ -77,6 +81,7 @@ services:
     environment:
       <<: *env
 
+  # Handles financial operations and rewards
   claimer:
     image: cartesi/rollups-runtime:0.12.0-alpha.20
     command: cartesi-rollups-claimer
@@ -92,6 +97,7 @@ services:
     secrets:
       - mnemonic
 
+  # JSON-RPC API for frontend interaction
   jsonrpc-api:
     image: cartesi/rollups-runtime:0.12.0-alpha.20
     command: cartesi-rollups-jsonrpc-api
@@ -106,5 +112,28 @@ services:
     environment:
       <<: *env
 
+  # Development mode - interactive shell
+  dev-node:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.node
+    stdin_open: true
+    tty: true
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - default
+    ports:
+      - "10002:10002"
+      - "10012:10012"
+      - "10011:10011"
+    volumes:
+      - .cartesi:/var/lib/cartesi-rollups-node/snapshots
+    environment:
+      <<: *env
+    command: /bin/bash
+
+# Persistent storage for rollups data
 volumes:
   node_data:

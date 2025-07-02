@@ -1,0 +1,9 @@
+FROM ghcr.io/sunodo/sunodo-node:pr-198
+
+ARG SNAPSHOT_NAME=tribes
+ARG SNAPSHOT_URL=https://github.com/tribeshq/tribes/releases/download/v0.1.0/tribes-snapshot.tar.gz
+
+RUN mkdir -p /var/lib/cartesi-rollups-node/snapshots/${SNAPSHOT_NAME}
+
+RUN curl -L ${SNAPSHOT_URL} \
+    | tar -xz -C /var/lib/cartesi-rollups-node/snapshots/${SNAPSHOT_NAME}

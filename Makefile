@@ -1,5 +1,11 @@
+include .env.tmpl
+
 START_LOG = @echo "======================= START OF LOG ======================="
 END_LOG = @echo "======================== END OF LOG ======================="
+
+.PHONY: env
+env: ## Create the environment variables file
+	@cp .env.tmpl .env
 
 .PHONY: build
 build: ## Build the application RISC-V image with cartesi cli
