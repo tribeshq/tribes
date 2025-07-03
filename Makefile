@@ -26,6 +26,33 @@ test: ## Run the application tests
 	@go test -p=1 ./... -coverprofile=./coverage.md -v
 	$(END_LOG)
 
+.PHONY: test-sol
+test-sol: ## Run only Solidity tests
+	$(START_LOG)
+	@forge test -vvv --root ./contracts
+	$(END_LOG)
+
+.PHONY: test-go
+test-go: ## Run only Go tests
+	$(START_LOG)
+	@go test -p=1 ./... -coverprofile=./coverage.md -v
+	$(END_LOG)
+
+.PHONY: lint
+lint: ## Run linting and formatting checks
+	$(START_LOG)
+	@test -z "$(gofmt -l .)" || (echo "Go code is not formatted. Run 'gofmt -w .'" && exit 1)
+	@go vet ./...
+	@forge fmt --check --root ./contracts
+	$(END_LOG)
+
+.PHONY: fmt
+fmt: ## Format code
+	$(START_LOG)
+	@gofmt -w .
+	@forge fmt --root ./contracts
+	$(END_LOG)
+
 .PHONY: coverage
 coverage: test ## Generate the application code coverage report
 	$(START_LOG)

@@ -51,12 +51,37 @@ jobs:
       - name: Install Cartesi CLI
         run: npm install -g @cartesi/cli@2.0.0-alpha.15
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            contracts/node_modules
+            ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('contracts/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install contracts dependencies
+        run: |
+          forge soldeer install
+          pnpm install --frozen-lockfile
         working-directory: ./contracts
 
-      - name: Run tests
-        run: make test
+      - name: Run Solidity tests
+        run: forge test -vvv --root ./contracts
+
+      - name: Run Go tests
+        run: go test -p=1 ./... -coverprofile=./coverage.md -v
 
       - name: Log in to Container registry
         if: startsWith(github.ref, 'refs/tags/')
@@ -67,7 +92,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Tribes Rollup initial snapshot
-        run: make build
+        run: |
+          # Enable Docker BuildKit for better performance
+          export DOCKER_BUILDKIT=1
+          make build
+        env:
+          DOCKER_BUILDKIT: 1
+          # Cache Docker layers
+          BUILDKIT_INLINE_CACHE: 1
 
       - name: Create artifact archive for initial snapshot
         if: startsWith(github.ref, 'refs/tags/')
