@@ -38,7 +38,7 @@ DO NOT EDIT.
 -->
 
 <!-- markdownlint-disable line_length -->
-# Node Configuration
+# Tribes Rollup Configuration
 
 The node is configurable through environment variables.
 (There is no other way to configure it.)
