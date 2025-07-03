@@ -49,12 +49,12 @@ jobs:
           version: 10.7.1
 
       - name: Install Cartesi CLI
-        run: npm install -g @cartesi/cli@2.0.0-alpha.8
+        run: npm install -g @cartesi/cli@2.0.0-alpha.15
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Make tests
+      - name: Run tests
         run: make test
 
       - name: Log in to Container registry
