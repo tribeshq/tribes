@@ -3,81 +3,58 @@ name: release
 on:
   push:
     tags:
-        - "*"
+      - "*"
   pull_request:
     branches:
-        - main
+      - main
   workflow_dispatch:
 
 jobs:
-  contracts:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.7.1
-
-      - name: Install dependencies
-        run: |
-          forge soldeer install & pnpm i 
-        working-directory: contracts
-
-      - name: Show Forge version
-        run: |
-          forge --version
-
-      - name: Run Forge tests
-        run: |
-          forge test -vvv
-        id: test
-        working-directory: contracts
-
   build:
-    env:
-      REGISTRY: ghcr.io
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
-    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
-          driver: docker-container
 
-      - name: Setup Go
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.24.1'
-        
-      - name: Setup Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: current
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-  
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.7.1
+
       - name: Install Cartesi CLI
         run: npm install -g @cartesi/cli@2.0.0-alpha.8
 
-      - name: Check system requirements
-        run: cartesi doctor
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Running tests
+      - name: Run Make tests
         run: make test
 
       - name: Log in to Container registry
@@ -87,7 +64,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-  
+
       - name: Build Tribes Rollup initial snapshot
         run: make build
 
@@ -131,4 +108,4 @@ jobs:
         with:
           prerelease: ${{ contains(github.ref, '-rc') }}
           files: release-assets/*
-          fail_on_unmatched_files: true 
+          fail_on_unmatched_files: true
