@@ -81,7 +81,7 @@ jobs:
         run: forge test -vvv --root ./contracts
 
       - name: Run Go tests
-        run: go test -p=1 ./... -coverprofile=./coverage.md -v
+        run: go test -p=1 ./...
 
       - name: Log in to Container registry
         if: startsWith(github.ref, 'refs/tags/')
