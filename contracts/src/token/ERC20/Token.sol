@@ -6,8 +6,8 @@ import {ERC20} from "openzeppelin-contracts/token/ERC20/ERC20.sol";
 import {ERC20Burnable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {ERC20Pausable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Pausable.sol";
 
-contract USDC is ERC20, ERC20Burnable, ERC20Pausable {
-    constructor() ERC20("USD Coin", "USDC") {}
+contract Token is ERC20, ERC20Burnable, ERC20Pausable {
+    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {}
 
     function pause() public {
         _pause();
