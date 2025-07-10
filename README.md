@@ -79,7 +79,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 - TODO
 
-3. Testnet < Fly.io >:
+3. Testnet < cloud >:
 
 > [!NOTE]
 > test
