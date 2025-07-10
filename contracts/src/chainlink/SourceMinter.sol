@@ -27,6 +27,7 @@ contract SourceMinter is Ownable {
     receive() external payable {}
 
     function mint(uint64 destinationChainSelector, address to, address minter) external payable onlyOwner {
+        // TODO: improve this, do not hardcode the destination chain selector (Ethereum Sepolia)
         if (destinationChainSelector == 16015286601757825753) {
             nft.mint(to);
             return;

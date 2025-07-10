@@ -730,8 +730,8 @@ github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_id.go:31.3
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_id.go:44.2,45.16 2 0
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_id.go:45.16,47.3 1 0
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_id.go:48.2,76.8 1 0
-github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:24.164,26.2 1 0
-github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:28.154,30.16 2 0
+github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:24.178,26.2 1 0
+github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:28.175,30.16 2 0
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:30.16,32.3 1 0
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:33.2,34.31 2 0
 github.com/tribeshq/tribes/internal/usecase/campaign/find_campaign_by_investor_address.go:34.31,36.41 2 0

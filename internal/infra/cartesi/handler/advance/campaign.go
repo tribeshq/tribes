@@ -114,7 +114,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		"type":"function",
 		"name":"mint",
 		"inputs":[
-			{"type":"uint256"},
+			{"type":"uint64"},
 			{"type":"address"},
 			{"type":"address"}
 		]
@@ -129,7 +129,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		if order.State != entity.OrderStateRejected {
 			voucher, err := abiInterface.Pack(
 				"mint",
-				order.BadgeChainSelector.ToBig(),
+				order.BadgeChainSelector.Uint64(),
 				common.Address(order.Investor),
 				common.Address(res.BadgeMinter),
 			)
