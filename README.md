@@ -82,13 +82,9 @@ A debt capital market platform designed for the creator economy, enabling conten
 3. Testnet < Fly.io >:
 
 > [!NOTE]
-> To reach the final state of the system for demo purposes, run the command below:
->
->   ```shell
->   make state
->   ```
+> test
 
-###  Testing
+### Testing
 
 #### Backend
 
