@@ -86,8 +86,6 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 ### Testing
 
-#### Backend
-
 ```sh
 make test
 ```
