@@ -10,7 +10,7 @@ type FindSocialAccountsByUserIdInputDTO struct {
 	UserId uint `json:"user_id" validate:"required"`
 }
 
-type FindSocialAccountsByUserIdOutputDTO []*FindSocialAccountOutputDTO
+type FindSocialAccountsByUserIdOutputDTO []*SocialAccountOutputDTO
 
 type FindSocialAccountsByUserIdUseCase struct {
 	SocialAccountRepository repository.SocialAccountRepository
@@ -29,7 +29,7 @@ func (s *FindSocialAccountsByUserIdUseCase) Execute(ctx context.Context, input *
 	}
 	output := make(FindSocialAccountsByUserIdOutputDTO, len(socialAccounts))
 	for i, socialAccount := range socialAccounts {
-		output[i] = &FindSocialAccountOutputDTO{
+		output[i] = &SocialAccountOutputDTO{
 			Id:        socialAccount.Id,
 			UserId:    socialAccount.UserId,
 			Username:  socialAccount.Username,

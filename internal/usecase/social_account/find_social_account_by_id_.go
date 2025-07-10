@@ -20,12 +20,12 @@ func NewFindSocialAccountByIdUseCase(socialAccountRepository repository.SocialAc
 	}
 }
 
-func (s *FindSocialAccountByIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByIdInputDTO) (*FindSocialAccountOutputDTO, error) {
+func (s *FindSocialAccountByIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByIdInputDTO) (*SocialAccountOutputDTO, error) {
 	socialAccount, err := s.SocialAccountRepository.FindSocialAccountById(ctx, input.SocialAccountId)
 	if err != nil {
 		return nil, err
 	}
-	return &FindSocialAccountOutputDTO{
+	return &SocialAccountOutputDTO{
 		Id:        socialAccount.Id,
 		UserId:    socialAccount.UserId,
 		Username:  socialAccount.Username,

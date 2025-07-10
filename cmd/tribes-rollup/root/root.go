@@ -45,7 +45,7 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) {
 	repo, err := factory.NewRepositoryFromConnectionString(
-		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/tribes.db"}[useMemoryDB],
+		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/shtribesoal.db"}[useMemoryDB],
 	)
 	if err != nil {
 		slog.Error("Failed to setup database", "error", err, "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
@@ -87,7 +87,7 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		orderGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
 		orderGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
 		orderGroup.HandleInspect("campaign", handlers.OrderInspectHandlers.FindBidsByCampaignId)
-		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestor)
+		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestorAddress)
 	}
 
 	campaignGroup := r.Group("campaign")
@@ -101,8 +101,8 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		campaignGroup.HandleInspect("", handlers.CampaignInspectHandlers.FindAllCampaigns)
 		campaignGroup.HandleInspect("id", handlers.CampaignInspectHandlers.FindCampaignById)
 		campaignGroup.HandleAdvance("close", handlers.CampaignAdvanceHandlers.CloseCampaign)
-		campaignGroup.HandleInspect("creator", handlers.CampaignInspectHandlers.FindCampaignsByCreator)
-		campaignGroup.HandleInspect("investor", handlers.CampaignInspectHandlers.FindCampaignsByInvestor)
+		campaignGroup.HandleInspect("creator", handlers.CampaignInspectHandlers.FindCampaignsByCreatorAddress)
+		campaignGroup.HandleInspect("investor", handlers.CampaignInspectHandlers.FindCampaignsByInvestorAddress)
 		campaignGroup.HandleAdvance("execute-collateral", handlers.CampaignAdvanceHandlers.ExecuteCampaignCollateral)
 	}
 
@@ -118,21 +118,16 @@ func NewTribesRollup(repo repository.Repository) *router.Router {
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)
 		userGroup.HandleInspect("address", handlers.UserInspectHandlers.FindUserByAddress)
-		userGroup.HandleInspect("erc20-balance", handlers.UserInspectHandlers.ERC20BalanceOf)
-		userGroup.HandleAdvance("erc20-withdraw", handlers.UserAdvanceHandlers.ERC20Withdraw)
+		userGroup.HandleInspect("balance", handlers.UserInspectHandlers.ERC20BalanceOf)
+		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.ERC20Withdraw)
 	}
 
 	socialGroup := r.Group("social")
 	{
-		// verifierGroup := socialGroup.Group("verifier")
-		// verifierGroup.Use(rbacFactory.VerifierOnly())
-		// verifierGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
-		// verifierGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
-
-		creatorGroup := socialGroup.Group("creator")
-		creatorGroup.Use(rbacFactory.CreatorOnly())
-		creatorGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
-		creatorGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
+		verifierGroup := socialGroup.Group("verifier")
+		verifierGroup.Use(rbacFactory.VerifierOnly())
+		verifierGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)
+		verifierGroup.HandleAdvance("delete", handlers.SocialAccountsHandlers.DeleteSocialAccount)
 
 		// Public operations
 		socialGroup.HandleInspect("id", handlers.SocialAccountHandlers.FindSocialAccountById)

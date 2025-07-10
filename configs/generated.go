@@ -20,19 +20,22 @@ func init() {
 }
 
 const (
-	TRIBES_ADMIN_ADDRESS      = "TRIBES_ADMIN_ADDRESS"
-	TRIBES_ADMIN_ADDRESS_TEST = "TRIBES_ADMIN_ADDRESS_TEST"
-	TRIBES_VERIFIER_ADDRESS   = "TRIBES_VERIFIER_ADDRESS"
+	TRIBES_ADMIN_ADDRESS         = "TRIBES_ADMIN_ADDRESS"
+	TRIBES_ADMIN_ADDRESS_TEST    = "TRIBES_ADMIN_ADDRESS_TEST"
+	TRIBES_VERIFIER_ADDRESS      = "TRIBES_VERIFIER_ADDRESS"
+	TRIBES_VERIFIER_ADDRESS_TEST = "TRIBES_VERIFIER_ADDRESS_TEST"
 )
 
 func SetDefaults() {
 	// Set defaults based on the TOML definitions.
 
-	viper.SetDefault(TRIBES_ADMIN_ADDRESS, "0x976EA74026E726554dB657fA54763abd0C3a0aa9")
+	viper.SetDefault(TRIBES_ADMIN_ADDRESS, "0xD554153658E8D466428Fa48487f5aba18dF5E628")
 
 	viper.SetDefault(TRIBES_ADMIN_ADDRESS_TEST, "0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 
-	viper.SetDefault(TRIBES_VERIFIER_ADDRESS, "0x0000000000000000000000000000000000000025")
+	viper.SetDefault(TRIBES_VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
+
+	viper.SetDefault(TRIBES_VERIFIER_ADDRESS_TEST, "0x0000000000000000000000000000000000000025")
 
 }
 
@@ -47,6 +50,9 @@ type RollupConfig struct {
 
 	// Address of the verifier user, who can verify the social accounts
 	TribesVerifierAddress Address `mapstructure:"TRIBES_VERIFIER_ADDRESS"`
+
+	// Address of the verifier user, who can verify the social accounts
+	TribesVerifierAddressTest Address `mapstructure:"TRIBES_VERIFIER_ADDRESS_TEST"`
 }
 
 // LoadRollupConfig reads configuration from environment variables, a config file, and defaults.
@@ -84,6 +90,13 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS is required for the rollup service: %w", err)
+	}
+
+	cfg.TribesVerifierAddressTest, err = GetTribesVerifierAddressTest()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS_TEST: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS_TEST is required for the rollup service: %w", err)
 	}
 
 	return &cfg, nil
@@ -126,4 +139,17 @@ func GetTribesVerifierAddress() (Address, error) {
 		return v, nil
 	}
 	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_VERIFIER_ADDRESS, ErrNotDefined)
+}
+
+// GetTribesVerifierAddressTest returns the value for the environment variable TRIBES_VERIFIER_ADDRESS_TEST.
+func GetTribesVerifierAddressTest() (Address, error) {
+	s := viper.GetString(TRIBES_VERIFIER_ADDRESS_TEST)
+	if s != "" {
+		v, err := toAddress(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_VERIFIER_ADDRESS_TEST, err)
+		}
+		return v, nil
+	}
+	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_VERIFIER_ADDRESS_TEST, ErrNotDefined)
 }

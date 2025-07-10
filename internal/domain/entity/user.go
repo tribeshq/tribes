@@ -47,7 +47,7 @@ func (u *User) validate() error {
 	if u.Role == "" {
 		return fmt.Errorf("%w: role cannot be empty", ErrInvalidUser)
 	}
-	if u.Role != UserRoleAdmin && u.Role != UserRoleCreator && u.Role != UserRoleInvestor {
+	if u.Role != UserRoleAdmin && u.Role != UserRoleCreator && u.Role != UserRoleInvestor && u.Role != UserRoleVerifier {
 		return fmt.Errorf("%w: invalid role", ErrInvalidUser)
 	}
 	if u.Address == (custom_type.Address{}) {

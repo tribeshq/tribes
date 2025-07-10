@@ -10,7 +10,7 @@ type FindUserByRoleInputDTO struct {
 	Role string `json:"role" validate:"required"`
 }
 
-type FindUserByRoleOutputDTO []*FindUserOutputDTO
+type FindUserByRoleOutputDTO []*UserOutputDTO
 
 type FindUserByRoleUseCase struct {
 	userRepository repository.UserRepository
@@ -22,14 +22,14 @@ func NewFindUserByRoleUseCase(userRepository repository.UserRepository) *FindUse
 	}
 }
 
-func (u *FindUserByRoleUseCase) Execute(ctx context.Context, input *FindUserByRoleInputDTO) ([]*FindUserOutputDTO, error) {
+func (u *FindUserByRoleUseCase) Execute(ctx context.Context, input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
 	res, err := u.userRepository.FindUsersByRole(ctx, input.Role)
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindUserByRoleOutputDTO, len(res))
 	for i, user := range res {
-		output[i] = &FindUserOutputDTO{
+		output[i] = &UserOutputDTO{
 			Id:             user.Id,
 			Role:           string(user.Role),
 			Address:        user.Address,

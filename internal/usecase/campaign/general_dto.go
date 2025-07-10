@@ -3,13 +3,17 @@ package campaign
 import (
 	"github.com/holiman/uint256"
 	"github.com/tribeshq/tribes/internal/domain/entity"
+	"github.com/tribeshq/tribes/internal/usecase/user"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type FindCampaignOutputDTO struct {
+type CampaignOutputDTO struct {
 	Id                uint                `json:"id"`
+	Title             string              `json:"title,omitempty"`
+	Description       string              `json:"description,omitempty"`
+	Promotion         string              `json:"promotion,omitempty"`
 	Token             custom_type.Address `json:"token"`
-	Creator           custom_type.Address `json:"creator"`
+	Creator           *user.UserOutputDTO `json:"creator"`
 	CollateralAddress custom_type.Address `json:"collateral_address"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount"`
 	BadgeRouter       custom_type.Address `json:"badge_router"`

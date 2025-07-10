@@ -21,12 +21,12 @@ func NewFindUserByAddressUseCase(userRepository repository.UserRepository) *Find
 	}
 }
 
-func (u *FindUserByAddressUseCase) Execute(ctx context.Context, input *FindUserByAddressInputDTO) (*FindUserOutputDTO, error) {
+func (u *FindUserByAddressUseCase) Execute(ctx context.Context, input *FindUserByAddressInputDTO) (*UserOutputDTO, error) {
 	res, err := u.UserRepository.FindUserByAddress(ctx, input.Address)
 	if err != nil {
 		return nil, err
 	}
-	return &FindUserOutputDTO{
+	return &UserOutputDTO{
 		Id:             res.Id,
 		Role:           string(res.Role),
 		Address:        res.Address,

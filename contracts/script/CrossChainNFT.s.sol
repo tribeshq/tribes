@@ -7,17 +7,15 @@ import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
 import {SourceMinter} from "../src/chainlink/SourceMinter.sol";
 import {DestinationMinter} from "../src/chainlink/DestinationMinter.sol";
-import {SetupProperty} from "./utils/SetupPropertyArgs.sol";
 
 contract CrossChainNFTSourceMinter is Script {
-    SetupProperty helperConfig = new SetupProperty();
-
     function run() external {
         vm.startBroadcast();
-        (address sourceRouter) = helperConfig.propertyArgs();
-
         NFT sourceNFT = new NFT("NFT", "NFT");
         console.log("Source NFT deployed on with address: ", address(sourceNFT));
+
+        // Chain selector for ethereum sepolia: 16015286601757825753
+        address sourceRouter = 0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165;
 
         SourceMinter sourceMinter = new SourceMinter(sourceNFT, sourceRouter);
         console.log("SourceMinter deployed on with address: ", address(sourceMinter));
@@ -34,14 +32,13 @@ contract CrossChainNFTSourceMinter is Script {
 contract CrossChainNFTDestinationMinter is Script {
     DestinationMinter destinationMinter;
 
-    SetupProperty helperConfig = new SetupProperty();
-
     function run() external {
         vm.startBroadcast();
-        (address destinationRouter) = helperConfig.propertyArgs();
-
         NFT destinationNft = new NFT("NFT", "NFT");
         console.log("NFT deployed on with address: ", address(destinationNft));
+
+        // Chain selector for arbitrum sepolia: 3478487238524512106
+        address destinationRouter = 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59;
 
         destinationMinter = new DestinationMinter(destinationNft, destinationRouter);
         console.log("DestinationMinter deployed on with address: ", address(destinationMinter));
@@ -55,12 +52,12 @@ contract CrossChainNFTDestinationMinter is Script {
     }
 }
 
-contract SetupApplication is Script { 
+contract SetupApplication is Script {
     SourceMinter sourceMinter;
 
     function run() external {
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/broadcast/SourceMinter.s.sol/421614/run-latest.json");
+        string memory path = string.concat(root, "/broadcast/CrossChainNFT.s.sol/11155111/run-latest.json");
         string memory json = vm.readFile(path);
 
         address sourceMinterAddress = bytesToAddress(stdJson.parseRaw(json, ".transactions[0].contractAddress"));
@@ -70,8 +67,8 @@ contract SetupApplication is Script {
 
         sourceMinter = SourceMinter(payable(sourceMinterAddress));
         sourceMinter.transferOwnership(applicationAddress);
-        address arbitrumSepoliaMinter = sourceMinter.owner();
-        console.log("Minter role granted to: ", arbitrumSepoliaMinter);
+        address owner = sourceMinter.owner();
+        console.log("Minter role granted to: ", owner);
         vm.stopBroadcast();
     }
 

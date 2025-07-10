@@ -19,17 +19,14 @@ contract WebProofXVerifier is Verifier {
         public
         onlyVerified(prover, WebProofXProver.main.selector)
     {
-        string memory input = string(
-            abi.encodePacked(
-                '{"path":"social/verifier/create","data":{"address":"',
-                toString(account),
-                '","username":"',
-                username,
-                '","platform":"twitter"}}'
-            )
+        bytes memory input = abi.encodePacked(
+            '{"path":"social/verifier/create","data":{"address":"',
+            toString(account),
+            '","username":"',
+            username,
+            '","platform":"twitter"}}'
         );
-
-        IInputBox(inputBox).addInput(application, abi.encode(input));
+        IInputBox(inputBox).addInput(application, input);
     }
 
     function toString(address account) public pure returns (string memory) {

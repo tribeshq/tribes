@@ -43,6 +43,7 @@ func (h *OrderAdvanceHandlers) CreateOrder(env rollmelette.Env, metadata rollmel
 
 	ctx := context.Background()
 	createOrder := order.NewCreateOrderUseCase(
+		h.UserRepository,
 		h.OrderRepository,
 		h.CampaignRepository,
 	)
@@ -88,6 +89,7 @@ func (h *OrderAdvanceHandlers) CancelOrder(env rollmelette.Env, metadata rollmel
 
 	ctx := context.Background()
 	cancelOrder := order.NewCancelOrderUseCase(
+		h.UserRepository,
 		h.OrderRepository,
 		h.CampaignRepository,
 	)

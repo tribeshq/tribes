@@ -8,15 +8,17 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/infra/repository"
-	campaign "github.com/tribeshq/tribes/internal/usecase/campaign"
+	"github.com/tribeshq/tribes/internal/usecase/campaign"
 )
 
 type CampaignInspectHandlers struct {
+	UserRepository     repository.UserRepository
 	CampaignRepository repository.CampaignRepository
 }
 
-func NewCampaignInspectHandlers(campaignRepository repository.CampaignRepository) *CampaignInspectHandlers {
+func NewCampaignInspectHandlers(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *CampaignInspectHandlers {
 	return &CampaignInspectHandlers{
+		UserRepository:     userRepository,
 		CampaignRepository: campaignRepository,
 	}
 }
@@ -33,7 +35,7 @@ func (h *CampaignInspectHandlers) FindCampaignById(env rollmelette.EnvInspector,
 	}
 
 	ctx := context.Background()
-	findCampaignById := campaign.NewFindCampaignByIdUseCase(h.CampaignRepository)
+	findCampaignById := campaign.NewFindCampaignByIdUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignById.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaign: %w", err)
@@ -48,7 +50,7 @@ func (h *CampaignInspectHandlers) FindCampaignById(env rollmelette.EnvInspector,
 
 func (h *CampaignInspectHandlers) FindAllCampaigns(env rollmelette.EnvInspector, payload []byte) error {
 	ctx := context.Background()
-	findAllCampaignsUseCase := campaign.NewFindAllCampaignsUseCase(h.CampaignRepository)
+	findAllCampaignsUseCase := campaign.NewFindAllCampaignsUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findAllCampaignsUseCase.Execute(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to find all campaigns: %w", err)
@@ -61,8 +63,8 @@ func (h *CampaignInspectHandlers) FindAllCampaigns(env rollmelette.EnvInspector,
 	return nil
 }
 
-func (h *CampaignInspectHandlers) FindCampaignsByInvestor(env rollmelette.EnvInspector, payload []byte) error {
-	var input campaign.FindCampaignsByInvestorInputDTO
+func (h *CampaignInspectHandlers) FindCampaignsByInvestorAddress(env rollmelette.EnvInspector, payload []byte) error {
+	var input campaign.FindCampaignsByInvestorAddressInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -73,7 +75,7 @@ func (h *CampaignInspectHandlers) FindCampaignsByInvestor(env rollmelette.EnvIns
 	}
 
 	ctx := context.Background()
-	findCampaignsByInvestor := campaign.NewFindCampaignsByInvestorUseCase(h.CampaignRepository)
+	findCampaignsByInvestor := campaign.NewFindCampaignsByInvestorAddressUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignsByInvestor.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaigns by investor: %w", err)
@@ -86,8 +88,8 @@ func (h *CampaignInspectHandlers) FindCampaignsByInvestor(env rollmelette.EnvIns
 	return nil
 }
 
-func (h *CampaignInspectHandlers) FindCampaignsByCreator(env rollmelette.EnvInspector, payload []byte) error {
-	var input campaign.FindCampaignsByCreatorInputDTO
+func (h *CampaignInspectHandlers) FindCampaignsByCreatorAddress(env rollmelette.EnvInspector, payload []byte) error {
+	var input campaign.FindCampaignsByCreatorAddressInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -98,7 +100,7 @@ func (h *CampaignInspectHandlers) FindCampaignsByCreator(env rollmelette.EnvInsp
 	}
 
 	ctx := context.Background()
-	findCampaignsByCreator := campaign.NewFindCampaignsByCreatorUseCase(h.CampaignRepository)
+	findCampaignsByCreator := campaign.NewFindCampaignsByCreatorAddressUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignsByCreator.Execute(ctx, &input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaigns by creator: %w", err)

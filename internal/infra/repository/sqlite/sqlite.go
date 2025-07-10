@@ -58,31 +58,35 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
-	// Set defaults before trying to get the values
 	configs.SetDefaults()
 
 	var adminAddress string
 	var verifierAddress string
-
 	if dbPath == ":memory:" {
 		adminAddr, err := configs.GetTribesAdminAddressTest()
 		if err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
 		}
 		adminAddress = adminAddr.Hex()
+
+		verifierAddr, err := configs.GetTribesVerifierAddressTest()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS_TEST: %w", err)
+		}
+		verifierAddress = verifierAddr.Hex()
 	} else {
 		adminAddr, err := configs.GetTribesAdminAddress()
 		if err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS: %w", err)
 		}
 		adminAddress = adminAddr.Hex()
-	}
 
-	verifierAddr, err := configs.GetTribesVerifierAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
+		verifierAddr, err := configs.GetTribesVerifierAddress()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
+		}
+		verifierAddress = verifierAddr.Hex()
 	}
-	verifierAddress = verifierAddr.Hex()
 
 	adminUser := entity.User{
 		Role:      entity.UserRoleAdmin,

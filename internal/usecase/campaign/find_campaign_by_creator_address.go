@@ -7,25 +7,30 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
+	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
-type FindAllCampaignsOutputDTO []*CampaignOutputDTO
+type FindCampaignsByCreatorAddressInputDTO struct {
+	CreatorAddress custom_type.Address `json:"creator_address" validate:"required"`
+}
 
-type FindAllCampaignsUseCase struct {
+type FindCampaignsByCreatorAddressOutputDTO []*CampaignOutputDTO
+
+type FindCampaignsByCreatorAddressUseCase struct {
 	UserRepository     repository.UserRepository
 	CampaignRepository repository.CampaignRepository
 }
 
-func NewFindAllCampaignsUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *FindAllCampaignsUseCase {
-	return &FindAllCampaignsUseCase{UserRepository: userRepository, CampaignRepository: campaignRepository}
+func NewFindCampaignsByCreatorAddressUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *FindCampaignsByCreatorAddressUseCase {
+	return &FindCampaignsByCreatorAddressUseCase{UserRepository: userRepository, CampaignRepository: campaignRepository}
 }
 
-func (f *FindAllCampaignsUseCase) Execute(ctx context.Context) (*FindAllCampaignsOutputDTO, error) {
-	res, err := f.CampaignRepository.FindAllCampaigns(ctx)
+func (f *FindCampaignsByCreatorAddressUseCase) Execute(ctx context.Context, input *FindCampaignsByCreatorAddressInputDTO) (*FindCampaignsByCreatorAddressOutputDTO, error) {
+	res, err := f.CampaignRepository.FindCampaignsByCreatorAddress(ctx, input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	output := make(FindAllCampaignsOutputDTO, len(res))
+	output := make(FindCampaignsByCreatorAddressOutputDTO, len(res))
 	for i, campaign := range res {
 		orders := make([]*entity.Order, len(campaign.Orders))
 		for j, order := range campaign.Orders {

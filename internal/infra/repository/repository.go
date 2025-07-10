@@ -9,8 +9,8 @@ import (
 
 type CampaignRepository interface {
 	CreateCampaign(ctx context.Context, Campaign *entity.Campaign) (*entity.Campaign, error)
-	FindCampaignsByCreator(ctx context.Context, creator custom_type.Address) ([]*entity.Campaign, error)
-	FindCampaignsByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Campaign, error)
+	FindCampaignsByCreatorAddress(ctx context.Context, creator custom_type.Address) ([]*entity.Campaign, error)
+	FindCampaignsByInvestorAddress(ctx context.Context, investor custom_type.Address) ([]*entity.Campaign, error)
 	FindCampaignById(ctx context.Context, id uint) (*entity.Campaign, error)
 	FindAllCampaigns(ctx context.Context) ([]*entity.Campaign, error)
 	UpdateCampaign(ctx context.Context, Campaign *entity.Campaign) (*entity.Campaign, error)
@@ -21,7 +21,7 @@ type OrderRepository interface {
 	FindOrderById(ctx context.Context, id uint) (*entity.Order, error)
 	FindOrdersByCampaignId(ctx context.Context, id uint) ([]*entity.Order, error)
 	FindOrdersByState(ctx context.Context, CampaignId uint, state string) ([]*entity.Order, error)
-	FindOrdersByInvestor(ctx context.Context, investor custom_type.Address) ([]*entity.Order, error)
+	FindOrdersByInvestorAddress(ctx context.Context, investor custom_type.Address) ([]*entity.Order, error)
 	FindAllOrders(ctx context.Context) ([]*entity.Order, error)
 	UpdateOrder(ctx context.Context, order *entity.Order) (*entity.Order, error)
 	DeleteOrder(ctx context.Context, id uint) error

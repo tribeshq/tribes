@@ -10,7 +10,7 @@ import (
 
 func (r *SQLiteRepository) CreateSocialAccount(ctx context.Context, input *entity.SocialAccount) (*entity.SocialAccount, error) {
 	if err := r.Db.WithContext(ctx).Create(input).Error; err != nil {
-		return nil, fmt.Errorf("failed to create social account: %w", err)
+		return nil, fmt.Errorf("failed to verify social account: %w", err)
 	}
 	return input, nil
 }

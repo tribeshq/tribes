@@ -4,7 +4,7 @@ DO NOT EDIT.
 -->
 
 <!-- markdownlint-disable line_length -->
-# Node Configuration
+# Tribes Rollup Configuration
 
 The node is configurable through environment variables.
 (There is no other way to configure it.)
@@ -18,7 +18,7 @@ This file documents the configuration options.
 Address of the admin user
 
 * **Type:** `Address`
-* **Default:** `"0x976EA74026E726554dB657fA54763abd0C3a0aa9"`
+* **Default:** `"0xD554153658E8D466428Fa48487f5aba18dF5E628"`
 * **Used by:** rollup
 
 ## `TRIBES_ADMIN_ADDRESS_TEST`
@@ -30,6 +30,14 @@ Address of the admin user
 * **Used by:** rollup
 
 ## `TRIBES_VERIFIER_ADDRESS`
+
+Address of the verifier user, who can verify the social accounts
+
+* **Type:** `Address`
+* **Default:** `"0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b"`
+* **Used by:** rollup
+
+## `TRIBES_VERIFIER_ADDRESS_TEST`
 
 Address of the verifier user, who can verify the social accounts
 

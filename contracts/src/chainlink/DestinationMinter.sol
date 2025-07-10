@@ -12,9 +12,9 @@ interface INFT {
 contract DestinationMinter is CCIPReceiver {
     NFT public immutable nft;
 
-    error MintCallFailed(address to, bytes32 messageId);
     error InvalidSelector(bytes4 selector);
     error InvalidPayloadLength(uint256 length);
+    error MintCallFailed(address to, bytes32 messageId);
 
     event MintCallSuccessful(address indexed to, bytes32 indexed messageId);
 

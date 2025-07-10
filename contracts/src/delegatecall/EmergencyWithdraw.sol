@@ -3,24 +3,23 @@
 pragma solidity ^0.8.27;
 
 import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import {AccessControl} from "openzeppelin-contracts/access/AccessControl.sol";
 
-contract EmergencyWithdraw {
+contract EmergencyWithdraw is AccessControl {
     error ZeroBalance();
     error ETHTransferFailed();
-    error NotAdmin(address admin);
 
-    modifier onlyAdmin(address admin) {
-        if (msg.sender != admin) {
-            revert NotAdmin(admin);
-        }
-        _;
+    bytes32 public constant APP_ROLE = keccak256("APP_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function emergencyERC20Withdraw(address to, address admin, IERC20 token) public onlyAdmin(admin) {
+    function emergencyERC20Withdraw(address to, IERC20 token) public onlyRole(APP_ROLE) {
         token.transfer(to, token.balanceOf(address(this)));
     }
 
-    function emergencyETHWithdraw(address to, address admin) public onlyAdmin(admin) {
+    function emergencyETHWithdraw(address to) public onlyRole(APP_ROLE) {
         uint256 balance = address(this).balance;
         if (balance == 0) {
             revert ZeroBalance();

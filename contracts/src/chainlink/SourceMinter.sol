@@ -17,6 +17,8 @@ contract SourceMinter is Ownable {
 
     event MessageSent(bytes32 messageId);
 
+    error InsufficientFee(uint256 currentValue, uint256 requiredFee);
+
     constructor(NFT _nft, address _sourceRouter) Ownable(msg.sender) {
         nft = _nft;
         sourceRouter = _sourceRouter;
@@ -25,7 +27,7 @@ contract SourceMinter is Ownable {
     receive() external payable {}
 
     function mint(uint64 destinationChainSelector, address to, address minter) external payable onlyOwner {
-        if (destinationChainSelector == block.chainid) {
+        if (destinationChainSelector == 16015286601757825753) {
             nft.mint(to);
             return;
         }
@@ -37,9 +39,11 @@ contract SourceMinter is Ownable {
             extraArgs: "",
             feeToken: address(0)
         });
-
         uint256 fee = IRouterClient(sourceRouter).getFee(destinationChainSelector, message);
-        require(msg.value >= fee, "Insufficient fee");
+        
+        if (msg.value < fee) {
+            revert InsufficientFee(msg.value, fee);
+        }
 
         bytes32 messageId = IRouterClient(sourceRouter).ccipSend{value: fee}(destinationChainSelector, message);
 

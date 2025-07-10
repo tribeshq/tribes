@@ -6,14 +6,16 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-type FindAllOrdersOutputDTO []*FindOrderOutputDTO
+type FindAllOrdersOutputDTO []*OrderOutputDTO
 
 type FindAllOrdersUseCase struct {
+	UserRepository  repository.UserRepository
 	OrderRepository repository.OrderRepository
 }
 
-func NewFindAllOrdersUseCase(orderRepository repository.OrderRepository) *FindAllOrdersUseCase {
+func NewFindAllOrdersUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository) *FindAllOrdersUseCase {
 	return &FindAllOrdersUseCase{
+		UserRepository:  userRepository,
 		OrderRepository: orderRepository,
 	}
 }
@@ -25,16 +27,20 @@ func (f *FindAllOrdersUseCase) Execute(ctx context.Context) (*FindAllOrdersOutpu
 	}
 	output := make(FindAllOrdersOutputDTO, len(res))
 	for i, order := range res {
-		output[i] = &FindOrderOutputDTO{
-			Id:           order.Id,
-			CampaignId:   order.CampaignId,
-			BadgeChainId: order.BadgeChainId,
-			Investor:     order.Investor,
-			Amount:       order.Amount,
-			InterestRate: order.InterestRate,
-			State:        string(order.State),
-			CreatedAt:    order.CreatedAt,
-			UpdatedAt:    order.UpdatedAt,
+		investor, err := f.UserRepository.FindUserByAddress(ctx, order.Investor)
+		if err != nil {
+			return nil, err
+		}
+		output[i] = &OrderOutputDTO{
+			Id:                 order.Id,
+			CampaignId:         order.CampaignId,
+			BadgeChainSelector: order.BadgeChainSelector,
+			Investor:           investor,
+			Amount:             order.Amount,
+			InterestRate:       order.InterestRate,
+			State:              string(order.State),
+			CreatedAt:          order.CreatedAt,
+			UpdatedAt:          order.UpdatedAt,
 		}
 	}
 	return &output, nil

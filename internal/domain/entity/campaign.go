@@ -25,6 +25,9 @@ const (
 
 type Campaign struct {
 	Id                uint                `json:"id" gorm:"primaryKey"`
+	Title             string              `json:"title,omitempty" gorm:"not null"`
+	Description       string              `json:"description,omitempty" gorm:"not null"`
+	Promotion         string              `json:"promotion,omitempty" gorm:"not null"`
 	Token             custom_type.Address `json:"token,omitempty" gorm:"custom_type:text;not null"`
 	Creator           custom_type.Address `json:"creator,omitempty" gorm:"custom_type:text;not null"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty" gorm:"custom_type:text;not null"`
@@ -43,8 +46,11 @@ type Campaign struct {
 	UpdatedAt         int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_router custom_type.Address, badge_minter custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
+func NewCampaign(title string, description string, promotion string, token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_router custom_type.Address, badge_minter custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
 	Campaign := &Campaign{
+		Title:             title,
+		Description:       description,
+		Promotion:         promotion,
 		Token:             token,
 		Creator:           creator,
 		CollateralAddress: collateral_address,
@@ -66,6 +72,15 @@ func NewCampaign(token custom_type.Address, creator custom_type.Address, collate
 }
 
 func (a *Campaign) validate() error {
+	if a.Title == "" {
+		return fmt.Errorf("%w: title cannot be empty", ErrInvalidCampaign)
+	}
+	if a.Description == "" {
+		return fmt.Errorf("%w: description cannot be empty", ErrInvalidCampaign)
+	}
+	if a.Promotion == "" {
+		return fmt.Errorf("%w: promotion cannot be empty", ErrInvalidCampaign)
+	}
 	if a.Token == (custom_type.Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidCampaign)
 	}

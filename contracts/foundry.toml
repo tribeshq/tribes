@@ -2,6 +2,7 @@
 src = "src"
 out = "out"
 libs = ["lib", "dependencies", "node_modules"]
+fs_permissions = [{ access = "read", path = "./" }]
 
 [dependencies]
 forge-std = "1.9.7"
@@ -13,57 +14,3 @@ risc0-ethereum = { version = "2.1.1", url = "https://github.com/vlayer-xyz/risc0
 [soldeer]
 remappings_generate = false
 remappings_regenerate = false
-
-[rpc_endpoints]
-ethereumSepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
-optimismGoerli = "${OPTIMISM_GOERLI_RPC_URL}"
-avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
-arbitrumSepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
-polygonMumbai = "${POLYGON_MUMBAI_RPC_URL}"
-bnbChainTestnet = "${BNB_CHAIN_TESTNET_RPC_URL}"
-baseSepolia = "${BASE_SEPOLIA_RPC_URL}"
-metisSepolia = "${METIS_SEPOLIA_RPC_URL}"
-zksyncSepolia = "${ZKSYNC_SEPOLIA_RPC_URL}"
-scrollSepolia = "${SCROLL_SEPOLIA_RPC_URL}"
-zircuitSepolia = "${ZIRCUIT_SEPOLIA_RPC_URL}"
-xlayerSepolia = "${XLAYER_SEPOLIA_RPC_URL}"
-polygonZkevmSepolia = "${POLYGON_ZKEVM_SEPOLIA_RPC_URL}"
-polkadotAstarShibuya = "${POLKADOT_ASTAR_SHIBUYA_RPC_URL}"
-mantleSepolia = "${MANTLE_SEPOLIA_RPC_URL}"
-soneiumMinatoSepolia = "${SONEIUM_MINATO_SEPOLIA_RPC_URL}"
-bsquaredTestnet = "${BSQUARED_TESTNET_RPC_URL}"
-bobSepolia = "${BOB_SEPOLIA_RPC_URL}"
-worldchainSepolia = "${WORLDCHAIN_SEPOLIA_RPC_URL}"
-shibariumTestnet = "${SHIBARIUM_TESTNET_RPC_URL}"
-bitlayerTestnet= "${BITLAYER_TESTNET_RPC_URL}"
-fantomSonicTestnet = "${FANTOM_SONIC_TESTNET_RPC_URL}"
-cornTestnet = "${CORN_TESTNET_RPC_URL}"
-hashkeySepolia = "${HASHKEY_SEPOLIA_RPC_URL}"
-inkSepolia = "${INK_SEPOLIA_RPC_URL}"
-
-[etherscan]
-ethereumSepolia = { key = "${ETHEREUM_SEPOLIA_API_KEY}" }
-optimismGoerli = { key = "${OPTIMISM_GOERLI_API_KEY}" }
-avalancheFuji = { key = "${AVALANCHE_FUJI_API_KEY}" }
-arbitrumSepolia = { key = "${ARBITRUM_SEPOLIA_API_KEY}" }
-polygonMumbai = { key = "${POLYGON_MUMBAI_API_KEY}" }
-bnbChainTestnet = { key = "${BNB_CHAIN_TESTNET_API_KEY}" }
-baseSepolia = { key = "${BASE_SEPOLIA_API_KEY}" }
-metisSepolia = { key = "${METIS_SEPOLIA_API_KEY}" }
-zksyncSepolia = { key = "${ZKSYNC_SEPOLIA_API_KEY}" }
-scrollSepolia = { key = "${SCROLL_SEPOLIA_API_KEY}" }
-zircuitSepolia = { key = "${ZIRCUIT_SEPOLIA_API_KEY}" }
-xlayerSepolia = { key = "${XLAYER_SEPOLIA_API_KEY}" }
-polygonZkevmSepolia = { key = "${POLYGON_ZKEVM_SEPOLIA_API_KEY}" }
-polkadotAstarShibuya = { key = "${POLKADOT_ASTAR_SHIBUYA_API_KEY}" }
-mantleSepolia = { key = "${MANTLE_SEPOLIA_API_KEY}" }
-soneiumMinatoSepolia = { key = "${SONEIUM_MINATO_SEPOLIA_API_KEY}" }
-bsquaredTestnet = { key = "${BSQUARED_TESTNET_API_KEY}" }
-bobSepolia = { key = "${BOB_SEPOLIA_API_KEY}" }
-worldchainSepolia = { key = "${WORLDCHAIN_SEPOLIA_API_KEY}" }
-shibariumTestnet = { key = "${SHIBARIUM_TESTNET_API_KEY}" }
-bitlayerTestnet = { key = "${BITLAYER_TESTNET_API_KEY}" }
-fantomSonicTestnet = { key = "${FANTOM_SONIC_TESTNET_API_KEY}" }
-cornTestnet = { key = "${CORN_TESTNET_API_KEY}" }
-hashkeySepolia = { key = "${HASHKEY_SEPOLIA_API_KEY}" }
-inkSepolia ={ key =  "${INK_SEPOLIA_API_KEY}" }

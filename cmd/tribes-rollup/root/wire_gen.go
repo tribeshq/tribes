@@ -19,10 +19,10 @@ func NewHandlers(repo repository.Repository) (*Handlers, error) {
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
 	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(repo, repo, repo)
-	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo)
+	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)
-	campaignInspectHandlers := inspect.NewCampaignInspectHandlers(repo)
+	campaignInspectHandlers := inspect.NewCampaignInspectHandlers(repo, repo)
 	handlers := &Handlers{
 		OrderAdvanceHandlers:    orderAdvanceHandlers,
 		UserAdvanceHandlers:     userAdvanceHandlers,

@@ -26,26 +26,26 @@ const (
 )
 
 type Order struct {
-	Id           uint                `json:"id" gorm:"primaryKey"`
-	CampaignId   uint                `json:"campaign_id" gorm:"not null;index"`
-	BadgeChainId uint64              `json:"badge_chain_id" gorm:"not null"`
-	Investor     custom_type.Address `json:"investor,omitempty" gorm:"not null"`
-	Amount       *uint256.Int        `json:"amount,omitempty" gorm:"custom_type:text;not null"`
-	InterestRate *uint256.Int        `json:"interest_rate,omitempty" gorm:"custom_type:text;not null"`
-	State        OrderState          `json:"state,omitempty" gorm:"custom_type:text;not null"`
-	CreatedAt    int64               `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt    int64               `json:"updated_at,omitempty" gorm:"default:0"`
+	Id                 uint                `json:"id" gorm:"primaryKey"`
+	CampaignId         uint                `json:"campaign_id" gorm:"not null;index"`
+	BadgeChainSelector *uint256.Int        `json:"badge_chain_selector" gorm:"custom_type:text;not null"`
+	Investor           custom_type.Address `json:"investor,omitempty" gorm:"not null"`
+	Amount             *uint256.Int        `json:"amount,omitempty" gorm:"custom_type:text;not null"`
+	InterestRate       *uint256.Int        `json:"interest_rate,omitempty" gorm:"custom_type:text;not null"`
+	State              OrderState          `json:"state,omitempty" gorm:"custom_type:text;not null"`
+	CreatedAt          int64               `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt          int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewOrder(CampaignId uint, BadgeChainId uint64, investor custom_type.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
+func NewOrder(campaignId uint, badgeChainSelector *uint256.Int, investor custom_type.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
 	order := &Order{
-		CampaignId:   CampaignId,
-		BadgeChainId: BadgeChainId,
-		Investor:     investor,
-		Amount:       amount,
-		InterestRate: interestRate,
-		State:        OrderStatePending,
-		CreatedAt:    createdAt,
+		CampaignId:         campaignId,
+		BadgeChainSelector: badgeChainSelector,
+		Investor:           investor,
+		Amount:             amount,
+		InterestRate:       interestRate,
+		State:              OrderStatePending,
+		CreatedAt:          createdAt,
 	}
 	if err := order.validate(); err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (b *Order) validate() error {
 	if b.CampaignId == 0 {
 		return fmt.Errorf("%w: Campaign ID cannot be zero", ErrInvalidOrder)
 	}
-	if b.BadgeChainId == 0 {
+	if b.BadgeChainSelector == nil || b.BadgeChainSelector.Sign() <= 0 {
 		return fmt.Errorf("%w: Badge Chain ID cannot be zero", ErrInvalidOrder)
 	}
 	if b.Investor == (custom_type.Address{}) {

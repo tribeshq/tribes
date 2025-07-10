@@ -9,17 +9,21 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
+	"github.com/tribeshq/tribes/internal/usecase/user"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
 
 type CloseCampaignInputDTO struct {
-	Creator custom_type.Address `json:"creator" validate:"required"`
+	CreatorAddress custom_type.Address `json:"creator_address" validate:"required"`
 }
 
 type CloseCampaignOutputDTO struct {
 	Id                uint                `json:"id"`
+	Title             string              `json:"title,omitempty"`
+	Description       string              `json:"description,omitempty"`
+	Promotion         string              `json:"promotion,omitempty"`
 	Token             custom_type.Address `json:"token,omitempty"`
-	Creator           custom_type.Address `json:"creator,omitempty"`
+	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
 	BadgeRouter       custom_type.Address `json:"badge_router,omitempty"`
@@ -37,14 +41,16 @@ type CloseCampaignOutputDTO struct {
 }
 
 type CloseCampaignUseCase struct {
+	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
 	CampaignRepository repository.CampaignRepository
 }
 
-func NewCloseCampaignUseCase(CampaignRepository repository.CampaignRepository, orderRepository repository.OrderRepository) *CloseCampaignUseCase {
+func NewCloseCampaignUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository, orderRepository repository.OrderRepository) *CloseCampaignUseCase {
 	return &CloseCampaignUseCase{
+		UserRepository:     userRepository,
+		CampaignRepository: campaignRepository,
 		OrderRepository:    orderRepository,
-		CampaignRepository: CampaignRepository,
 	}
 }
 
@@ -52,7 +58,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.CampaignRepository.FindCampaignsByCreator(ctx, input.Creator)
+	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(ctx, input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -126,14 +132,14 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(ctx, &entity.Order{
-				CampaignId:   order.CampaignId,
-				BadgeChainId: order.BadgeChainId,
-				Investor:     order.Investor,
-				Amount:       rejectedAmount,
-				InterestRate: order.InterestRate,
-				State:        entity.OrderStateRejected,
-				CreatedAt:    order.CreatedAt,
-				UpdatedAt:    metadata.BlockTimestamp,
+				CampaignId:         order.CampaignId,
+				BadgeChainSelector: order.BadgeChainSelector,
+				Investor:           order.Investor,
+				Amount:             rejectedAmount,
+				InterestRate:       order.InterestRate,
+				State:              entity.OrderStateRejected,
+				CreatedAt:          order.CreatedAt,
+				UpdatedAt:          metadata.BlockTimestamp,
 			})
 			if err != nil {
 				return nil, err
@@ -181,10 +187,25 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		return nil, err
 	}
 
+	creator, err := u.UserRepository.FindUserByAddress(ctx, res.Creator)
+	if err != nil {
+		return nil, fmt.Errorf("error finding creator: %w", err)
+	}
+
 	return &CloseCampaignOutputDTO{
-		Id:                res.Id,
-		Token:             res.Token,
-		Creator:           res.Creator,
+		Id:          res.Id,
+		Title:       res.Title,
+		Description: res.Description,
+		Promotion:   res.Promotion,
+		Token:       res.Token,
+		Creator: &user.UserOutputDTO{
+			Id:             creator.Id,
+			Role:           string(creator.Role),
+			Address:        creator.Address,
+			SocialAccounts: creator.SocialAccounts,
+			CreatedAt:      creator.CreatedAt,
+			UpdatedAt:      creator.UpdatedAt,
+		},
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
 		BadgeRouter:       res.BadgeRouter,

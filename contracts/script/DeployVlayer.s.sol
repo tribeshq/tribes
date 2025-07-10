@@ -14,9 +14,9 @@ contract DeployVlayer is Script {
         vm.startBroadcast();
         prover = new WebProofXProver();
 
-        address proverAddress = vm.parseAddress(vm.prompt("Enter prover address"));
-        address inputBoxAddress = vm.parseAddress(vm.prompt("Enter input box address"));
-        verifier = new WebProofXVerifier(proverAddress, inputBoxAddress);
+        address inputBoxAddress = 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051;
+
+        verifier = new WebProofXVerifier(address(prover), inputBoxAddress);
         vm.stopBroadcast();
 
         console.log("Prover deployed to: ", address(prover));

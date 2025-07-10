@@ -1,6 +1,6 @@
 package social_account
 
-type FindSocialAccountOutputDTO struct {
+type SocialAccountOutputDTO struct {
 	Id        uint   `json:"id"`
 	UserId    uint   `json:"user_id"`
 	Username  string `json:"username"`

@@ -88,7 +88,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 	}
 
 	ctx := context.Background()
-	closeCampaign := campaign.NewCloseCampaignUseCase(h.CampaignRepository, h.OrderRepository)
+	closeCampaign := campaign.NewCloseCampaignUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
 	res, err := closeCampaign.Execute(ctx, &input, metadata)
 	if err != nil && res == nil {
 		return fmt.Errorf("failed to close campaign: %w", err)
@@ -114,7 +114,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		"type":"function",
 		"name":"mint",
 		"inputs":[
-			{"type":"uint64"},
+			{"type":"uint256"},
 			{"type":"address"},
 			{"type":"address"}
 		]
@@ -129,7 +129,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		if order.State != entity.OrderStateRejected {
 			voucher, err := abiInterface.Pack(
 				"mint",
-				order.BadgeChainId,
+				order.BadgeChainSelector.ToBig(),
 				common.Address(order.Investor),
 				common.Address(res.BadgeMinter),
 			)
@@ -140,7 +140,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		}
 	}
 
-	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator), res.TotalRaised.ToBig()); err != nil {
+	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator.Address), res.TotalRaised.ToBig()); err != nil {
 		return fmt.Errorf("failed to transfer total raised: %w", err)
 	}
 
@@ -166,6 +166,7 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 
 	ctx := context.Background()
 	settleCampaign := campaign.NewSettleCampaignUseCase(
+		h.UserRepository,
 		h.CampaignRepository,
 		h.OrderRepository,
 	)
@@ -176,7 +177,7 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 	}
 
 	contractAddr := common.Address(res.Token)
-	creatorAddr := common.Address(res.Creator)
+	creatorAddr := common.Address(res.Creator.Address)
 
 	// Process settled orders
 	for _, order := range res.Orders {
@@ -220,7 +221,7 @@ func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env,
 	}
 
 	ctx := context.Background()
-	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.CampaignRepository, h.OrderRepository)
+	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
 	res, err := executeCampaignCollateral.Execute(ctx, &input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to execute campaign collateral: %w", err)
