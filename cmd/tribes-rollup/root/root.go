@@ -45,7 +45,7 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) {
 	repo, err := factory.NewRepositoryFromConnectionString(
-		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/shtribesoal.db"}[useMemoryDB],
+		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/tribes.db"}[useMemoryDB],
 	)
 	if err != nil {
 		slog.Error("Failed to setup database", "error", err, "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
