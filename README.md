@@ -134,7 +134,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
    2.3 Deploy and register the application:
    ```sh
    docker compose --project-name cartesi-rollups-node exec advancer \
-		cartesi-rollups-cli deploy application shoal /var/lib/cartesi-rollups-node/snapshot \
+		cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
 		--self-hosted \
 		--salt <salt> \
@@ -148,6 +148,26 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
    3.1 Access machine via SSH:
    ```sh
    fly ssh console
+   ```
+
+   3.2 Create directory to store snapshot:
+   ```sh
+   mkdir -p /var/lib/cartesi-rollups-node/snapshots/tribes
+   ```
+
+   3.3 Download and extract initial snapshot:
+   ```sh
+   curl -L <initial-snapshot-arctifac> \
+    | tar -xz -C /var/lib/cartesi-rollups-node/snapshots/tribes
+   ```
+
+   3.4 Deploy and register the application:
+   ```sh
+   cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
+		--epoch-length 720 \
+		--self-hosted \
+		--salt <salt> \
+		--json
    ```
 
 ### Testing
