@@ -137,11 +137,9 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 		cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
 		--self-hosted \
-		--salt <salt> \
+		--salt <salt> \ # generate a salt using: `cast keccak "any string here"`
 		--json
    ```
-   > [!TIP]
-   > Generate a salt using: `openssl rand -hex 32`
 
 3. Testnet < cloud >
 
@@ -167,11 +165,9 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
    cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
 		--self-hosted \
-		--salt <salt> \
+		--salt <salt> \ # generate a salt using: `cast keccak "any string here"`
 		--json
    ```
-   > [!TIP]
-   > Generate a salt using: `openssl rand -hex 32`
 
 ### Testing
 ```sh
