@@ -70,7 +70,7 @@ The contract suite features **emergency delegate call operations** for secure as
    make contracts
    ```
 
-2. Deploy Assets (Collateral and Stablecoin):
+2. Deploy assets (Collateral and Stablecoin):
 
    ```sh
    make deploy-assets
