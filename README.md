@@ -55,7 +55,39 @@ A debt capital market platform designed for the creator economy, enabling conten
    ```
    
 ### Contracts
+> [!WARNING]
+> Make sure that all variables are defined in the .env file, which can be created with make env, before running any of the contract-related commands below.
 
+1. Deploy all contracts:
+
+   ```sh
+   make contracts
+   ```
+
+2. Deploy Assets (Collateral and Stablecoin):
+
+   ```sh
+   make assets
+   ```
+
+3. Deploy DelegateCall contract:
+
+   ```sh
+   make delegatecall
+   ```
+   
+4. Deploy Vlayer contracts:
+
+   ```sh
+   make vlayer
+   ```
+
+5. Deploy cross-chain NFT contracts:
+
+   ```sh
+   make nft
+   ```
+   
 ### Running
 
 #### Frontend
@@ -64,13 +96,11 @@ A debt capital market platform designed for the creator economy, enabling conten
 1. Devnet
 
    1.1 Build application:
-
    ```sh
    cartesi build
    ```
 
    1.2 Run application on testnet:
-
    ```sh
    cartesi run
    ```
@@ -99,19 +129,42 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 3. Testnet < cloud >
 
-   3.1 Build application:
+   3.1 Create application on Fly.io:
    ```sh
-
+   fly app create cartesi-rollups-node
    ```
 
-   3.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
+   3.2 Create postgres instance:
    ```sh
-
+   fly postgres create \
+	   	--initial-cluster-size 1 \
+	   	--name cartesi-rollups-node-database \
+	   	--vm-size shared-cpu-1x \
+	   	--volume-size 1
    ```
 
-   3.3 Deploy and register the application:
+   3.3 Attach database to the application:
    ```sh
-   
+   fly postgres attach cartesi-rollups-node-database \
+   		--app cartesi-rollups-node
+   ```
+
+   3.4 Setup enviroment variables:
+   ```sh
+   fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_HTTP_ENDPOINT=<web3-provider-http-endpoint>
+   fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_WS_ENDPOINT=<web3-provider-ws-endpoint>
+   fly secrets set -a cartesi-rollups-node CARTESI_AUTH_MNEMONIC=`<mnemonic>`
+   fly secrets set -a cartesi-rollups-node CARTESI_DATABASE_CONNECTION=<connection_string>
+   ```
+
+   3.5 Deploy Cartesi Rollups Node:
+   ```sh
+   fly deploy -a cartesi-rollups-node
+   ```
+
+   3.6 Access machine via SSH:
+   ```sh
+   fly ssh console
    ```
 
 ### Testing
