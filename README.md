@@ -70,35 +70,35 @@ The contract suite features **emergency delegate call operations** for secure as
    make contracts
    ```
 
-2. Deploy assets (Collateral and Stablecoin):
+2. Setup application (transfer contracts ownership):
+
+   ```sh
+   make setup
+   ```
+
+3. Deploy assets (Collateral and Stablecoin):
 
    ```sh
    make deploy-assets
    ```
 
-3. Deploy `EmergencyWithdraw.sol` contract:
-
-   ```sh
-   make deploy-delegatecall
-   ```
-   
-4. Deploy Vlayer contracts:
-
-   ```sh
-   make deploy-vlayer
-   ```
-
-5. Deploy cross-chain NFT contracts:
-
-   ```sh
-   make deploy-nft
-   ```
-
-6. Setup application (transfer contracts ownership):
-
-   ```sh
-   make setup
-   ```
+> 4. Deploy `EmergencyWithdraw.sol` contract:
+>
+>   ```sh
+>   make deploy-delegatecall
+>   ```
+>  
+> 5. Deploy Vlayer contracts:
+>
+>   ```sh
+>   make deploy-vlayer
+>   ```
+>
+> 6. Deploy cross-chain NFT contracts:
+>
+>   ```sh
+>   make deploy-nft
+>   ```
 
 #### Backend
 
