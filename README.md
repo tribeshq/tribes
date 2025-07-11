@@ -104,7 +104,7 @@ The contract suite features **emergency delegate call operations** for secure as
 
 The backend is built on **Cartesi Rollups**, a Layer 2 scaling solution that combines the security of blockchain with the computational power of Linux. This architecture enables complex off-chain computations while maintaining cryptographic guarantees of correctness and data availability. The system runs a full Linux environment inside the blockchain, handling business logic off-chain for better performance while keeping all computations verifiable on-chain.
 
-> [!NOTE]
+> [!WARNING]
 > After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
 
 1. Devnet
