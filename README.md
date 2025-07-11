@@ -50,7 +50,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 3. Cartesi CLI is an easy-to-use tool to build and deploy your dApps on devnet. To install it, run:
 
    ```shell
-   npm i -g @cartesi/cli
+   npm install -g @cartesi/cli@2.0.0-alpha.15
    ```
 
 ### Running
