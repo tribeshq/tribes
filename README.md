@@ -137,7 +137,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 		cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
 		--self-hosted \
-		--salt <salt> \ # generate salt: cast keccak256 "your-unique-string" | sed 's/^/0x/'
+		--salt <salt> \ # cast keccak256 "your-unique-string" | sed 's/^/0x/'
 		--json
    ```
 
@@ -165,7 +165,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
    cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
 		--self-hosted \
-		--salt <salt> \ # generate salt: cast keccak256 "your-unique-string" | sed 's/^/0x/'
+		--salt <salt> \ # cast keccak256 "your-unique-string" | sed 's/^/0x/'
 		--json
    ```
 
