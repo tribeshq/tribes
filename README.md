@@ -58,6 +58,9 @@ A debt capital market platform designed for the creator economy, enabling conten
 #### Frontend
 
 #### Contracts
+
+The smart contracts include a comprehensive set of DeFi primitives and cross-chain infrastructure. The contract suite features **delegate call operations** for enhanced security and modularity, **cross-chain NFT functionality** using Chainlink CCIP for seamless asset transfers across blockchains, and **Vlayer integration** with WebProofs that enables verification of social media profile ownership (X, Instagram, etc.) through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
+
 > [!WARNING]
 > Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the contract-related commands below.
 
@@ -98,6 +101,9 @@ A debt capital market platform designed for the creator economy, enabling conten
    ```
 
 #### Backend
+
+The backend is built on **Cartesi Rollups**, a Layer 2 scaling solution that combines the security of blockchain with the computational power of Linux. This architecture enables complex off-chain computations while maintaining cryptographic guarantees of correctness and data availability. The system runs a full Linux environment inside the blockchain, handling business logic off-chain for better performance while keeping all computations verifiable on-chain.
+
 > [!NOTE]
 > After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
 
