@@ -146,7 +146,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    3.3 Attach database to the application:
    ```sh
    fly postgres attach cartesi-rollups-node-database \
-   		--app cartesi-rollups-node
+           --app cartesi-rollups-node
    ```
 
    3.4 Setup enviroment variables:
