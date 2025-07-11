@@ -143,7 +143,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 
 3. Testnet < cloud >
 
-   For detailed deployment instructions on Fly.io, see [docs/flyio.md](docs/flyio.md).
+   For detailed Cartesi Rollups Node deployment instructions on Fly.io, see [docs/flyio.md](docs/flyio.md).
 
    Access machine via SSH:
    ```sh
