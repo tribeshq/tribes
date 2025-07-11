@@ -89,7 +89,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    docker compose --env-file .env up -d
    ```
 
-   3.3 Deploy and register the application:
+   2.3 Deploy and register the application:
 
    ```sh
    docker compose --project-name cartesi-rollups-node exec advancer \
