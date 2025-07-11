@@ -15,7 +15,7 @@ define deploy_assets
 	$(END_LOG)
 endef
 
-define deploy_chainlink
+define deploy_nft
 	$(START_LOG)\
 	@forge clean --root ./contracts
 	@forge script ./contracts/script/CrossChainNFT.s.sol:CrossChainNFTSourceMinter \
@@ -116,9 +116,9 @@ coverage: test ## Generate the application code coverage report
 .PHONY: contracts
 contracts: assets chainlink vlayer delegatecall ## Deploy the contracts
 
-.PHONY: chainlink
-chainlink: ## Deploy the chainlink contracts
-	@$(deploy_chainlink)
+.PHONY: nft
+nft: ## Deploy the nft contracts
+	@$(deploy_nft)
 
 .PHONY: vlayer
 vlayer: ## Deploy the vlayer contracts

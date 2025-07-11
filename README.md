@@ -56,7 +56,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    
 ### Contracts
 > [!WARNING]
-> Make sure that all variables are defined in the .env file, which can be created with make env, before running any of the contract-related commands below.
+> Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the contract-related commands below.
 
 1. Deploy all contracts:
 
@@ -93,6 +93,9 @@ A debt capital market platform designed for the creator economy, enabling conten
 #### Frontend
 
 #### Backend
+> [!NOTE]
+> After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
+
 1. Devnet
 
    1.1 Build application:
@@ -112,7 +115,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    cartesi build
    ```
 
-   2.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
+   2.2 Run the Cartesi Rollups Node with the application's initial snapshot attached:
    ```sh
    docker compose --env-file .env up -d
    ```
@@ -149,7 +152,7 @@ A debt capital market platform designed for the creator economy, enabling conten
            --app cartesi-rollups-node
    ```
 
-   3.4 Setup enviroment variables:
+   3.4 Setup environment variables:
    ```sh
    fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_HTTP_ENDPOINT=<web3-provider-http-endpoint>
    fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_WS_ENDPOINT=<web3-provider-ws-endpoint>
