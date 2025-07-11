@@ -82,8 +82,10 @@ The contract suite features **emergency delegate call operations** for secure as
    make deploy-assets
    ```
 
-**Individual Contract Deployment Commands:**
-
+> [!NOTE]
+> 
+> The commands below are for individual contract deployments.
+>
 > 1. Deploy `EmergencyWithdraw.sol` contract:
 >
 >   ```sh
