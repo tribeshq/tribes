@@ -93,10 +93,9 @@ A debt capital market platform designed for the creator economy, enabling conten
 #### Frontend
 
 #### Backend
-> [!NOTE]
-> After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
 
 1. Devnet
+   > After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
 
    1.1 Build application:
    ```sh
