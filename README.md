@@ -82,7 +82,7 @@ The contract suite features **emergency delegate call operations** for secure as
    make deploy-assets
    ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > 
 > The commands below are for individual contract deployments.
 >
