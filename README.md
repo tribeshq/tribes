@@ -19,7 +19,6 @@
 - [Overview](#overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Contracts](#contracts)
   - [Running](#running)
   - [Testing](#testing)
 
@@ -91,6 +90,40 @@ A debt capital market platform designed for the creator economy, enabling conten
 ### Running
 
 #### Frontend
+
+#### Contracts
+> [!WARNING]
+> Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the contract-related commands below.
+
+1. Deploy all contracts:
+
+   ```sh
+   make contracts
+   ```
+
+2. Deploy Assets (Collateral and Stablecoin):
+
+   ```sh
+   make assets
+   ```
+
+3. Deploy DelegateCall contract:
+
+   ```sh
+   make delegatecall
+   ```
+   
+4. Deploy Vlayer contracts:
+
+   ```sh
+   make vlayer
+   ```
+
+5. Deploy cross-chain NFT contracts:
+
+   ```sh
+   make nft
+   ```
 
 #### Backend
 > [!NOTE]
