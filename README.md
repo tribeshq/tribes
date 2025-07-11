@@ -59,7 +59,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 #### Contracts
 
-The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, **cross-chain NFT functionality** using [Chainlink CCIP](https://docs.chain.link/ccip) for seamless asset transfers across blockchains, and **Vlayer integration** with WebProofs that enables verification of social media profile ownership (X, Instagram, etc.) through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
+The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, **cross-chain NFT functionality** using [Chainlink CCIP](https://docs.chain.link/ccip) for seamless asset transfers across blockchains, and [Vlayer WebProofs](https://book.vlayer.xyz/features/web.html) that enables verification of social media profile ownership (X, Instagram, etc.) through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
 
 > [!WARNING]
 > Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the contract-related commands below.
