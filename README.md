@@ -145,7 +145,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 
    For detailed Cartesi Rollups Node deployment instructions on Fly.io, see [docs/flyio.md](docs/flyio.md).
 
-   Access machine via SSH:
+   3.1 Access machine via SSH:
    ```sh
    fly ssh console
    ```
