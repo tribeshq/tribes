@@ -143,40 +143,9 @@ The backend is built on **Cartesi Rollups**, a Layer 2 scaling solution that com
 
 3. Testnet < cloud >
 
-   3.1 Create application on Fly.io:
-   ```sh
-   fly app create cartesi-rollups-node
-   ```
+   For detailed deployment instructions on Fly.io, see [docs/flyio.md](docs/flyio.md).
 
-   3.2 Create postgres instance:
-   ```sh
-   fly postgres create \
-	   	--initial-cluster-size 1 \
-	   	--name cartesi-rollups-node-database \
-	   	--vm-size shared-cpu-1x \
-	   	--volume-size 1
-   ```
-
-   3.3 Attach database to the application:
-   ```sh
-   fly postgres attach cartesi-rollups-node-database \
-           --app cartesi-rollups-node
-   ```
-
-   3.4 Setup environment variables:
-   ```sh
-   fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_HTTP_ENDPOINT=<web3-provider-http-endpoint>
-   fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_WS_ENDPOINT=<web3-provider-ws-endpoint>
-   fly secrets set -a cartesi-rollups-node CARTESI_AUTH_MNEMONIC=`<mnemonic>`
-   fly secrets set -a cartesi-rollups-node CARTESI_DATABASE_CONNECTION=<connection_string>
-   ```
-
-   3.5 Deploy Cartesi Rollups Node:
-   ```sh
-   fly deploy -a cartesi-rollups-node
-   ```
-
-   3.6 Access machine via SSH:
+   Access machine via SSH:
    ```sh
    fly ssh console
    ```
