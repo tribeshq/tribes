@@ -69,7 +69,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    cartesi build
    ```
 
-   1.2 Run application on devnet:
+   1.2 Run application on testnet:
 
    ```sh
    cartesi run
@@ -77,12 +77,48 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 2. Testnet < locally >
 
-- TODO
+   2.1 Build application:
+
+   ```sh
+   cartesi build
+   ```
+
+   2.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
+
+   ```sh
+   docker compose --env-file .env up -d
+   ```
+
+   3.3 Deploy and register the application:
+
+   ```sh
+   docker compose --project-name cartesi-rollups-node exec advancer \
+		cartesi-rollups-cli deploy application shoal /var/lib/cartesi-rollups-node/snapshot \
+		--epoch-length 720 \
+		--self-hosted \
+		--salt <salt> \
+		--json
+   ```
 
 3. Testnet < cloud >
 
-> [!NOTE]
-> test
+   3.1 Build application:
+
+   ```sh
+
+   ```
+
+   3.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
+
+   ```sh
+
+   ```
+
+   3.3 Deploy and register the application:
+
+   ```sh
+   
+   ```
 
 ### Testing
 
