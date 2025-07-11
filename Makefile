@@ -114,22 +114,22 @@ coverage: test ## Generate the application code coverage report
 	$(END_LOG)
 
 .PHONY: contracts
-contracts: assets chainlink vlayer delegatecall ## Deploy the contracts
+contracts: deploy-assets deploy-nft deploy-vlayer deploy-delegatecall ## Deploy the contracts
 
-.PHONY: nft
-nft: ## Deploy the nft contracts
+.PHONY: deploy-nft
+deploy-nft: ## Deploy the nft contracts
 	@$(deploy_nft)
 
-.PHONY: vlayer
-vlayer: ## Deploy the vlayer contracts
+.PHONY: deploy-vlayer
+deploy-vlayer: ## Deploy the vlayer contracts
 	@$(deploy_vlayer)
 
-.PHONY: delegatecall
+.PHONY: deploy-delegatecall
 delegatecall: ## Deploy the delegatecall contracts
 	@$(deploy_delegatecall)
 
-.PHONY: assets
-assets: ## Deploy the assets contracts
+.PHONY: deploy-assets
+deploy-assets: ## Deploy the assets contracts
 	@$(deploy_assets)
 
 .PHONY: setup
