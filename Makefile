@@ -125,7 +125,7 @@ deploy-vlayer: ## Deploy the vlayer contracts
 	@$(deploy_vlayer)
 
 .PHONY: deploy-delegatecall
-delegatecall: ## Deploy the delegatecall contracts
+deploy-delegatecall: ## Deploy the delegatecall contracts
 	@$(deploy_delegatecall)
 
 .PHONY: deploy-assets

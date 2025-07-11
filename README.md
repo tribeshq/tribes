@@ -79,7 +79,7 @@ The contract suite features **emergency delegate call operations** for secure as
 3. Deploy `EmergencyWithdraw.sol` contract:
 
    ```sh
-   make delegatecall
+   make deploy-delegatecall
    ```
    
 4. Deploy Vlayer contracts:
