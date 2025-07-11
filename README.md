@@ -82,19 +82,21 @@ The contract suite features **emergency delegate call operations** for secure as
    make deploy-assets
    ```
 
-> 4. Deploy `EmergencyWithdraw.sol` contract:
+**Individual Contract Deployment Commands:**
+
+> 1. Deploy `EmergencyWithdraw.sol` contract:
 >
 >   ```sh
 >   make deploy-delegatecall
 >   ```
 >  
-> 5. Deploy Vlayer contracts:
+> 2. Deploy Vlayer contracts:
 >
 >   ```sh
 >   make deploy-vlayer
 >   ```
 >
-> 6. Deploy cross-chain NFT contracts:
+> 3. Deploy cross-chain NFT contracts:
 >
 >   ```sh
 >   make deploy-nft
