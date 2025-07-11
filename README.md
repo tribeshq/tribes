@@ -15,16 +15,15 @@
 	<img src="https://img.shields.io/github/last-commit/tribeshq/tribes?style=default&logo=git&logoColor=white&color=D1DCCB" alt="last-commit">
 </p>
 
-##  Table of Contents
-
+## Table of Contents
 - [Overview](#overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
+  - [Contracts](#contracts)
   - [Running](#running)
   - [Testing](#testing)
 
-##  Overview
-
+## Overview
 A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse campaign mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
 <br>
 
@@ -36,9 +35,9 @@ A debt capital market platform designed for the creator economy, enabling conten
 [Deck]: https://img.shields.io/badge/Pitch%20Deck-D1DCCB?style=for-the-badge
 [Link-deck]: https://www.canva.com/design/DAGVvlTnNpM/GsV9c1XuhYRYCrPK5811GA/view?utm_content=DAGVvlTnNpM&utm_campaign=designshare&utm_medium=link&utm_source=editor
 
-##  Getting Started
+## Getting Started
 
-###  Prerequisites
+### Prerequisites
 1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/).
 
    To install Docker RISC-V support without using Docker Desktop, run the following command:
@@ -54,13 +53,14 @@ A debt capital market platform designed for the creator economy, enabling conten
    ```shell
    npm i -g @cartesi/cli
    ```
+   
+### Contracts
 
-###  Running
+### Running
 
 #### Frontend
 
 #### Backend
-
 1. Devnet
 
    1.1 Build application:
@@ -78,19 +78,16 @@ A debt capital market platform designed for the creator economy, enabling conten
 2. Testnet < locally >
 
    2.1 Build application:
-
    ```sh
    cartesi build
    ```
 
    2.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
-
    ```sh
    docker compose --env-file .env up -d
    ```
 
    2.3 Deploy and register the application:
-
    ```sh
    docker compose --project-name cartesi-rollups-node exec advancer \
 		cartesi-rollups-cli deploy application shoal /var/lib/cartesi-rollups-node/snapshot \
@@ -103,25 +100,21 @@ A debt capital market platform designed for the creator economy, enabling conten
 3. Testnet < cloud >
 
    3.1 Build application:
-
    ```sh
 
    ```
 
    3.2 Run the Cartesi Rollups Node with the application’s initial snapshot attached:
-
    ```sh
 
    ```
 
    3.3 Deploy and register the application:
-
    ```sh
    
    ```
 
 ### Testing
-
 ```sh
 make test
 ```
