@@ -140,6 +140,8 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 		--salt <salt> \
 		--json
    ```
+   > [!TIP]
+   > Generate a salt using: `openssl rand -hex 32`
 
 3. Testnet < cloud >
 
@@ -168,6 +170,8 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 		--salt <salt> \
 		--json
    ```
+   > [!TIP]
+   > Generate a salt using: `openssl rand -hex 32`
 
 ### Testing
 ```sh
