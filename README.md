@@ -61,7 +61,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 #### Backend
 
-1. Devnet:
+1. Devnet
 
    1.1 Build application:
 
@@ -75,22 +75,16 @@ A debt capital market platform designed for the creator economy, enabling conten
    cartesi run
    ```
 
-2. Testnet < locally >:
+2. Testnet < locally >
 
 - TODO
 
-3. Testnet < Fly.io >:
+3. Testnet < cloud >
 
 > [!NOTE]
-> To reach the final state of the system for demo purposes, run the command below:
->
->   ```shell
->   make state
->   ```
+> test
 
-###  Testing
-
-#### Backend
+### Testing
 
 ```sh
 make test
