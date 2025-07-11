@@ -70,7 +70,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 2. Deploy Assets (Collateral and Stablecoin):
 
    ```sh
-   make assets
+   make deploy-assets
    ```
 
 3. Deploy `EmergencyWithdraw.sol` contract:
@@ -82,13 +82,19 @@ A debt capital market platform designed for the creator economy, enabling conten
 4. Deploy Vlayer contracts:
 
    ```sh
-   make vlayer
+   make deploy-vlayer
    ```
 
 5. Deploy cross-chain NFT contracts:
 
    ```sh
-   make nft
+   make deploy-nft
+   ```
+
+6. Setup application (transfer contracts ownership):
+
+   ```sh
+   make setup
    ```
 
 #### Backend
