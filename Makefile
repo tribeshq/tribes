@@ -10,7 +10,7 @@ define FORGE_SCRIPT
 	@forge script $(1) \
 		--root ./contracts \
 		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
-		--private-key $(PRIVATE_KEY) \
+		--private-key defaultKey \
 		--broadcast \
 		-vvv
 	$(END_LOG)
