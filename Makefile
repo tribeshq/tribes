@@ -48,8 +48,7 @@ env: ## Create the environment variables file
 generate: ## Generate bytecode and Go bindings
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@forge script --root ./contracts \
-		./contracts/script/GenerateBytecode.s.sol:GenerateBytecode
+	@forge script --root ./contracts ./contracts/script/GenerateBytecode.s.sol:GenerateBytecode
 	@go generate ./...
 	$(END_LOG)
 

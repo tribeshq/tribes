@@ -10,7 +10,7 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-func NewHandlers(repo repository.Repository) (*Handlers, error) {
+func NewHandlers(repo repository.Repository, bytecode []byte) (*Handlers, error) {
 	wire.Build(
 		// Bind repository interfaces
 		wire.Bind(new(repository.UserRepository), new(repository.Repository)),

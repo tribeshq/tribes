@@ -14,11 +14,11 @@ import (
 
 // Injectors from wire.go:
 
-func NewHandlers(repo repository.Repository) (*Handlers, error) {
+func NewHandlers(repo repository.Repository, bytecode2 []byte) (*Handlers, error) {
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
-	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(repo, repo, repo)
+	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(bytecode2, repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)

@@ -16,21 +16,23 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/campaign"
-	"github.com/tribeshq/tribes/pkg/deploy"
 )
 
 type CampaignAdvanceHandlers struct {
+	Bytecode           []byte
 	OrderRepository    repository.OrderRepository
 	UserRepository     repository.UserRepository
 	CampaignRepository repository.CampaignRepository
 }
 
 func NewCampaignAdvanceHandlers(
+	bytecode []byte,
 	orderRepository repository.OrderRepository,
 	userRepository repository.UserRepository,
 	campaignRepository repository.CampaignRepository,
 ) *CampaignAdvanceHandlers {
 	return &CampaignAdvanceHandlers{
+		Bytecode:           bytecode,
 		OrderRepository:    orderRepository,
 		UserRepository:     userRepository,
 		CampaignRepository: campaignRepository,
@@ -50,6 +52,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 
 	ctx := context.Background()
 	createCampaign := campaign.NewCreateCampaignUseCase(
+		h.Bytecode,
 		h.CampaignRepository,
 		h.UserRepository,
 	)
@@ -59,11 +62,6 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to create campaign: %w", err)
 	}
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	if err != nil {
-		return fmt.Errorf("failed to get bytecode: %w", err)
-	}
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
@@ -71,7 +69,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	if err != nil {
 		return fmt.Errorf("failed to encode constructor args: %w", err)
 	}
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(h.Bytecode, constructorArgs...)
 
 	abiJson := `[{
 		"type": "function",

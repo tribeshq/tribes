@@ -12,8 +12,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tribeshq/tribes/cmd/tribes-rollup/root"
-	"github.com/tribeshq/tribes/pkg/deploy"
+	"github.com/tribeshq/tribes/tools"
 
 	"github.com/rollmelette/rollmelette"
 	"github.com/stretchr/testify/suite"
@@ -26,7 +27,8 @@ func TestTribesRollup(t *testing.T) {
 
 type TribesRollupSuite struct {
 	suite.Suite
-	Tester *rollmelette.Tester
+	Bytecode []byte
+	Tester   *rollmelette.Tester
 }
 
 func (s *TribesRollupSuite) SetupTest() {
@@ -35,7 +37,14 @@ func (s *TribesRollupSuite) SetupTest() {
 		slog.Error("Failed to setup in-memory SQLite database", "error", err)
 		os.Exit(1)
 	}
-	dapp := root.NewTribesRollup(repo)
+
+	s.Bytecode, err = tools.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
+	if err != nil {
+		slog.Error("Failed to get bytecode", "error", err)
+		os.Exit(1)
+	}
+
+	dapp := root.NewTribesRollup(repo, s.Bytecode)
 	s.Tester = rollmelette.NewTester(dapp)
 }
 
@@ -46,12 +55,11 @@ func (s *TribesRollupSuite) TestCreateCampaign() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -110,16 +118,13 @@ func (s *TribesRollupSuite) TestCreateCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -135,12 +140,11 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -241,16 +245,13 @@ func (s *TribesRollupSuite) TestCloseCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -416,12 +417,11 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -522,16 +522,13 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -708,7 +705,7 @@ func (s *TribesRollupSuite) TestSettleCampaign() {
 	s.Equal(investor03, unpacked[0])
 	s.Equal(badgeId, unpacked[1])
 	s.Equal(big.NewInt(1), unpacked[2])
-	s.Equal([]byte{}, unpacked[3])	
+	s.Equal([]byte{}, unpacked[3])
 
 	// verify voucher payload for badge mint call (investor04)
 	unpacked, err = abiInterface.Methods["mint"].Inputs.Unpack(closeCampaignOutput.Vouchers[3].Payload[4:])
@@ -736,12 +733,11 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -842,16 +838,13 @@ func (s *TribesRollupSuite) TestExecuteCampaignCollateral() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -1093,12 +1086,11 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -1157,16 +1149,13 @@ func (s *TribesRollupSuite) TestFindAllCampaigns() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -1198,12 +1187,11 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -1262,16 +1250,13 @@ func (s *TribesRollupSuite) TestFindCampaignById() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -1300,12 +1285,11 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreatorAddress() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	baseTime := time.Now().Unix()
 	closesAt := baseTime + 5
@@ -1364,16 +1348,13 @@ func (s *TribesRollupSuite) TestFindCampaignsByCreatorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
@@ -1406,12 +1387,11 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestorAddress() {
 	deployer := common.HexToAddress("0x0000000000000000000000000000000000000024")
 	verifier := common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral := common.HexToAddress("0x0000000000000000000000000000000000000008")
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		deployer,
 		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
+		crypto.Keccak256(s.Bytecode),
 	)
-	s.Require().NoError(err)
 
 	investor01 := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	investor02 := common.HexToAddress("0x0000000000000000000000000000000000000002")
@@ -1512,16 +1492,13 @@ func (s *TribesRollupSuite) TestFindCampaignsByInvestorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
-	s.Require().NoError(err)
-
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
 	}.Pack(createCampaignOutput.AppContract)
 	s.Require().NoError(err)
 
-	initCode := append(bytecode, constructorArgs...)
+	initCode := append(s.Bytecode, constructorArgs...)
 
 	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)

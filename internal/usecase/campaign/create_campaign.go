@@ -6,13 +6,13 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
 	"github.com/tribeshq/tribes/pkg/custom_type"
-	"github.com/tribeshq/tribes/pkg/deploy"
 )
 
 type CreateCampaignInputDTO struct {
@@ -47,15 +47,18 @@ type CreateCampaignOutputDTO struct {
 }
 
 type CreateCampaignUseCase struct {
+	Bytecode           []byte
 	CampaignRepository repository.CampaignRepository
 	UserRepository     repository.UserRepository
 }
 
 func NewCreateCampaignUseCase(
+	bytecode []byte,
 	CampaignRepository repository.CampaignRepository,
 	UserRepository repository.UserRepository,
 ) *CreateCampaignUseCase {
 	return &CreateCampaignUseCase{
+		Bytecode:           bytecode,
 		CampaignRepository: CampaignRepository,
 		UserRepository:     UserRepository,
 	}
@@ -91,14 +94,11 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, fmt.Errorf("error finding deployer: %w", err)
 	}
 
-	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
-		"../../skel/Badge.json", "bytecode",
+	badgeAddress := crypto.CreateAddress2(
 		common.Address(deployer[0].Address),
 		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
+		crypto.Keccak256(c.Bytecode),
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error computing badge address: %w", err)
-	}
 
 	campaign, err := entity.NewCampaign(
 		input.Title,

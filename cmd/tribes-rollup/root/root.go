@@ -10,6 +10,7 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
+	"github.com/tribeshq/tribes/tools"
 	"github.com/tribeshq/tribes/pkg/router"
 )
 
@@ -18,8 +19,8 @@ const (
 )
 
 var (
-	useMemoryDB bool
-	Cmd         = &cobra.Command{
+	bytecode []byte
+	Cmd      = &cobra.Command{
 		Use:   "tribes-" + CMD_NAME,
 		Short: "Runs Tribes Rollup",
 		Long:  `A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy`,
@@ -28,12 +29,6 @@ var (
 )
 
 func init() {
-	Cmd.PersistentFlags().BoolVar(
-		&useMemoryDB,
-		"memory-db",
-		false,
-		"Use in-memory SQLite database instead of persistent",
-	)
 	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		_, err := configs.LoadRollupConfig()
 		if err != nil {
@@ -44,18 +39,22 @@ func init() {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	repo, err := factory.NewRepositoryFromConnectionString(
-		map[bool]string{true: "sqlite://:memory:", false: "sqlite:///mnt/data/tribes.db"}[useMemoryDB],
-	)
+	repo, err := factory.NewRepositoryFromConnectionString("sqlite:///mnt/data/tribes.db")
 	if err != nil {
-		slog.Error("Failed to setup database", "error", err, "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
+		slog.Error("Failed to initialize database", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("Database initialized", "type", map[bool]string{true: "in-memory", false: "persistent"}[useMemoryDB])
+	slog.Info("Database initialized")
 
 	defer repo.Close()
 
-	r := NewTribesRollup(repo)
+	bytecode, err := tools.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
+	if err != nil {
+		slog.Error("Failed to get bytecode", "error", err)
+		os.Exit(1)
+	}
+
+	r := NewTribesRollup(repo, bytecode)
 	opts := rollmelette.NewRunOpts()
 	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
 		slog.Error("Failed to run rollmelette", "error", err)
@@ -63,8 +62,8 @@ func run(cmd *cobra.Command, args []string) {
 	}
 }
 
-func NewTribesRollup(repo repository.Repository) *router.Router {
-	handlers, err := NewHandlers(repo)
+func NewTribesRollup(repo repository.Repository, bytecode []byte) *router.Router {
+	handlers, err := NewHandlers(repo, bytecode)
 	if err != nil {
 		slog.Error("Failed to initialize handlers", "error", err)
 		os.Exit(1)
