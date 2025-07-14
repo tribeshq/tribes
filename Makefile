@@ -42,7 +42,10 @@ endef
 
 .PHONY: env
 env: ## Create the environment variables file
+	$(START_LOG)
 	@cp .env.tmpl .env
+	@echo "Environment variables file created"
+	$(END_LOG)
 
 .PHONY: generate
 generate: ## Generate bytecode and Go bindings
@@ -64,9 +67,9 @@ test: ## Run the application tests (Contracts + Backend)
 .PHONY: lint
 lint: ## Run code linting and formatting checks
 	$(START_LOG)
-	@test -z "$(gofmt -l .)" || (echo "Go code is not formatted. Run 'gofmt -w .'" && exit 1)
 	@go vet ./...
 	@forge fmt --check --root ./contracts
+	@echo "Linting completed"
 	$(END_LOG)
 
 .PHONY: fmt
