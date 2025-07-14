@@ -69,6 +69,14 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 2. Edit the `.env` file with your configuration values.
 
+3. Import your private key for contract deployment:
+
+   ```sh
+   cast wallet import defaultKey --interactive
+   ```
+   
+This will prompt you to enter your private key securely for contract deployment operations.
+
 ### Running
 
 #### Frontend
