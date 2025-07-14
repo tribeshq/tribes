@@ -47,7 +47,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	defer repo.Close()
 
-	bytecode, err := tools.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
+	bytecode, err := tools.GetBytecodeFromJSON("./skel/Badge.json", "bytecode")
 	if err != nil {
 		slog.Error("Failed to get bytecode", "error", err)
 		os.Exit(1)
