@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -15,6 +16,7 @@ import (
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/campaign"
+	"github.com/tribeshq/tribes/pkg/deploy"
 )
 
 type CampaignAdvanceHandlers struct {
@@ -56,6 +58,43 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	if err != nil {
 		return fmt.Errorf("failed to create campaign: %w", err)
 	}
+
+	bytecode, err := deploy.GetBytecodeFromJSON("../../skel/Badge.json", "bytecode")
+	if err != nil {
+		return fmt.Errorf("failed to get bytecode: %w", err)
+	}
+
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(env.AppAddress())
+	if err != nil {
+		return fmt.Errorf("failed to encode constructor args: %w", err)
+	}
+	initCode := append(bytecode, constructorArgs...)
+
+	abiJson := `[{
+		"type": "function",
+		"name": "deploy2",
+		"inputs": [
+			{"type": "bytes"},
+			{"type": "bytes32"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
+
+	deploy2Payload, err := abiInterface.Pack(
+		"deploy2",
+		initCode,
+		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to pack ABI: %w", err)
+	}
+	env.Voucher(common.Address(res.DeployerAddress), big.NewInt(0), deploy2Payload)
 
 	erc20Deposit := deposit.(*rollmelette.ERC20Deposit)
 	if err := env.ERC20Transfer(
@@ -114,12 +153,12 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		"type":"function",
 		"name":"mint",
 		"inputs":[
-			{"type":"uint64"},
 			{"type":"address"},
-			{"type":"address"}
+			{"type":"uint256"},
+			{"type":"uint256"},
+			{"type":"bytes"}
 		]
 	}]`
-
 	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
 	if err != nil {
 		return fmt.Errorf("failed to parse ABI: %w", err)
@@ -127,16 +166,17 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 
 	for _, order := range res.Orders {
 		if order.State != entity.OrderStateRejected {
-			voucher, err := abiInterface.Pack(
+			mintPayload, err := abiInterface.Pack(
 				"mint",
-				order.BadgeChainSelector.Uint64(),
 				common.Address(order.Investor),
-				common.Address(res.BadgeMinter),
+				big.NewInt(1),
+				big.NewInt(1),
+				[]byte{},
 			)
 			if err != nil {
 				return fmt.Errorf("failed to pack ABI: %w", err)
 			}
-			env.Voucher(common.Address(res.BadgeRouter), big.NewInt(0), voucher)
+			env.Voucher(common.Address(res.BadgeAddress), big.NewInt(0), mintPayload)
 		}
 	}
 

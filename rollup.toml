@@ -25,3 +25,15 @@ go-type = "Address"
 default = "0x0000000000000000000000000000000000000025"
 description = """Address of the verifier user, who can verify the social accounts"""
 used-by = ["rollup"]
+
+[contracts.TRIBES_DEPLOYER_ADDRESS]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000006"
+description = """Address of the deployer user, who can deploy the contracts"""
+used-by = ["rollup"]
+
+[contracts.TRIBES_DEPLOYER_ADDRESS_TEST]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000024"
+description = """Address of the deployer user, who can deploy the contracts"""
+used-by = ["rollup"]

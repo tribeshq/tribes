@@ -3,13 +3,16 @@ package campaign
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
 	"github.com/tribeshq/tribes/pkg/custom_type"
+	"github.com/tribeshq/tribes/pkg/deploy"
 )
 
 type CreateCampaignInputDTO struct {
@@ -19,8 +22,6 @@ type CreateCampaignInputDTO struct {
 	Token           custom_type.Address `json:"token" validate:"required"`
 	DebtIssued      *uint256.Int        `json:"debt_issued" validate:"required"`
 	MaxInterestRate *uint256.Int        `json:"max_interest_rate" validate:"required"`
-	BadgeRouter     custom_type.Address `json:"badge_router" validate:"required"`
-	BadgeMinter     custom_type.Address `json:"badge_minter" validate:"required"`
 	ClosesAt        int64               `json:"closes_at" validate:"required"`
 	MaturityAt      int64               `json:"maturity_at" validate:"required"`
 }
@@ -34,8 +35,8 @@ type CreateCampaignOutputDTO struct {
 	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
-	BadgeRouter       custom_type.Address `json:"badge_router,omitempty"`
-	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
+	DeployerAddress   custom_type.Address `json:"deployer_address,omitempty"`
+	BadgeAddress      custom_type.Address `json:"badge_address,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
 	State             string              `json:"state"`
@@ -85,7 +86,21 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		}
 	}
 
-	Campaign, err := entity.NewCampaign(
+	deployer, err := c.UserRepository.FindUsersByRole(ctx, string(entity.UserRoleDeployer))
+	if err != nil {
+		return nil, fmt.Errorf("error finding deployer: %w", err)
+	}
+
+	badgeAddress, err := deploy.ComputeCreate2AddressFromJSON(
+		"../../skel/Badge.json", "bytecode",
+		common.Address(deployer[0].Address),
+		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error computing badge address: %w", err)
+	}
+
+	campaign, err := entity.NewCampaign(
 		input.Title,
 		input.Description,
 		input.Promotion,
@@ -93,8 +108,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		custom_type.Address(erc20Deposit.Sender),
 		custom_type.Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Value),
-		input.BadgeRouter,
-		input.BadgeMinter,
+		custom_type.Address(badgeAddress),
 		input.DebtIssued,
 		input.MaxInterestRate,
 		input.ClosesAt,
@@ -105,7 +119,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
 
-	createdCampaign, err := c.CampaignRepository.CreateCampaign(ctx, Campaign)
+	createdCampaign, err := c.CampaignRepository.CreateCampaign(ctx, campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
@@ -126,8 +140,8 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		},
 		CollateralAddress: createdCampaign.CollateralAddress,
 		CollateralAmount:  createdCampaign.CollateralAmount,
-		BadgeRouter:       createdCampaign.BadgeRouter,
-		BadgeMinter:       createdCampaign.BadgeMinter,
+		DeployerAddress:   deployer[0].Address,
+		BadgeAddress:      createdCampaign.BadgeAddress,
 		DebtIssued:        createdCampaign.DebtIssued,
 		MaxInterestRate:   createdCampaign.MaxInterestRate,
 		Orders:            createdCampaign.Orders,

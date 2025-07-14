@@ -26,8 +26,7 @@ type CloseCampaignOutputDTO struct {
 	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
-	BadgeRouter       custom_type.Address `json:"badge_router,omitempty"`
-	BadgeMinter       custom_type.Address `json:"badge_minter,omitempty"`
+	BadgeAddress      custom_type.Address `json:"badge_address,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty"`
 	TotalObligation   *uint256.Int        `json:"total_obligation,omitempty"`
@@ -132,14 +131,13 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(ctx, &entity.Order{
-				CampaignId:         order.CampaignId,
-				BadgeChainSelector: order.BadgeChainSelector,
-				Investor:           order.Investor,
-				Amount:             rejectedAmount,
-				InterestRate:       order.InterestRate,
-				State:              entity.OrderStateRejected,
-				CreatedAt:          order.CreatedAt,
-				UpdatedAt:          metadata.BlockTimestamp,
+				CampaignId:   order.CampaignId,
+				Investor:     order.Investor,
+				Amount:       rejectedAmount,
+				InterestRate: order.InterestRate,
+				State:        entity.OrderStateRejected,
+				CreatedAt:    order.CreatedAt,
+				UpdatedAt:    metadata.BlockTimestamp,
 			})
 			if err != nil {
 				return nil, err
@@ -208,8 +206,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		},
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
-		BadgeRouter:       res.BadgeRouter,
-		BadgeMinter:       res.BadgeMinter,
+		BadgeAddress:      res.BadgeAddress,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,
 		TotalObligation:   res.TotalObligation,

@@ -66,9 +66,9 @@ func (r *SQLiteRepository) UpdateCampaign(ctx context.Context, input *entity.Cam
 	if err := r.Db.WithContext(ctx).Updates(&input).Error; err != nil {
 		return nil, fmt.Errorf("failed to update campaign: %w", err)
 	}
-	Campaign, err := r.FindCampaignById(ctx, input.Id)
+	campaign, err := r.FindCampaignById(ctx, input.Id)
 	if err != nil {
 		return nil, err
 	}
-	return Campaign, nil
+	return campaign, nil
 }

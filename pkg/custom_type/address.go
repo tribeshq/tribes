@@ -10,10 +10,6 @@ import (
 
 type Address common.Address
 
-func HexToAddress(hex string) Address {
-	return Address(common.HexToAddress(hex))
-}
-
 func (a *Address) Scan(value any) error {
 	switch v := value.(type) {
 	case string:
@@ -47,4 +43,8 @@ func (a *Address) UnmarshalJSON(data []byte) error {
 	}
 	*a = HexToAddress(hex)
 	return nil
+}
+
+func HexToAddress(hex string) Address {
+	return Address(common.HexToAddress(hex))
 }

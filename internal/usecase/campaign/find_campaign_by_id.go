@@ -30,15 +30,15 @@ func (f *FindCampaignByIdUseCase) Execute(ctx context.Context, input *FindCampai
 	orders := make([]*entity.Order, len(res.Orders))
 	for i, order := range res.Orders {
 		orders[i] = &entity.Order{
-			Id:                 order.Id,
-			CampaignId:         order.CampaignId,
-			BadgeChainSelector: order.BadgeChainSelector,
-			Investor:           order.Investor,
-			Amount:             order.Amount,
-			InterestRate:       order.InterestRate,
-			State:              order.State,
-			CreatedAt:          order.CreatedAt,
-			UpdatedAt:          order.UpdatedAt,
+			Id:         order.Id,
+			CampaignId: order.CampaignId,
+
+			Investor:     order.Investor,
+			Amount:       order.Amount,
+			InterestRate: order.InterestRate,
+			State:        order.State,
+			CreatedAt:    order.CreatedAt,
+			UpdatedAt:    order.UpdatedAt,
 		}
 	}
 	creator, err := f.UserRepository.FindUserByAddress(ctx, res.Creator)
@@ -61,8 +61,7 @@ func (f *FindCampaignByIdUseCase) Execute(ctx context.Context, input *FindCampai
 		},
 		CollateralAddress: res.CollateralAddress,
 		CollateralAmount:  res.CollateralAmount,
-		BadgeRouter:       res.BadgeRouter,
-		BadgeMinter:       res.BadgeMinter,
+		BadgeAddress:      res.BadgeAddress,
 		DebtIssued:        res.DebtIssued,
 		MaxInterestRate:   res.MaxInterestRate,
 		TotalObligation:   res.TotalObligation,

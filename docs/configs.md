@@ -26,6 +26,22 @@ Address of the admin user
 * **Default:** `"0x976EA74026E726554dB657fA54763abd0C3a0aa9"`
 * **Used by:** rollup
 
+## `TRIBES_DEPLOYER_ADDRESS`
+
+Address of the deployer user, who can deploy the contracts
+
+* **Type:** `Address`
+* **Default:** `"0x0000000000000000000000000000000000000006"`
+* **Used by:** rollup
+
+## `TRIBES_DEPLOYER_ADDRESS_TEST`
+
+Address of the deployer user, who can deploy the contracts
+
+* **Type:** `Address`
+* **Default:** `"0x0000000000000000000000000000000000000024"`
+* **Used by:** rollup
+
 ## `TRIBES_VERIFIER_ADDRESS`
 
 Address of the verifier user, who can verify the social accounts

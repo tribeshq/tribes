@@ -32,14 +32,13 @@ func (c *FindOrderByIdUseCase) Execute(ctx context.Context, input *FindOrderById
 		return nil, err
 	}
 	return &OrderOutputDTO{
-		Id:                 res.Id,
-		CampaignId:         res.CampaignId,
-		BadgeChainSelector: res.BadgeChainSelector,
-		Investor:           investor,
-		Amount:             res.Amount,
-		InterestRate:       res.InterestRate,
-		State:              string(res.State),
-		CreatedAt:          res.CreatedAt,
-		UpdatedAt:          res.UpdatedAt,
+		Id:           res.Id,
+		CampaignId:   res.CampaignId,
+		Investor:     investor,
+		Amount:       res.Amount,
+		InterestRate: res.InterestRate,
+		State:        string(res.State),
+		CreatedAt:    res.CreatedAt,
+		UpdatedAt:    res.UpdatedAt,
 	}, nil
 }

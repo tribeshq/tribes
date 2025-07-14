@@ -1,12 +1,13 @@
 -include .env
 
 START_LOG = @echo "======================= START OF LOG ======================="
-END_LOG = @echo "======================== END OF LOG ======================="
+END_LOG   = @echo "======================== END OF LOG ======================="
 
-define deploy_assets
+# Generic forge script runner
+define FORGE_SCRIPT
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@forge script ./contracts/script/DeployAssets.s.sol \
+	@forge script $(1) \
 		--root ./contracts \
 		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
 		--private-key $(PRIVATE_KEY) \
@@ -15,85 +16,54 @@ define deploy_assets
 	$(END_LOG)
 endef
 
-define deploy_nft
-	$(START_LOG)\
-	@forge clean --root ./contracts
-	@forge script ./contracts/script/CrossChainNFT.s.sol:CrossChainNFTSourceMinter \
-		--root ./contracts \
-		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
-		--private-key $(PRIVATE_KEY) \
-		--broadcast \
-		-vvv
-	@forge script ./contracts/script/CrossChainNFT.s.sol:CrossChainNFTDestinationMinter \
-		--root ./contracts \
-		--rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) \
-		--private-key $(PRIVATE_KEY) \
-		--broadcast \
-		-vvv
-	$(END_LOG)
+define deploy_creat_deployer_proxy
+	$(call FORGE_SCRIPT,./contracts/script/DeployCREATDeployerProxy.s.sol)
+endef
+
+define deploy_creat2_deployer_proxy
+	$(call FORGE_SCRIPT,./contracts/script/DeployCREAT2DeployerProxy.s.sol)
+endef
+
+define deploy_assets
+	$(call FORGE_SCRIPT,./contracts/script/DeployAssets.s.sol)
+endef
+
+define deploy_badge
+	$(call FORGE_SCRIPT,./contracts/script/DeployBadge.s.sol)
 endef
 
 define deploy_vlayer
-	$(START_LOG)
-	@forge clean --root ./contracts
-	@forge script ./contracts/script/DeployVlayer.s.sol \
-		--root ./contracts \
-		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
-		--private-key $(PRIVATE_KEY) \
-		--broadcast \
-		-vvv
-	$(END_LOG)
+	$(call FORGE_SCRIPT,./contracts/script/DeployVlayer.s.sol)
 endef
 
 define deploy_delegatecall
-	$(START_LOG)
-	@forge clean --root ./contracts
-	@forge script ./contracts/script/DeployDelegatecall.s.sol \
-		--root ./contracts \
-		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
-		--private-key $(PRIVATE_KEY) \
-		--broadcast \
-		-vvv
-	$(END_LOG)
-endef
-
-define setup
-	$(START_LOG)
-	@forge clean --root ./contracts
-	@forge script ./contracts/script/CrossChainNFT.s.sol:SetupApplication \
-		--root ./contracts \
-		--rpc-url $(BLOCKCHAIN_HTTP_ENDPOINT) \
-		--private-key $(PRIVATE_KEY) \
-		--broadcast \
-		-vvv
-	$(END_LOG)
+	$(call FORGE_SCRIPT,./contracts/script/DeployDelegatecall.s.sol)
 endef
 
 .PHONY: env
 env: ## Create the environment variables file
 	@cp .env.tmpl .env
 
-.PHONY: build
-build: ## Build the application RISC-V image with cartesi cli
-	$(START_LOG)
-	@cartesi build
-	$(END_LOG)
-	
 .PHONY: generate
-generate: ## Generate the application code
+generate: ## Generate bytecode and Go bindings
 	$(START_LOG)
+	@forge clean --root ./contracts
+	@forge script --root ./contracts \
+		./contracts/script/GenerateBytecode.s.sol:GenerateBytecode
 	@go generate ./...
 	$(END_LOG)
 
 .PHONY: test
-test: ## Run the application tests
+test: ## Run the application tests (Contracts + Backend)
 	$(START_LOG)
+	@forge clean --root ./contracts
+	@forge test --root ./contracts
 	@go generate ./...
-	@go test -p=1 ./... -coverprofile=./coverage.md -v
+	@go test ./... -coverprofile=./coverage.md -v
 	$(END_LOG)
 
 .PHONY: lint
-lint: ## Run linting and formatting checks
+lint: ## Run code linting and formatting checks
 	$(START_LOG)
 	@test -z "$(gofmt -l .)" || (echo "Go code is not formatted. Run 'gofmt -w .'" && exit 1)
 	@go vet ./...
@@ -101,41 +71,58 @@ lint: ## Run linting and formatting checks
 	$(END_LOG)
 
 .PHONY: fmt
-fmt: ## Format code
+fmt: ## Format all code (Contracts + Backend)
 	$(START_LOG)
 	@gofmt -w .
 	@forge fmt --root ./contracts
+	@echo "Formatting completed"
 	$(END_LOG)
 
 .PHONY: coverage
-coverage: test ## Generate the application code coverage report
+coverage: ## Open HTML coverage report
 	$(START_LOG)
 	@go tool cover -html=./coverage.md
+	@echo "Coverage report opened"
 	$(END_LOG)
 
 .PHONY: contracts
-contracts: deploy-assets deploy-nft deploy-vlayer deploy-delegatecall ## Deploy the contracts
+contracts: ## Deploy all contracts
+	@$(deploy_assets)
+	@$(deploy_badge)
+	@$(deploy_vlayer)
+	@$(deploy_delegatecall)
+	@$(deploy_creat_deployer_proxy)
+	@$(deploy_creat2_deployer_proxy)
 
-.PHONY: deploy-nft
-deploy-nft: ## Deploy the nft contracts
-	@$(deploy_nft)
+.PHONY: deploy-creat-deployer-proxy
+deploy-creat-deployer-proxy: ## Deploy CREAT deployer proxy
+	@$(deploy_creat_deployer_proxy)
+
+.PHONY: deploy-creat2-deployer-proxy
+deploy-creat2-deployer-proxy: ## Deploy CREAT2 deployer proxy
+	@$(deploy_creat2_deployer_proxy)
+
+.PHONY: deploy-badge
+deploy-badge: ## Deploy Badge contract
+	@$(deploy_badge)
 
 .PHONY: deploy-vlayer
-deploy-vlayer: ## Deploy the vlayer contracts
+deploy-vlayer: ## Deploy Vlayer contract
 	@$(deploy_vlayer)
 
 .PHONY: deploy-delegatecall
-deploy-delegatecall: ## Deploy the delegatecall contracts
+deploy-delegatecall: ## Deploy Delegatecall contract
 	@$(deploy_delegatecall)
 
 .PHONY: deploy-assets
-deploy-assets: ## Deploy the assets contracts
+deploy-assets: ## Deploy Assets contract
 	@$(deploy_assets)
-
-.PHONY: setup
-setup: ## Transfers ownership of a deployed SourceMinter contract to the tribes application address
-	@$(setup)
 
 .PHONY: help
 help: ## Show help for each of the Makefile recipes
-	@grep "##" $(MAKEFILE_LIST) | grep -v grep | sed -e 's/:.*##/:\t/'
+	@echo "Available commands:"
+	@awk '/^[a-zA-Z0-9_-]+:.*##/ { \
+		split($$0, parts, "##"); \
+		split(parts[1], target, ":"); \
+		printf "  \033[36m%-30s\033[0m %s\n", target[1], parts[2] \
+	}' $(MAKEFILE_LIST)

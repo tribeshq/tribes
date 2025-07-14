@@ -12,17 +12,17 @@ type FindUserByRoleInputDTO struct {
 
 type FindUserByRoleOutputDTO []*UserOutputDTO
 
-type FindUserByRoleUseCase struct {
+type FindUsersByRoleUseCase struct {
 	userRepository repository.UserRepository
 }
 
-func NewFindUserByRoleUseCase(userRepository repository.UserRepository) *FindUserByRoleUseCase {
-	return &FindUserByRoleUseCase{
+func NewFindUsersByRoleUseCase(userRepository repository.UserRepository) *FindUsersByRoleUseCase {
+	return &FindUsersByRoleUseCase{
 		userRepository: userRepository,
 	}
 }
 
-func (u *FindUserByRoleUseCase) Execute(ctx context.Context, input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
+func (u *FindUsersByRoleUseCase) Execute(ctx context.Context, input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
 	res, err := u.userRepository.FindUsersByRole(ctx, input.Role)
 	if err != nil {
 		return nil, err

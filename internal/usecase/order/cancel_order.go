@@ -17,16 +17,15 @@ type CancelOrderInputDTO struct {
 }
 
 type CancelOrderOutputDTO struct {
-	Id                 uint                `json:"id"`
-	CampaignId         uint                `json:"campaign_id"`
-	BadgeChainSelector *uint256.Int        `json:"badge_chain_selector"`
-	Token              custom_type.Address `json:"token"`
-	Investor           *user.UserOutputDTO `json:"investor"`
-	Amount             *uint256.Int        `json:"amount"`
-	InterestRate       *uint256.Int        `json:"interest_rate"`
-	State              string              `json:"state"`
-	CreatedAt          int64               `json:"created_at"`
-	UpdatedAt          int64               `json:"updated_at"`
+	Id           uint                `json:"id"`
+	CampaignId   uint                `json:"campaign_id"`
+	Token        custom_type.Address `json:"token"`
+	Investor     *user.UserOutputDTO `json:"investor"`
+	Amount       *uint256.Int        `json:"amount"`
+	InterestRate *uint256.Int        `json:"interest_rate"`
+	State        string              `json:"state"`
+	CreatedAt    int64               `json:"created_at"`
+	UpdatedAt    int64               `json:"updated_at"`
 }
 
 type CancelOrderUseCase struct {
@@ -68,10 +67,9 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 		return nil, err
 	}
 	return &CancelOrderOutputDTO{
-		Id:                 res.Id,
-		CampaignId:         res.CampaignId,
-		BadgeChainSelector: res.BadgeChainSelector,
-		Token:              campaign.Token,
+		Id:         res.Id,
+		CampaignId: res.CampaignId,
+		Token:      campaign.Token,
 		Investor: &user.UserOutputDTO{
 			Id:             investor.Id,
 			Role:           string(investor.Role),

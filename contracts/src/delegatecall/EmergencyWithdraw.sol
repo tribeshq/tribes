@@ -13,6 +13,7 @@ contract EmergencyWithdraw is AccessControl {
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(APP_ROLE, msg.sender);
     }
 
     function emergencyERC20Withdraw(address to, IERC20 token) public onlyRole(APP_ROLE) {

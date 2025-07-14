@@ -153,7 +153,7 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 		return fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
-	delegateCallVoucher, err := abiInterface.Pack(
+	delegatecallPayload, err := abiInterface.Pack(
 		"emergencyERC20Withdraw",
 		input.To,
 		metadata.MsgSender,
@@ -165,7 +165,7 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 
 	env.DelegateCallVoucher(
 		common.Address(input.EmergencyWithdrawAddress),
-		delegateCallVoucher,
+		delegatecallPayload,
 	)
 	return nil
 }
@@ -194,7 +194,7 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 		return fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
-	delegateCallVoucher, err := abiInterface.Pack(
+	delegatecallPayload, err := abiInterface.Pack(
 		"emergencyETHWithdraw",
 		input.To,
 		metadata.MsgSender,
@@ -205,7 +205,7 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 
 	env.DelegateCallVoucher(
 		common.Address(input.EmergencyWithdrawAddress),
-		delegateCallVoucher,
+		delegatecallPayload,
 	)
 	return nil
 }

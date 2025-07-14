@@ -48,64 +48,83 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&entity.Campaign{},
 		&entity.Order{},
 		&entity.User{},
 		&entity.SocialAccount{},
-	)
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
 
 	configs.SetDefaults()
 
-	var adminAddress string
-	var verifierAddress string
-	if dbPath == ":memory:" {
-		adminAddr, err := configs.GetTribesAdminAddressTest()
-		if err != nil {
+	isMemory := dbPath == ":memory:"
+	var (
+		adminAddr, verifierAddr, deployerAddr custom_type.Address
+	)
+
+	if isMemory {
+		if a, err := configs.GetTribesAdminAddressTest(); err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
+		} else {
+			adminAddr = custom_type.HexToAddress(a.Hex())
 		}
-		adminAddress = adminAddr.Hex()
 
-		verifierAddr, err := configs.GetTribesVerifierAddressTest()
-		if err != nil {
+		if v, err := configs.GetTribesVerifierAddressTest(); err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS_TEST: %w", err)
+		} else {
+			verifierAddr = custom_type.HexToAddress(v.Hex())
 		}
-		verifierAddress = verifierAddr.Hex()
+
+		if d, err := configs.GetTribesDeployerAddressTest(); err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS_TEST: %w", err)
+		} else {
+			deployerAddr = custom_type.HexToAddress(d.Hex())
+		}
 	} else {
-		adminAddr, err := configs.GetTribesAdminAddress()
-		if err != nil {
+		if a, err := configs.GetTribesAdminAddress(); err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS: %w", err)
+		} else {
+			adminAddr = custom_type.HexToAddress(a.Hex())
 		}
-		adminAddress = adminAddr.Hex()
 
-		verifierAddr, err := configs.GetTribesVerifierAddress()
-		if err != nil {
+		if v, err := configs.GetTribesVerifierAddress(); err != nil {
 			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
+		} else {
+			verifierAddr = custom_type.HexToAddress(v.Hex())
 		}
-		verifierAddress = verifierAddr.Hex()
+
+		if d, err := configs.GetTribesDeployerAddress(); err != nil {
+			return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS: %w", err)
+		} else {
+			deployerAddr = custom_type.HexToAddress(d.Hex())
+		}
 	}
 
-	adminUser := entity.User{
-		Role:      entity.UserRoleAdmin,
-		Address:   custom_type.HexToAddress(adminAddress),
-		CreatedAt: time.Now().Unix(),
+	now := time.Now().Unix()
+	users := []entity.User{
+		{
+			Role:      entity.UserRoleAdmin,
+			Address:   adminAddr,
+			CreatedAt: now,
+		},
+		{
+			Role:      entity.UserRoleVerifier,
+			Address:   verifierAddr,
+			CreatedAt: now,
+		},
+		{
+			Role:      entity.UserRoleDeployer,
+			Address:   deployerAddr,
+			CreatedAt: now,
+		},
 	}
 
-	verifierUser := entity.User{
-		Role:      entity.UserRoleVerifier,
-		Address:   custom_type.HexToAddress(verifierAddress),
-		CreatedAt: time.Now().Unix(),
-	}
-
-	if err := db.Create(&adminUser).Error; err != nil {
-		return nil, fmt.Errorf("failed to create admin user: %w", err)
-	}
-
-	if err := db.Create(&verifierUser).Error; err != nil {
-		return nil, fmt.Errorf("failed to create verifier user: %w", err)
+	for _, user := range users {
+		if err := db.Create(&user).Error; err != nil {
+			return nil, fmt.Errorf("failed to create user %v: %w", user.Role, err)
+		}
 	}
 
 	return &SQLiteRepository{Db: db}, nil

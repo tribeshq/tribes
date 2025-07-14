@@ -13,20 +13,18 @@ import (
 )
 
 type CreateOrderInputDTO struct {
-	CampaignId         uint         `json:"campaign_id" validate:"required"`
-	BadgeChainSelector *uint256.Int `json:"badge_chain_selector" validate:"required"`
-	InterestRate       *uint256.Int `json:"interest_rate" validate:"required"`
+	CampaignId   uint         `json:"campaign_id" validate:"required"`
+	InterestRate *uint256.Int `json:"interest_rate" validate:"required"`
 }
 
 type CreateOrderOutputDTO struct {
-	Id                 uint                `json:"id"`
-	CampaignId         uint                `json:"campaign_id"`
-	BadgeChainSelector *uint256.Int        `json:"badge_chain_selector"`
-	Investor           *user.UserOutputDTO `json:"investor"`
-	Amount             *uint256.Int        `json:"amount"`
-	InterestRate       *uint256.Int        `json:"interest_rate"`
-	State              string              `json:"state"`
-	CreatedAt          int64               `json:"created_at"`
+	Id           uint                `json:"id"`
+	CampaignId   uint                `json:"campaign_id"`
+	Investor     *user.UserOutputDTO `json:"investor"`
+	Amount       *uint256.Int        `json:"amount"`
+	InterestRate *uint256.Int        `json:"interest_rate"`
+	State        string              `json:"state"`
+	CreatedAt    int64               `json:"created_at"`
 }
 
 type CreateOrderUseCase struct {
@@ -68,7 +66,6 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 
 	order, err := entity.NewOrder(
 		campaign.Id,
-		input.BadgeChainSelector,
 		custom_type.Address(erc20Deposit.Sender),
 		uint256.MustFromBig(erc20Deposit.Value),
 		input.InterestRate,
@@ -89,9 +86,8 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 	}
 
 	return &CreateOrderOutputDTO{
-		Id:                 res.Id,
-		CampaignId:         res.CampaignId,
-		BadgeChainSelector: res.BadgeChainSelector,
+		Id:         res.Id,
+		CampaignId: res.CampaignId,
 		Investor: &user.UserOutputDTO{
 			Id:             investor.Id,
 			Role:           string(investor.Role),

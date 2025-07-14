@@ -22,6 +22,8 @@ func init() {
 const (
 	TRIBES_ADMIN_ADDRESS         = "TRIBES_ADMIN_ADDRESS"
 	TRIBES_ADMIN_ADDRESS_TEST    = "TRIBES_ADMIN_ADDRESS_TEST"
+	TRIBES_DEPLOYER_ADDRESS      = "TRIBES_DEPLOYER_ADDRESS"
+	TRIBES_DEPLOYER_ADDRESS_TEST = "TRIBES_DEPLOYER_ADDRESS_TEST"
 	TRIBES_VERIFIER_ADDRESS      = "TRIBES_VERIFIER_ADDRESS"
 	TRIBES_VERIFIER_ADDRESS_TEST = "TRIBES_VERIFIER_ADDRESS_TEST"
 )
@@ -32,6 +34,10 @@ func SetDefaults() {
 	viper.SetDefault(TRIBES_ADMIN_ADDRESS, "0xD554153658E8D466428Fa48487f5aba18dF5E628")
 
 	viper.SetDefault(TRIBES_ADMIN_ADDRESS_TEST, "0x976EA74026E726554dB657fA54763abd0C3a0aa9")
+
+	viper.SetDefault(TRIBES_DEPLOYER_ADDRESS, "0x0000000000000000000000000000000000000006")
+
+	viper.SetDefault(TRIBES_DEPLOYER_ADDRESS_TEST, "0x0000000000000000000000000000000000000024")
 
 	viper.SetDefault(TRIBES_VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
 
@@ -47,6 +53,12 @@ type RollupConfig struct {
 
 	// Address of the admin user
 	TribesAdminAddressTest Address `mapstructure:"TRIBES_ADMIN_ADDRESS_TEST"`
+
+	// Address of the deployer user, who can deploy the contracts
+	TribesDeployerAddress Address `mapstructure:"TRIBES_DEPLOYER_ADDRESS"`
+
+	// Address of the deployer user, who can deploy the contracts
+	TribesDeployerAddressTest Address `mapstructure:"TRIBES_DEPLOYER_ADDRESS_TEST"`
 
 	// Address of the verifier user, who can verify the social accounts
 	TribesVerifierAddress Address `mapstructure:"TRIBES_VERIFIER_ADDRESS"`
@@ -83,6 +95,20 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS_TEST is required for the rollup service: %w", err)
+	}
+
+	cfg.TribesDeployerAddress, err = GetTribesDeployerAddress()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("TRIBES_DEPLOYER_ADDRESS is required for the rollup service: %w", err)
+	}
+
+	cfg.TribesDeployerAddressTest, err = GetTribesDeployerAddressTest()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS_TEST: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("TRIBES_DEPLOYER_ADDRESS_TEST is required for the rollup service: %w", err)
 	}
 
 	cfg.TribesVerifierAddress, err = GetTribesVerifierAddress()
@@ -126,6 +152,32 @@ func GetTribesAdminAddressTest() (Address, error) {
 		return v, nil
 	}
 	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_ADMIN_ADDRESS_TEST, ErrNotDefined)
+}
+
+// GetTribesDeployerAddress returns the value for the environment variable TRIBES_DEPLOYER_ADDRESS.
+func GetTribesDeployerAddress() (Address, error) {
+	s := viper.GetString(TRIBES_DEPLOYER_ADDRESS)
+	if s != "" {
+		v, err := toAddress(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_DEPLOYER_ADDRESS, err)
+		}
+		return v, nil
+	}
+	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_DEPLOYER_ADDRESS, ErrNotDefined)
+}
+
+// GetTribesDeployerAddressTest returns the value for the environment variable TRIBES_DEPLOYER_ADDRESS_TEST.
+func GetTribesDeployerAddressTest() (Address, error) {
+	s := viper.GetString(TRIBES_DEPLOYER_ADDRESS_TEST)
+	if s != "" {
+		v, err := toAddress(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", TRIBES_DEPLOYER_ADDRESS_TEST, err)
+		}
+		return v, nil
+	}
+	return notDefinedAddress(), fmt.Errorf("%s: %w", TRIBES_DEPLOYER_ADDRESS_TEST, ErrNotDefined)
 }
 
 // GetTribesVerifierAddress returns the value for the environment variable TRIBES_VERIFIER_ADDRESS.
