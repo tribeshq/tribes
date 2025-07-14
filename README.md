@@ -143,8 +143,7 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 
 3. Testnet < locally >
 
-> [!WARNING]
-> Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the commands below.
+	> Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the commands below.
 
    3.1 Build application:
    ```sh
