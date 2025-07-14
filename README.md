@@ -19,8 +19,10 @@
 - [Overview](#overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
+  - [Environment Setup](#environment-setup)
   - [Running](#running)
   - [Testing](#testing)
+  - [Development](#development)
 
 ## Overview
 A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse campaign mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
@@ -53,9 +55,26 @@ A debt capital market platform designed for the creator economy, enabling conten
    npm install -g @cartesi/cli@2.0.0-alpha.15
    ```
 
+4. [Install Foundry](https://book.getfoundry.sh/getting-started/installation) for smart contract development and testing.
+
+5. [Install Go](https://golang.org/doc/install) (version 1.21 or later) for backend development.
+
+### Environment Setup
+
+1. Create the environment variables file:
+
+   ```sh
+   make env
+   ```
+
+2. Edit the `.env` file with your configuration values.
+
 ### Running
 
 #### Frontend
+
+> [!NOTE]
+> Frontend documentation will be added as the project evolves.
 
 #### Contracts
 
@@ -70,39 +89,27 @@ The contract suite features **emergency delegate call operations** for secure as
    make contracts
    ```
 
-2. Setup application (transfer contracts ownership):
+2. Deploy individual contracts:
 
    ```sh
-   make setup
-   ```
-
-3. Deploy assets (Collateral and Stablecoin):
-
-   ```sh
+   # Deploy Assets (Collateral and Stablecoin)
    make deploy-assets
+   
+   # Deploy Badge contract
+   make deploy-badge
+   
+   # Deploy Vlayer contracts
+   make deploy-vlayer
+   
+   # Deploy EmergencyWithdraw.sol contract
+   make deploy-delegatecall
+   
+   # Deploy CREAT deployer proxy
+   make deploy-creat-deployer-proxy
+   
+   # Deploy CREAT2 deployer proxy
+   make deploy-creat2-deployer-proxy
    ```
-
-> [!IMPORTANT]
-> 
-> The commands below are for individual contract deployments.
->
-> 1. Deploy `EmergencyWithdraw.sol` contract:
->
->   ```sh
->   make deploy-delegatecall
->   ```
->  
-> 2. Deploy Vlayer contracts:
->
->   ```sh
->   make deploy-vlayer
->   ```
->
-> 3. Deploy cross-chain NFT contracts:
->
->   ```sh
->   make deploy-nft
->   ```
 
 #### Backend
 
@@ -111,31 +118,37 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 > [!WARNING]
 > After a new deployment of Vlayer-related contracts, ensure that the `rollup.toml` is correctly defined with the correct addresses. Then run the `make generate` command to generate the latest version of the auto-generated code and also define the new addresses as environment variables that will be used in the system.
 
-1. Devnet
+1. Generate bytecode and Go bindings:
 
-   1.1 Build application:
    ```sh
-   cartesi build
+   make generate
    ```
 
-   1.2 Run application on testnet:
-   ```sh
-   cartesi run
-   ```
-
-2. Testnet < locally >
+2. Devnet
 
    2.1 Build application:
    ```sh
    cartesi build
    ```
 
-   2.2 Run the Cartesi Rollups Node with the application's initial snapshot attached:
+   2.2 Run application on testnet:
+   ```sh
+   cartesi run
+   ```
+
+3. Testnet < locally >
+
+   3.1 Build application:
+   ```sh
+   cartesi build
+   ```
+
+   3.2 Run the Cartesi Rollups Node with the application's initial snapshot attached:
    ```sh
    docker compose --env-file .env up -d
    ```
 
-   2.3 Deploy and register the application:
+   3.3 Deploy and register the application:
    ```sh
    docker compose --project-name cartesi-rollups-node exec advancer \
 		cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
@@ -145,26 +158,26 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 		--json
    ```
 
-3. Testnet < cloud >
+4. Testnet < cloud >
 
    For detailed Cartesi Rollups Node deployment instructions on Fly.io, see [docs/flyio.md](docs/flyio.md).
 
-   3.1 Access machine via SSH:
+   4.1 Access machine via SSH:
    ```sh
    fly ssh console
    ```
 
-   3.2 Create directory to store snapshot:
+   4.2 Create directory to store snapshot:
    ```sh
    mkdir -p /var/lib/cartesi-rollups-node/snapshots/tribes
    ```
 
-   3.3 Download and extract initial snapshot:
+   4.3 Download and extract initial snapshot:
    ```sh
    curl -L <initial-snapshot-arctifac> | tar -xz -C /var/lib/cartesi-rollups-node/snapshots/tribes
    ```
 
-   3.4 Deploy and register the application:
+   4.4 Deploy and register the application:
    ```sh
    cartesi-rollups-cli deploy application tribes /var/lib/cartesi-rollups-node/snapshot \
 		--epoch-length 720 \
@@ -174,6 +187,46 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
    ```
 
 ### Testing
+
+Run all tests (Contracts + Backend):
+
 ```sh
 make test
 ```
+
+This command will:
+- Clean and test smart contracts with Foundry
+- Generate Go bindings
+- Run Go tests with coverage
+
+### Development
+
+#### Code Quality
+
+1. Run linting and formatting checks:
+
+   ```sh
+   make lint
+   ```
+
+2. Format all code (Contracts + Backend):
+
+   ```sh
+   make fmt
+   ```
+
+3. View test coverage report:
+
+   ```sh
+   make coverage
+   ```
+
+#### Available Make Commands
+
+For a complete list of available commands:
+
+```sh
+make help
+```
+
+This will show all available make targets with their descriptions.

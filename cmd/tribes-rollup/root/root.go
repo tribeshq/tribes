@@ -10,8 +10,8 @@ import (
 	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
-	"github.com/tribeshq/tribes/tools"
 	"github.com/tribeshq/tribes/pkg/router"
+	"github.com/tribeshq/tribes/tools"
 )
 
 const (
@@ -19,7 +19,6 @@ const (
 )
 
 var (
-	bytecode []byte
 	Cmd      = &cobra.Command{
 		Use:   "tribes-" + CMD_NAME,
 		Short: "Runs Tribes Rollup",
