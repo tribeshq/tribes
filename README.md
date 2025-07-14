@@ -75,7 +75,16 @@ A debt capital market platform designed for the creator economy, enabling conten
    cast wallet import defaultKey --interactive
    ```
    
-This will prompt you to enter your private key securely for contract deployment operations.
+   This will prompt you to enter your private key securely for contract deployment operations.
+
+4. Create the `secrets` folder and add your private key:
+
+   ```sh
+   mkdir -p secrets
+   echo "YOUR_PRIVATE_KEY" > secrets/pk
+   ```
+   > Replace `YOUR_PRIVATE_KEY` with your actual private key (type: private key, **without** the `0x` prefix).  
+   > This file is required to run the node on testnet or mainnet, as it will be used to sign transactions.
 
 ### Running
 
