@@ -88,9 +88,6 @@ This will prompt you to enter your private key securely for contract deployment 
 
 The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, and [Vlayer WebProofs](https://book.vlayer.xyz/features/web.html) that enables **verification of social media profile ownership (X, Instagram, etc.)** through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
 
-> [!WARNING]
-> Make sure that all variables are defined in the .env file, which can be created with `make env`, before running any of the contract-related commands below.
-
 1. Deploy all contracts:
 
    ```sh
