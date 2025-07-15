@@ -111,16 +111,13 @@ coverage: ## Open HTML coverage report
 # DEPLOYMENT COMMANDS
 # =============================================================================
 
-.PHONY: contracts
+.PHONY: deploy-contracts
 contracts: deploy-deployer deploy-tokens deploy-vlayer deploy-emergency deploy-safe-call ## Deploy all contracts using modular deployment scripts
 	$(START_LOG)
 	@echo "All contracts deployed! Check ./deployments/ for individual deployment files"
 	$(END_LOG)
 
-.PHONY: deploy
-deploy: contracts ## Alias for contracts deployment
-
-.PHONY: deploy-simulate
+.PHONY: deploy-contracts-simulate
 deploy-simulate: ## Simulate deployment without broadcasting
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployDeployer.s.sol:DeployDeployer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployTokens.s.sol:DeployTokens)

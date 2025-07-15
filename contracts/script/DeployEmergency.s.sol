@@ -12,11 +12,9 @@ contract DeployEmergency is Script {
         console.log("Starting emergency contracts deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-
         console.log("Deploying Emergency Withdraw...");
         emergencyWithdraw = new EmergencyWithdraw();
         console.log("Emergency Withdraw deployed to:", address(emergencyWithdraw));
-
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

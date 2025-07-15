@@ -12,11 +12,9 @@ contract DeploySafeCall is Script {
         console.log("Starting SafeCall deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-
         console.log("Deploying SafeCall contract...");
         safeCall = new SafeCall();
         console.log("SafeCall deployed to:", address(safeCall));
-
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

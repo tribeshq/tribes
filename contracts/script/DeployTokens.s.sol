@@ -13,15 +13,15 @@ contract DeployTokens is Script {
         console.log("Starting tokens deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-
         console.log("Deploying Collateral Token...");
-        collateral = new Token("Collateral", "COLL");
+        address collateralInitialOwner = vm.parseAddress(vm.prompt("Collateral initial owner"));
+        collateral = new Token("Collateral", "COLL", collateralInitialOwner);
         console.log("Collateral deployed to:", address(collateral));
 
         console.log("Deploying Stablecoin Token...");
-        stablecoin = new Token("Stablecoin", "STBL");
+        address stablecoinInitialOwner = vm.parseAddress(vm.prompt("Stablecoin initial owner"));
+        stablecoin = new Token("Stablecoin", "STBL", stablecoinInitialOwner);
         console.log("Stablecoin deployed to:", address(stablecoin));
-
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

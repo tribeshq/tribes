@@ -100,7 +100,7 @@ The contract suite features **emergency delegate call operations** for secure as
 The deployment infrastructure uses **modular scripts** for better organization and flexibility:
 
 - **Deployer**: Core deployment infrastructure
-- **Tokens**: Collateral and Stablecoin tokens
+- **Tokens**: Collateral and Stablecoin tokens (interactive prompts for initial owners)
 - **VLayer**: WebProofX Prover and Verifier contracts
 - **Emergency**: Emergency withdrawal contracts
 - **SafeCall**: Safe call contract for secure contract interactions
@@ -119,7 +119,7 @@ Each deployment script saves its configuration to individual JSON files in the `
    # Deploy Deployer contract
    make deploy-deployer
    
-   # Deploy Tokens (Collateral and Stablecoin)
+   # Deploy Tokens (Collateral and Stablecoin) - interactive prompts for initial owners
    make deploy-tokens
    
    # Deploy VLayer contracts (Prover and Verifier)
@@ -134,6 +134,17 @@ Each deployment script saves its configuration to individual JSON files in the `
    # Deploy SafeCall contract
    make deploy-safe-call
    ```
+
+   > **Note**: The `deploy-tokens` command will prompt you interactively to enter the initial owner addresses for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
+
+3. Simulate deployment (without broadcasting):
+
+   ```sh
+   # Simulate all deployments without broadcasting transactions
+   make deploy-simulate
+   ```
+
+   This is useful for testing deployment scripts and verifying gas costs without actually deploying contracts.
 
 #### Backend
 

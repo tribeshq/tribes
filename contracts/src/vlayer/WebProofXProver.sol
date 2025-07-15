@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.21;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
 
 import {Proof} from "vlayer-1.2.0/src/Proof.sol";
 import {Prover} from "vlayer-1.2.0/src/Prover.sol";

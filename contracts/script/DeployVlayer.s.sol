@@ -14,7 +14,6 @@ contract DeployVLayer is Script {
         console.log("Starting VLayer deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-
         console.log("Deploying WebProofX Prover...");
         prover = new WebProofXProver();
         console.log("Prover deployed to:", address(prover));
@@ -22,7 +21,6 @@ contract DeployVLayer is Script {
         console.log("Deploying WebProofX Verifier...");
         verifier = new WebProofXVerifier(address(prover), 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051);
         console.log("Verifier deployed to:", address(verifier));
-
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

@@ -13,7 +13,9 @@ library LibDeployValidator {
         pure
         returns (address)
     {
-        return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), factory, salt, keccak256(bytecode))))));
+        unchecked {
+            return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), factory, salt, keccak256(bytecode))))));
+        }
     }
 
     function checkIfExists(address factory, bytes32 salt, bytes memory bytecode)
