@@ -128,9 +128,6 @@ Each deployment script saves its configuration to individual JSON files in the `
    # Deploy Emergency contracts (EmergencyWithdraw)
    make deploy-emergency
    
-   # Deploy Delegatecall contracts (EmergencyWithdraw)
-   make deploy-delegatecall
-   
    # Deploy SafeCall contract
    make deploy-safe-call
    ```

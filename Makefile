@@ -44,10 +44,6 @@ define deploy_emergency
 	$(call FORGE_SCRIPT,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
 endef
 
-define deploy_delegatecall
-	$(call FORGE_SCRIPT,./contracts/script/DeployDelegatecall.s.sol:DeployDelegatecall)
-endef
-
 define deploy_safe_call
 	$(call FORGE_SCRIPT,./contracts/script/DeploySafeCall.s.sol:DeploySafeCall)
 endef
@@ -157,12 +153,6 @@ deploy-emergency: ## Deploy only emergency contracts (EmergencyWithdraw)
 	@echo "Emergency deployment completed! Check ./deployments/emergency.json for addresses"
 	$(END_LOG)
 
-.PHONY: deploy-delegatecall
-deploy-delegatecall: ## Deploy only delegatecall contracts (EmergencyWithdraw)
-	$(START_LOG)
-	@$(deploy_delegatecall)
-	@echo "Delegatecall deployment completed! Check ./deployments/emergency.json for addresses"
-	$(END_LOG)
 
 .PHONY: deploy-safe-call
 deploy-safe-call: ## Deploy only SafeCall contract
