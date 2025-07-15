@@ -66,7 +66,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -84,7 +84,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 }
@@ -135,7 +135,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -153,7 +153,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 
@@ -222,7 +222,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -240,7 +240,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 
@@ -306,7 +306,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -324,7 +324,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 
@@ -430,7 +430,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -448,7 +448,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 

@@ -104,7 +104,7 @@ func (s *CampaignOperationsSuite) TestCloseCampaign() {
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -122,7 +122,7 @@ func (s *CampaignOperationsSuite) TestCloseCampaign() {
 
 	initCode := append(s.Bytecode, constructorArgs...)
 
-	unpacked, err := abiInterface.Methods["deploy2"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(initCode, unpacked[0])
 

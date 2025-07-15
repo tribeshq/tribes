@@ -6,20 +6,51 @@ import {console} from "forge-std-1.9.7/src/console.sol";
 import {WebProofXProver} from "../src/vlayer/WebProofXProver.sol";
 import {WebProofXVerifier} from "../src/vlayer/WebProofXVerifier.sol";
 
-contract DeployVlayer is Script {
-    WebProofXProver prover;
-    WebProofXVerifier verifier;
+contract DeployVLayer is Script {
+    WebProofXProver public prover;
+    WebProofXVerifier public verifier;
 
     function run() external {
+        console.log("Starting VLayer deployment on chain ID:", block.chainid);
+
         vm.startBroadcast();
+
+        console.log("Deploying WebProofX Prover...");
         prover = new WebProofXProver();
+        console.log("Prover deployed to:", address(prover));
 
-        address inputBoxAddress = 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051;
+        console.log("Deploying WebProofX Verifier...");
+        verifier = new WebProofXVerifier(address(prover), 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051);
+        console.log("Verifier deployed to:", address(verifier));
 
-        verifier = new WebProofXVerifier(address(prover), inputBoxAddress);
         vm.stopBroadcast();
 
-        console.log("Prover deployed to: ", address(prover));
-        console.log("Verifier deployed to: ", address(verifier));
+        _saveDeploymentInfo();
+
+        console.log("VLayer deployment completed!");
+    }
+
+    function _saveDeploymentInfo() internal {
+        string memory deploymentInfo = string.concat(
+            '{"vlayer":{',
+            '"chainId":',
+            vm.toString(block.chainid),
+            ",",
+            '"timestamp":',
+            vm.toString(block.timestamp),
+            ",",
+            '"contracts":{',
+            '"prover":"',
+            vm.toString(address(prover)),
+            '",',
+            '"verifier":"',
+            vm.toString(address(verifier)),
+            '",',
+            '"inputBoxAddress":"0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051"',
+            "}",
+            "}}"
+        );
+
+        vm.writeJson(deploymentInfo, "./deployments/vlayer.json");
     }
 }

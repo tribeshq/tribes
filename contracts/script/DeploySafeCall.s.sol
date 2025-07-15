@@ -3,27 +3,30 @@ pragma solidity ^0.8.27;
 
 import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
-import {EmergencyWithdraw} from "../src/delegatecall/EmergencyWithdraw.sol";
+import {SafeCall} from "../src/delegatecall/SafeCall.sol";
 
-contract DeployDelegatecall is Script {
-    EmergencyWithdraw public emergencyWithdraw;
+contract DeploySafeCall is Script {
+    SafeCall public safeCall;
 
     function run() external {
-        console.log("Starting EmergencyWithdraw deployment on chain ID:", block.chainid);
+        console.log("Starting SafeCall deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-        emergencyWithdraw = new EmergencyWithdraw();
-        console.log("EmergencyWithdraw deployed to:", address(emergencyWithdraw));
+
+        console.log("Deploying SafeCall contract...");
+        safeCall = new SafeCall();
+        console.log("SafeCall deployed to:", address(safeCall));
+
         vm.stopBroadcast();
 
         _saveDeploymentInfo();
 
-        console.log("EmergencyWithdraw deployment completed!");
+        console.log("SafeCall deployment completed!");
     }
 
     function _saveDeploymentInfo() internal {
         string memory deploymentInfo = string.concat(
-            '{"emergency":{',
+            '{"safeCall":{',
             '"chainId":',
             vm.toString(block.chainid),
             ",",
@@ -31,13 +34,13 @@ contract DeployDelegatecall is Script {
             vm.toString(block.timestamp),
             ",",
             '"contracts":{',
-            '"emergencyWithdraw":"',
-            vm.toString(address(emergencyWithdraw)),
+            '"safeCall":"',
+            vm.toString(address(safeCall)),
             '"',
             "}",
             "}}"
         );
 
-        vm.writeJson(deploymentInfo, "./deployments/emergency.json");
+        vm.writeJson(deploymentInfo, "./deployments/safeCall.json");
     }
 }

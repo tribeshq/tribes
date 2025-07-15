@@ -5,20 +5,23 @@ import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
 import {EmergencyWithdraw} from "../src/delegatecall/EmergencyWithdraw.sol";
 
-contract DeployDelegatecall is Script {
+contract DeployEmergency is Script {
     EmergencyWithdraw public emergencyWithdraw;
 
     function run() external {
-        console.log("Starting EmergencyWithdraw deployment on chain ID:", block.chainid);
+        console.log("Starting emergency contracts deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
+
+        console.log("Deploying Emergency Withdraw...");
         emergencyWithdraw = new EmergencyWithdraw();
-        console.log("EmergencyWithdraw deployed to:", address(emergencyWithdraw));
+        console.log("Emergency Withdraw deployed to:", address(emergencyWithdraw));
+
         vm.stopBroadcast();
 
         _saveDeploymentInfo();
 
-        console.log("EmergencyWithdraw deployment completed!");
+        console.log("Emergency deployment completed!");
     }
 
     function _saveDeploymentInfo() internal {

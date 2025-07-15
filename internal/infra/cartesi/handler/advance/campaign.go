@@ -78,7 +78,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy2",
+		"name": "deploy",
 		"inputs": [
 			{"type": "bytes"},
 			{"type": "bytes32"}
@@ -89,15 +89,15 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
-	deploy2Payload, err := abiInterface.Pack(
-		"deploy2",
+	deployPayload, err := abiInterface.Pack(
+		"deploy",
 		initCode,
 		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
-	env.Voucher(common.Address(h.cfg.DeployerAddress), big.NewInt(0), deploy2Payload)
+	env.Voucher(common.Address(h.cfg.DeployerAddress), big.NewInt(0), deployPayload)
 
 	erc20Deposit := deposit.(*rollmelette.ERC20Deposit)
 	if err := env.ERC20Transfer(

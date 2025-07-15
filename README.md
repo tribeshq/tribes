@@ -97,6 +97,16 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, and [Vlayer WebProofs](https://book.vlayer.xyz/features/web.html) that enables **verification of social media profile ownership (X, Instagram, etc.)** through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
 
+The deployment infrastructure uses **modular scripts** for better organization and flexibility:
+
+- **Deployer**: Core deployment infrastructure
+- **Tokens**: Collateral and Stablecoin tokens
+- **VLayer**: WebProofX Prover and Verifier contracts
+- **Emergency**: Emergency withdrawal contracts
+- **SafeCall**: Safe call contract for secure contract interactions
+
+Each deployment script saves its configuration to individual JSON files in the `./deployments/` directory for easy reference and integration.
+
 1. Deploy all contracts:
 
    ```sh
@@ -106,23 +116,23 @@ The contract suite features **emergency delegate call operations** for secure as
 2. Deploy individual contracts:
 
    ```sh
-   # Deploy Assets (Collateral and Stablecoin)
-   make deploy-assets
+   # Deploy Deployer contract
+   make deploy-deployer
    
-   # Deploy Badge contract
-   make deploy-badge
+   # Deploy Tokens (Collateral and Stablecoin)
+   make deploy-tokens
    
-   # Deploy Vlayer contracts
+   # Deploy VLayer contracts (Prover and Verifier)
    make deploy-vlayer
    
-   # Deploy EmergencyWithdraw.sol contract
+   # Deploy Emergency contracts (EmergencyWithdraw)
+   make deploy-emergency
+   
+   # Deploy Delegatecall contracts (EmergencyWithdraw)
    make deploy-delegatecall
    
-   # Deploy CREAT deployer proxy
-   make deploy-creat-deployer-proxy
-   
-   # Deploy CREAT2 deployer proxy
-   make deploy-creat2-deployer-proxy
+   # Deploy SafeCall contract
+   make deploy-safe-call
    ```
 
 #### Backend
