@@ -87,7 +87,3 @@ func Create(info *CreateInfo) *router.Router {
 	}
 	return r
 }
-
-func NewTribesRollup(repo repository.Repository, cfg *configs.RollupConfig) *router.Router {
-	return nil
-}
