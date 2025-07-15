@@ -11,10 +11,10 @@ type WithdrawInputDTO struct {
 }
 
 type EmergencyERC20WithdrawInputDTO struct {
-	To                       custom_type.Address `json:"to" validate:"required"`
-	Token                    custom_type.Address `json:"token" validate:"required"`
+	To    custom_type.Address `json:"to" validate:"required"`
+	Token custom_type.Address `json:"token" validate:"required"`
 }
 
 type EmergencyEtherWithdrawInputDTO struct {
-	To                       custom_type.Address `json:"to" validate:"required"`
+	To custom_type.Address `json:"to" validate:"required"`
 }

@@ -1,4 +1,4 @@
-package rollup
+package cartesi
 
 import (
 	"log/slog"

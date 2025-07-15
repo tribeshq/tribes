@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package rollup
+package cartesi
 
 import (
 	"github.com/google/wire"
