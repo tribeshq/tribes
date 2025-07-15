@@ -256,6 +256,32 @@ This command will:
    make coverage
    ```
 
+#### Utility Commands
+
+1. Clean build artifacts:
+
+   ```sh
+   make clean
+   ```
+
+   This removes all build artifacts, cache, and deployment files.
+
+2. Check contract sizes:
+
+   ```sh
+   make size
+   ```
+
+   Shows the size of all compiled contracts to ensure they fit within deployment limits.
+
+3. Run gas reports:
+
+   ```sh
+   make gas
+   ```
+
+   Generates detailed gas usage reports for all contract functions during testing.
+
 #### Available Make Commands
 
 For a complete list of available commands:

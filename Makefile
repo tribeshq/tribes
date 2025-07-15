@@ -181,7 +181,11 @@ deploy-safe-call: ## Deploy only SafeCall contract
 clean: ## Clean build artifacts
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@rm -rf ./deployments
+	@rm -rf ./secrets
+	@rm -rf ./contracts/cache
+	@rm -rf ./contracts/broadcast
+	@rm -rf ./contracts/dependencies
+	@rm -rf ./contracts/soldeer.lock
 	@echo "Clean completed"
 	$(END_LOG)
 
