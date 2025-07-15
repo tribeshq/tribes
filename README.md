@@ -131,7 +131,7 @@ Each deployment script saves its configuration to individual JSON files in the `
    make deploy-safe-call
    ```
 
-   > **Note**: The `deploy-tokens` command will prompt you interactively to enter the initial owner addresses for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
+   > **Note**: The `deploy-tokens` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
 
 3. Simulate deployment (without broadcasting):
 

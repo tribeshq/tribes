@@ -77,7 +77,7 @@ test-integration: ## Run the integration tests
 test-contracts: ## Run the contracts tests
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@forge test --root ./contracts -vvvv
+	@forge test --root ./contracts -vvv
 	$(END_LOG)
 
 .PHONY: lint
@@ -171,7 +171,6 @@ deploy-safe-call: ## Deploy only SafeCall contract
 clean: ## Clean build artifacts
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@rm -rf ./secrets
 	@rm -rf ./contracts/cache
 	@rm -rf ./contracts/broadcast
 	@rm -rf ./contracts/dependencies

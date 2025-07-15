@@ -14,13 +14,17 @@ contract DeployTokens is Script {
 
         vm.startBroadcast();
         console.log("Deploying Collateral Token...");
+        string memory collateralName = vm.prompt("Collateral name");
+        string memory collateralSymbol = vm.prompt("Collateral symbol");
         address collateralInitialOwner = vm.parseAddress(vm.prompt("Collateral initial owner"));
-        collateral = new Token("Collateral", "COLL", collateralInitialOwner);
+        collateral = new Token(collateralName, collateralSymbol, collateralInitialOwner);
         console.log("Collateral deployed to:", address(collateral));
 
         console.log("Deploying Stablecoin Token...");
+        string memory stablecoinName = vm.prompt("Stablecoin name");
+        string memory stablecoinSymbol = vm.prompt("Stablecoin symbol");
         address stablecoinInitialOwner = vm.parseAddress(vm.prompt("Stablecoin initial owner"));
-        stablecoin = new Token("Stablecoin", "STBL", stablecoinInitialOwner);
+        stablecoin = new Token(stablecoinName, stablecoinSymbol, stablecoinInitialOwner);
         console.log("Stablecoin deployed to:", address(stablecoin));
         vm.stopBroadcast();
 
