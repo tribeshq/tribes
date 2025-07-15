@@ -1,16 +1,17 @@
 //go:build wireinject
 // +build wireinject
 
-package root
+package rollup
 
 import (
 	"github.com/google/wire"
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/advance"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/inspect"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
-func NewHandlers(repo repository.Repository, bytecode []byte) (*Handlers, error) {
+func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handlers, error) {
 	wire.Build(
 		// Bind repository interfaces
 		wire.Bind(new(repository.UserRepository), new(repository.Repository)),

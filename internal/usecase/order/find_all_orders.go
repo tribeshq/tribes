@@ -1,40 +1,40 @@
 package order
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindAllOrdersOutputDTO []*OrderOutputDTO
 
 type FindAllOrdersUseCase struct {
-	UserRepository  repository.UserRepository
-	OrderRepository repository.OrderRepository
+	userRepository  repository.UserRepository
+	orderRepository repository.OrderRepository
 }
 
-func NewFindAllOrdersUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository) *FindAllOrdersUseCase {
+func NewFindAllOrdersUseCase(
+	userRepo repository.UserRepository,
+	orderRepo repository.OrderRepository,
+) *FindAllOrdersUseCase {
 	return &FindAllOrdersUseCase{
-		UserRepository:  userRepository,
-		OrderRepository: orderRepository,
+		userRepository:  userRepo,
+		orderRepository: orderRepo,
 	}
 }
 
-func (f *FindAllOrdersUseCase) Execute(ctx context.Context) (*FindAllOrdersOutputDTO, error) {
-	res, err := f.OrderRepository.FindAllOrders(ctx)
+func (f *FindAllOrdersUseCase) Execute() (*FindAllOrdersOutputDTO, error) {
+	res, err := f.orderRepository.FindAllOrders()
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindAllOrdersOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := f.UserRepository.FindUserByAddress(ctx, order.Investor)
+		investor, err := f.userRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}
 		output[i] = &OrderOutputDTO{
-			Id:         order.Id,
-			CampaignId: order.CampaignId,
-
+			Id:           order.Id,
+			CampaignId:   order.CampaignId,
 			Investor:     investor,
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

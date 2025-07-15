@@ -1,7 +1,6 @@
 package inspect
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -12,12 +11,14 @@ import (
 )
 
 type SocialAccountInspectHandlers struct {
-	SocialAccountRepository repository.SocialAccountRepository
+	socialAccountRepository repository.SocialAccountRepository
 }
 
-func NewSocialAccountInspectHandlers(socialAccountRepository repository.SocialAccountRepository) *SocialAccountInspectHandlers {
+func NewSocialAccountInspectHandlers(
+	socialAccountRepo repository.SocialAccountRepository,
+) *SocialAccountInspectHandlers {
 	return &SocialAccountInspectHandlers{
-		SocialAccountRepository: socialAccountRepository,
+		socialAccountRepository: socialAccountRepo,
 	}
 }
 
@@ -32,9 +33,8 @@ func (h *SocialAccountInspectHandlers) FindSocialAccountById(env rollmelette.Env
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	findSocialAccountById := social_account.NewFindSocialAccountByIdUseCase(h.SocialAccountRepository)
-	res, err := findSocialAccountById.Execute(ctx, &input)
+	findSocialAccountById := social_account.NewFindSocialAccountByIdUseCase(h.socialAccountRepository)
+	res, err := findSocialAccountById.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find social account: %w", err)
 	}
@@ -57,9 +57,8 @@ func (h *SocialAccountInspectHandlers) FindSocialAccountsByUserId(env rollmelett
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	findSocialAccountsByUserId := social_account.NewFindSocialAccountsByUserIdUseCase(h.SocialAccountRepository)
-	res, err := findSocialAccountsByUserId.Execute(ctx, &input)
+	findSocialAccountsByUserId := social_account.NewFindSocialAccountsByUserIdUseCase(h.socialAccountRepository)
+	res, err := findSocialAccountsByUserId.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find social accounts: %w", err)
 	}

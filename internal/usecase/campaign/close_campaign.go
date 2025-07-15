@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 	"sort"
 
@@ -40,24 +39,24 @@ type CloseCampaignOutputDTO struct {
 }
 
 type CloseCampaignUseCase struct {
-	UserRepository     repository.UserRepository
-	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	orderRepository    repository.OrderRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewCloseCampaignUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository, orderRepository repository.OrderRepository) *CloseCampaignUseCase {
+func NewCloseCampaignUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository, orderRepo repository.OrderRepository) *CloseCampaignUseCase {
 	return &CloseCampaignUseCase{
-		UserRepository:     userRepository,
-		CampaignRepository: campaignRepository,
-		OrderRepository:    orderRepository,
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
+		orderRepository:    orderRepo,
 	}
 }
 
-func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaignInputDTO, metadata rollmelette.Metadata) (*CloseCampaignOutputDTO, error) {
+func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata rollmelette.Metadata) (*CloseCampaignOutputDTO, error) {
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(ctx, input.CreatorAddress)
+	campaigns, err := u.campaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +81,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 	// -------------------------------------------------------------------------
 	// 3. Fetch and sort campaign orders
 	// -------------------------------------------------------------------------
-	orders, err := u.OrderRepository.FindOrdersByCampaignId(ctx, ongoingCampaign.Id)
+	orders, err := u.orderRepository.FindOrdersByCampaignId(ongoingCampaign.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 			// Reject surplus orders
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.OrderRepository.UpdateOrder(ctx, order); err != nil {
+			if _, err := u.orderRepository.UpdateOrder(order); err != nil {
 				return nil, err
 			}
 			continue
@@ -130,7 +129,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 			order.State = entity.OrderStatePartiallyAccepted
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
-			_, err := u.OrderRepository.CreateOrder(ctx, &entity.Order{
+			_, err := u.orderRepository.CreateOrder(&entity.Order{
 				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       rejectedAmount,
@@ -146,7 +145,7 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		}
 		order.Amount = acceptAmount
 		order.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.OrderRepository.UpdateOrder(ctx, order); err != nil {
+		if _, err := u.orderRepository.UpdateOrder(order); err != nil {
 			return nil, err
 		}
 	}
@@ -161,13 +160,13 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 		for _, order := range orders {
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.OrderRepository.UpdateOrder(ctx, order); err != nil {
+			if _, err := u.orderRepository.UpdateOrder(order); err != nil {
 				return nil, err
 			}
 		}
 		ongoingCampaign.State = entity.CampaignStateCanceled
 		ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.CampaignRepository.UpdateCampaign(ctx, ongoingCampaign); err != nil {
+		if _, err := u.campaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
 			return nil, err
 		}
 		return nil, fmt.Errorf("campaign canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
@@ -180,12 +179,12 @@ func (u *CloseCampaignUseCase) Execute(ctx context.Context, input *CloseCampaign
 	ongoingCampaign.TotalObligation = totalObligation
 	ongoingCampaign.TotalRaised = totalCollected
 	ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := u.CampaignRepository.UpdateCampaign(ctx, ongoingCampaign)
+	res, err := u.campaignRepository.UpdateCampaign(ongoingCampaign)
 	if err != nil {
 		return nil, err
 	}
 
-	creator, err := u.UserRepository.FindUserByAddress(ctx, res.Creator)
+	creator, err := u.userRepository.FindUserByAddress(res.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}

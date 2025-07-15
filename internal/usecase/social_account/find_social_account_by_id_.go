@@ -1,8 +1,6 @@
 package social_account
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -11,17 +9,19 @@ type FindSocialAccountByIdInputDTO struct {
 }
 
 type FindSocialAccountByIdUseCase struct {
-	SocialAccountRepository repository.SocialAccountRepository
+	socialAccountRepository repository.SocialAccountRepository
 }
 
-func NewFindSocialAccountByIdUseCase(socialAccountRepository repository.SocialAccountRepository) *FindSocialAccountByIdUseCase {
+func NewFindSocialAccountByIdUseCase(
+	socialAccountRepo repository.SocialAccountRepository,
+) *FindSocialAccountByIdUseCase {
 	return &FindSocialAccountByIdUseCase{
-		SocialAccountRepository: socialAccountRepository,
+		socialAccountRepository: socialAccountRepo,
 	}
 }
 
-func (s *FindSocialAccountByIdUseCase) Execute(ctx context.Context, input *FindSocialAccountByIdInputDTO) (*SocialAccountOutputDTO, error) {
-	socialAccount, err := s.SocialAccountRepository.FindSocialAccountById(ctx, input.SocialAccountId)
+func (s *FindSocialAccountByIdUseCase) Execute(input *FindSocialAccountByIdInputDTO) (*SocialAccountOutputDTO, error) {
+	socialAccount, err := s.socialAccountRepository.FindSocialAccountById(input.SocialAccountId)
 	if err != nil {
 		return nil, err
 	}

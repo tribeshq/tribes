@@ -1,8 +1,6 @@
 package user
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -16,14 +14,16 @@ type FindUsersByRoleUseCase struct {
 	userRepository repository.UserRepository
 }
 
-func NewFindUsersByRoleUseCase(userRepository repository.UserRepository) *FindUsersByRoleUseCase {
+func NewFindUsersByRoleUseCase(
+	userRepo repository.UserRepository,
+) *FindUsersByRoleUseCase {
 	return &FindUsersByRoleUseCase{
-		userRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
-func (u *FindUsersByRoleUseCase) Execute(ctx context.Context, input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
-	res, err := u.userRepository.FindUsersByRole(ctx, input.Role)
+func (u *FindUsersByRoleUseCase) Execute(input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
+	res, err := u.userRepository.FindUsersByRole(input.Role)
 	if err != nil {
 		return nil, err
 	}

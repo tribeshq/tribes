@@ -1,7 +1,6 @@
 package inspect
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -13,12 +12,14 @@ import (
 )
 
 type UserInspectHandlers struct {
-	UserRepository repository.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewUserInspectHandlers(userRepository repository.UserRepository) *UserInspectHandlers {
+func NewUserInspectHandlers(
+	userRepo repository.UserRepository,
+) *UserInspectHandlers {
 	return &UserInspectHandlers{
-		UserRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
@@ -33,9 +34,8 @@ func (h *UserInspectHandlers) FindUserByAddress(env rollmelette.EnvInspector, pa
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
-	res, err := findUserByAddress.Execute(ctx, &input)
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	res, err := findUserByAddress.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find User: %w", err)
 	}
@@ -48,9 +48,9 @@ func (h *UserInspectHandlers) FindUserByAddress(env rollmelette.EnvInspector, pa
 }
 
 func (h *UserInspectHandlers) FindAllUsers(env rollmelette.EnvInspector, payload []byte) error {
-	ctx := context.Background()
-	findAllUsers := user.NewFindAllUsersUseCase(h.UserRepository)
-	res, err := findAllUsers.Execute(ctx)
+
+	findAllUsers := user.NewFindAllUsersUseCase(h.userRepository)
+	res, err := findAllUsers.Execute()
 	if err != nil {
 		return fmt.Errorf("failed to find all Users: %w", err)
 	}
@@ -73,9 +73,8 @@ func (h *UserInspectHandlers) ERC20BalanceOf(env rollmelette.EnvInspector, paylo
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
-	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	res, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 		Address: input.Address,
 	})
 	if err != nil {

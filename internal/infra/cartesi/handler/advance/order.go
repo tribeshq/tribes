@@ -1,7 +1,6 @@
 package advance
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -13,20 +12,20 @@ import (
 )
 
 type OrderAdvanceHandlers struct {
-	OrderRepository    repository.OrderRepository
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	orderRepository    repository.OrderRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
 }
 
 func NewOrderAdvanceHandlers(
-	orderRepository repository.OrderRepository,
-	userRepository repository.UserRepository,
-	campaignRepository repository.CampaignRepository,
+	orderRepo repository.OrderRepository,
+	userRepo repository.UserRepository,
+	campaignRepo repository.CampaignRepository,
 ) *OrderAdvanceHandlers {
 	return &OrderAdvanceHandlers{
-		OrderRepository:    orderRepository,
-		UserRepository:     userRepository,
-		CampaignRepository: campaignRepository,
+		orderRepository:    orderRepo,
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
 	}
 }
 
@@ -41,14 +40,13 @@ func (h *OrderAdvanceHandlers) CreateOrder(env rollmelette.Env, metadata rollmel
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
 	createOrder := order.NewCreateOrderUseCase(
-		h.UserRepository,
-		h.OrderRepository,
-		h.CampaignRepository,
+		h.userRepository,
+		h.orderRepository,
+		h.campaignRepository,
 	)
 
-	res, err := createOrder.Execute(ctx, &input, deposit, metadata)
+	res, err := createOrder.Execute(&input, deposit, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to create order: %w", err)
 	}
@@ -87,14 +85,13 @@ func (h *OrderAdvanceHandlers) CancelOrder(env rollmelette.Env, metadata rollmel
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
 	cancelOrder := order.NewCancelOrderUseCase(
-		h.UserRepository,
-		h.OrderRepository,
-		h.CampaignRepository,
+		h.userRepository,
+		h.orderRepository,
+		h.campaignRepository,
 	)
 
-	res, err := cancelOrder.Execute(ctx, &input, metadata)
+	res, err := cancelOrder.Execute(&input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to cancel order: %w", err)
 	}

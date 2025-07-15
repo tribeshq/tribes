@@ -1,7 +1,6 @@
 package advance
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -12,14 +11,17 @@ import (
 )
 
 type SocialAccountAdvanceHandlers struct {
-	UserRepository          repository.UserRepository
-	SocialAccountRepository repository.SocialAccountRepository
+	userRepository          repository.UserRepository
+	socialAccountRepository repository.SocialAccountRepository
 }
 
-func NewSocialAccountAdvanceHandlers(userRepository repository.UserRepository, socialAccountRepository repository.SocialAccountRepository) *SocialAccountAdvanceHandlers {
+func NewSocialAccountAdvanceHandlers(
+	userRepo repository.UserRepository,
+	socialAccountRepo repository.SocialAccountRepository,
+) *SocialAccountAdvanceHandlers {
 	return &SocialAccountAdvanceHandlers{
-		UserRepository:          userRepository,
-		SocialAccountRepository: socialAccountRepository,
+		userRepository:          userRepo,
+		socialAccountRepository: socialAccountRepo,
 	}
 }
 
@@ -35,9 +37,8 @@ func (s *SocialAccountAdvanceHandlers) CreateSocialAccount(env rollmelette.Env, 
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.UserRepository, s.SocialAccountRepository)
-	res, err := createSocialAccount.Execute(ctx, &input, &metadata)
+	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.userRepository, s.socialAccountRepository)
+	res, err := createSocialAccount.Execute(&input, &metadata)
 	if err != nil {
 		return err
 	}
@@ -61,9 +62,8 @@ func (s *SocialAccountAdvanceHandlers) DeleteSocialAccount(env rollmelette.Env, 
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	deleteSocialAccount := social_account.NewDeleteSocialAccountUseCase(s.SocialAccountRepository)
-	err = deleteSocialAccount.Execute(ctx, &input)
+	deleteSocialAccount := social_account.NewDeleteSocialAccountUseCase(s.socialAccountRepository)
+	err = deleteSocialAccount.Execute(&input)
 	if err != nil {
 		return err
 	}

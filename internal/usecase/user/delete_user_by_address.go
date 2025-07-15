@@ -1,8 +1,6 @@
 package user
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
@@ -12,15 +10,17 @@ type DeleteUserInputDTO struct {
 }
 
 type DeleteUserUseCase struct {
-	UserRepository repository.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewDeleteUserUseCase(userRepository repository.UserRepository) *DeleteUserUseCase {
+func NewDeleteUserUseCase(
+	userRepo repository.UserRepository,
+) *DeleteUserUseCase {
 	return &DeleteUserUseCase{
-		UserRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
-func (u *DeleteUserUseCase) Execute(ctx context.Context, input *DeleteUserInputDTO) error {
-	return u.UserRepository.DeleteUser(ctx, input.Address)
+func (u *DeleteUserUseCase) Execute(input *DeleteUserInputDTO) error {
+	return u.userRepository.DeleteUser(input.Address)
 }

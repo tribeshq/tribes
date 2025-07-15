@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
@@ -17,16 +16,19 @@ type FindCampaignsByCreatorAddressInputDTO struct {
 type FindCampaignsByCreatorAddressOutputDTO []*CampaignOutputDTO
 
 type FindCampaignsByCreatorAddressUseCase struct {
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewFindCampaignsByCreatorAddressUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *FindCampaignsByCreatorAddressUseCase {
-	return &FindCampaignsByCreatorAddressUseCase{UserRepository: userRepository, CampaignRepository: campaignRepository}
+func NewFindCampaignsByCreatorAddressUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindCampaignsByCreatorAddressUseCase {
+	return &FindCampaignsByCreatorAddressUseCase{
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
+	}
 }
 
-func (f *FindCampaignsByCreatorAddressUseCase) Execute(ctx context.Context, input *FindCampaignsByCreatorAddressInputDTO) (*FindCampaignsByCreatorAddressOutputDTO, error) {
-	res, err := f.CampaignRepository.FindCampaignsByCreatorAddress(ctx, input.CreatorAddress)
+func (f *FindCampaignsByCreatorAddressUseCase) Execute(input *FindCampaignsByCreatorAddressInputDTO) (*FindCampaignsByCreatorAddressOutputDTO, error) {
+	res, err := f.campaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -35,9 +37,8 @@ func (f *FindCampaignsByCreatorAddressUseCase) Execute(ctx context.Context, inpu
 		orders := make([]*entity.Order, len(campaign.Orders))
 		for j, order := range campaign.Orders {
 			orders[j] = &entity.Order{
-				Id:         order.Id,
-				CampaignId: order.CampaignId,
-
+				Id:           order.Id,
+				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       order.Amount,
 				InterestRate: order.InterestRate,
@@ -46,7 +47,7 @@ func (f *FindCampaignsByCreatorAddressUseCase) Execute(ctx context.Context, inpu
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.UserRepository.FindUserByAddress(ctx, campaign.Creator)
+		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

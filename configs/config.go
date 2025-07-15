@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -22,7 +23,8 @@ func (r Redacted[T]) String() string {
 }
 
 type (
-	Address = common.Address
+	Address  = common.Address
+	Duration = time.Duration
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -43,6 +45,10 @@ func ToUint64FromDecimalOrHexString(s string) (uint64, error) {
 
 func ToStringFromString(s string) (string, error) {
 	return s, nil
+}
+
+func ToDurationFromSeconds(s string) (Duration, error) {
+	return time.ParseDuration(s + "s")
 }
 
 func ToAddressFromString(s string) (Address, error) {
@@ -70,15 +76,17 @@ func ToApplicationNameFromString(s string) (string, error) {
 
 // Aliases to be used by the generated functions.
 var (
-	toBool    = strconv.ParseBool
-	toUint64  = ToUint64FromString
-	toString  = ToStringFromString
-	toAddress = ToAddressFromString
+	toBool     = strconv.ParseBool
+	toUint64   = ToUint64FromString
+	toString   = ToStringFromString
+	toDuration = ToDurationFromSeconds
+	toAddress  = ToAddressFromString
 )
 
 var (
-	notDefinedbool    = func() bool { return false }
-	notDefineduint64  = func() uint64 { return 0 }
-	notDefinedstring  = func() string { return "" }
-	notDefinedAddress = func() Address { return common.Address{} }
+	notDefinedbool     = func() bool { return false }
+	notDefineduint64   = func() uint64 { return 0 }
+	notDefinedstring   = func() string { return "" }
+	notDefinedDuration = func() Duration { return 0 }
+	notDefinedAddress  = func() Address { return common.Address{} }
 )

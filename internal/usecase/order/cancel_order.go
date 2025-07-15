@@ -1,7 +1,6 @@
 package order
 
 import (
-	"context"
 	"errors"
 
 	"github.com/holiman/uint256"
@@ -29,28 +28,28 @@ type CancelOrderOutputDTO struct {
 }
 
 type CancelOrderUseCase struct {
-	UserRepository     repository.UserRepository
-	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	orderRepository    repository.OrderRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewCancelOrderUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository, campaignRepository repository.CampaignRepository) *CancelOrderUseCase {
+func NewCancelOrderUseCase(userRepo repository.UserRepository, orderRepo repository.OrderRepository, campaignRepo repository.CampaignRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
-		UserRepository:     userRepository,
-		OrderRepository:    orderRepository,
-		CampaignRepository: campaignRepository,
+		userRepository:     userRepo,
+		orderRepository:    orderRepo,
+		campaignRepository: campaignRepo,
 	}
 }
 
-func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInputDTO, metadata rollmelette.Metadata) (*CancelOrderOutputDTO, error) {
-	order, err := c.OrderRepository.FindOrderById(ctx, input.Id)
+func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollmelette.Metadata) (*CancelOrderOutputDTO, error) {
+	order, err := c.orderRepository.FindOrderById(input.Id)
 	if err != nil {
 		return nil, err
 	}
 	if order.Investor != custom_type.Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
-	campaign, err := c.CampaignRepository.FindCampaignById(ctx, order.CampaignId)
+	campaign, err := c.campaignRepository.FindCampaignById(order.CampaignId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +57,11 @@ func (c *CancelOrderUseCase) Execute(ctx context.Context, input *CancelOrderInpu
 		return nil, errors.New("cannot cancel order after Campaign closes")
 	}
 	order.State = entity.OrderStateCancelled
-	res, err := c.OrderRepository.UpdateOrder(ctx, order)
+	res, err := c.orderRepository.UpdateOrder(order)
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.UserRepository.FindUserByAddress(ctx, res.Investor)
+	investor, err := c.userRepository.FindUserByAddress(res.Investor)
 	if err != nil {
 		return nil, err
 	}

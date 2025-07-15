@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
@@ -17,16 +16,19 @@ type FindCampaignsByInvestorAddressInputDTO struct {
 type FindCampaignsByInvestorAddressOutputDTO []*CampaignOutputDTO
 
 type FindCampaignsByInvestorAddressUseCase struct {
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewFindCampaignsByInvestorAddressUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *FindCampaignsByInvestorAddressUseCase {
-	return &FindCampaignsByInvestorAddressUseCase{UserRepository: userRepository, CampaignRepository: campaignRepository}
+func NewFindCampaignsByInvestorAddressUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindCampaignsByInvestorAddressUseCase {
+	return &FindCampaignsByInvestorAddressUseCase{
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
+	}
 }
 
-func (f *FindCampaignsByInvestorAddressUseCase) Execute(ctx context.Context, input *FindCampaignsByInvestorAddressInputDTO) (*FindCampaignsByInvestorAddressOutputDTO, error) {
-	res, err := f.CampaignRepository.FindCampaignsByInvestorAddress(ctx, input.InvestorAddress)
+func (f *FindCampaignsByInvestorAddressUseCase) Execute(input *FindCampaignsByInvestorAddressInputDTO) (*FindCampaignsByInvestorAddressOutputDTO, error) {
+	res, err := f.campaignRepository.FindCampaignsByInvestorAddress(input.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +48,7 @@ func (f *FindCampaignsByInvestorAddressUseCase) Execute(ctx context.Context, inp
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.UserRepository.FindUserByAddress(ctx, campaign.Creator)
+		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

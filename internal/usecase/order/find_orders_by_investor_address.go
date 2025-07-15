@@ -1,8 +1,6 @@
 package order
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/pkg/custom_type"
 )
@@ -14,25 +12,28 @@ type FindOrdersByInvestorAddressInputDTO struct {
 type FindOrdersByInvestorAddressOutputDTO []*OrderOutputDTO
 
 type FindOrdersByInvestorAddressUseCase struct {
-	UserRepository  repository.UserRepository
-	OrderRepository repository.OrderRepository
+	userRepository  repository.UserRepository
+	orderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByInvestorAddressUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository) *FindOrdersByInvestorAddressUseCase {
+func NewFindOrdersByInvestorAddressUseCase(
+	userRepo repository.UserRepository,
+	orderRepo repository.OrderRepository,
+) *FindOrdersByInvestorAddressUseCase {
 	return &FindOrdersByInvestorAddressUseCase{
-		UserRepository:  userRepository,
-		OrderRepository: orderRepository,
+		userRepository:  userRepo,
+		orderRepository: orderRepo,
 	}
 }
 
-func (o *FindOrdersByInvestorAddressUseCase) Execute(ctx context.Context, input *FindOrdersByInvestorAddressInputDTO) (FindOrdersByInvestorAddressOutputDTO, error) {
-	res, err := o.OrderRepository.FindOrdersByInvestorAddress(ctx, input.InvestorAddress)
+func (o *FindOrdersByInvestorAddressUseCase) Execute(input *FindOrdersByInvestorAddressInputDTO) (FindOrdersByInvestorAddressOutputDTO, error) {
+	res, err := o.orderRepository.FindOrdersByInvestorAddress(input.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindOrdersByInvestorAddressOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := o.UserRepository.FindUserByAddress(ctx, order.Investor)
+		investor, err := o.userRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}

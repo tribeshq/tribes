@@ -10,6 +10,6 @@ contract GenerateBytecode is Script {
         string memory bytecodeHex = vm.toString(bytecode);
         string memory json = string.concat('{"bytecode":"', bytecodeHex, '"}');
 
-        vm.writeJson(json, "../skel/Badge.json");
+        vm.writeJson(json, "../assets/artifacts/Badge.json");
     }
 }

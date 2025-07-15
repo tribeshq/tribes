@@ -1,8 +1,6 @@
 package order
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -14,25 +12,28 @@ type FindOrdersByStateInputDTO struct {
 type FindOrdersByStateOutputDTO []*OrderOutputDTO
 
 type FindOrdersByStateUseCase struct {
-	UserRepository  repository.UserRepository
-	OrderRepository repository.OrderRepository
+	userRepository  repository.UserRepository
+	orderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByStateUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository) *FindOrdersByStateUseCase {
+func NewFindOrdersByStateUseCase(
+	userRepo repository.UserRepository,
+	orderRepo repository.OrderRepository,
+) *FindOrdersByStateUseCase {
 	return &FindOrdersByStateUseCase{
-		UserRepository:  userRepository,
-		OrderRepository: orderRepository,
+		userRepository:  userRepo,
+		orderRepository: orderRepo,
 	}
 }
 
-func (f *FindOrdersByStateUseCase) Execute(ctx context.Context, input *FindOrdersByStateInputDTO) (FindOrdersByStateOutputDTO, error) {
-	res, err := f.OrderRepository.FindOrdersByState(ctx, input.CampaignId, input.State)
+func (f *FindOrdersByStateUseCase) Execute(input *FindOrdersByStateInputDTO) (FindOrdersByStateOutputDTO, error) {
+	res, err := f.orderRepository.FindOrdersByState(input.CampaignId, input.State)
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindOrdersByStateOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := f.UserRepository.FindUserByAddress(ctx, order.Investor)
+		investor, err := f.userRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}

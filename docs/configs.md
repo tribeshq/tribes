@@ -28,23 +28,31 @@ Address of the admin user
 
 ## `TRIBES_DEPLOYER_ADDRESS`
 
-Address of the deployer user, who can deploy the contracts
+Address of the deployer contract, who can deploy the contracts
+
+* **Type:** `Address`
+* **Default:** `"0x0000000000000000000000000000000000000013"`
+* **Used by:** rollup
+
+## `TRIBES_EMERGENCY_WITHDRAW_ADDRESS`
+
+Address of the emergency withdraw address
 
 * **Type:** `Address`
 * **Default:** `"0x0000000000000000000000000000000000000006"`
 * **Used by:** rollup
 
-## `TRIBES_DEPLOYER_ADDRESS_TEST`
+## `TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST`
 
-Address of the deployer user, who can deploy the contracts
+Address of the emergency withdraw address
 
 * **Type:** `Address`
-* **Default:** `"0x0000000000000000000000000000000000000024"`
+* **Default:** `"0x0000000000000000000000000000000000000001"`
 * **Used by:** rollup
 
 ## `TRIBES_VERIFIER_ADDRESS`
 
-Address of the verifier user, who can verify the social accounts
+Address of the verifier contract, who can verify the social accounts
 
 * **Type:** `Address`
 * **Default:** `"0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b"`
@@ -52,8 +60,16 @@ Address of the verifier user, who can verify the social accounts
 
 ## `TRIBES_VERIFIER_ADDRESS_TEST`
 
-Address of the verifier user, who can verify the social accounts
+Address of the verifier contract, who can verify the social accounts
 
 * **Type:** `Address`
 * **Default:** `"0x0000000000000000000000000000000000000025"`
+* **Used by:** rollup
+
+## `TRIBES_MAX_STARTUP_TIME`
+
+Maximum startup time for the rollup service
+
+* **Type:** `Duration`
+* **Default:** `"10"`
 * **Used by:** rollup

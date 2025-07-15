@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
@@ -12,16 +11,19 @@ import (
 type FindAllCampaignsOutputDTO []*CampaignOutputDTO
 
 type FindAllCampaignsUseCase struct {
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewFindAllCampaignsUseCase(userRepository repository.UserRepository, campaignRepository repository.CampaignRepository) *FindAllCampaignsUseCase {
-	return &FindAllCampaignsUseCase{UserRepository: userRepository, CampaignRepository: campaignRepository}
+func NewFindAllCampaignsUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindAllCampaignsUseCase {
+	return &FindAllCampaignsUseCase{
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
+	}
 }
 
-func (f *FindAllCampaignsUseCase) Execute(ctx context.Context) (*FindAllCampaignsOutputDTO, error) {
-	res, err := f.CampaignRepository.FindAllCampaigns(ctx)
+func (f *FindAllCampaignsUseCase) Execute() (*FindAllCampaignsOutputDTO, error) {
+	res, err := f.campaignRepository.FindAllCampaigns()
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +42,7 @@ func (f *FindAllCampaignsUseCase) Execute(ctx context.Context) (*FindAllCampaign
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.UserRepository.FindUserByAddress(ctx, campaign.Creator)
+		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

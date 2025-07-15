@@ -1,7 +1,6 @@
 package advance
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/rollmelette/rollmelette"
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
@@ -17,12 +17,17 @@ import (
 )
 
 type UserAdvanceHandlers struct {
-	UserRepository repository.UserRepository
+	cfg            *configs.RollupConfig
+	userRepository repository.UserRepository
 }
 
-func NewUserAdvanceHandlers(userRepository repository.UserRepository) *UserAdvanceHandlers {
+func NewUserAdvanceHandlers(
+	cfg *configs.RollupConfig,
+	userRepo repository.UserRepository,
+) *UserAdvanceHandlers {
 	return &UserAdvanceHandlers{
-		UserRepository: userRepository,
+		cfg:            cfg,
+		userRepository: userRepo,
 	}
 }
 
@@ -37,9 +42,8 @@ func (h *UserAdvanceHandlers) CreateUser(env rollmelette.Env, metadata rollmelet
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	createUser := user.NewCreateUserUseCase(h.UserRepository)
-	res, err := createUser.Execute(ctx, &input, metadata)
+	createUser := user.NewCreateUserUseCase(h.userRepository)
+	res, err := createUser.Execute(&input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
@@ -64,9 +68,8 @@ func (h *UserAdvanceHandlers) DeleteUser(env rollmelette.Env, metadata rollmelet
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	deleteUserByAddress := user.NewDeleteUserUseCase(h.UserRepository)
-	if err := deleteUserByAddress.Execute(ctx, &input); err != nil {
+	deleteUserByAddress := user.NewDeleteUserUseCase(h.userRepository)
+	if err := deleteUserByAddress.Execute(&input); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
@@ -90,9 +93,8 @@ func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollme
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
-	res, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	res, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 		Address: custom_type.Address(metadata.MsgSender),
 	})
 	if err != nil {
@@ -164,7 +166,7 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 	}
 
 	env.DelegateCallVoucher(
-		common.Address(input.EmergencyWithdrawAddress),
+		h.cfg.EmergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil
@@ -204,7 +206,7 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 	}
 
 	env.DelegateCallVoucher(
-		common.Address(input.EmergencyWithdrawAddress),
+		h.cfg.EmergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil

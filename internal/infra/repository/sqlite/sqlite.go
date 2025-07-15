@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -28,8 +29,9 @@ func (r *SQLiteRepository) Close() error {
 	return sqlDB.Close()
 }
 
-func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
+func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, error) {
 	dbPath := strings.TrimPrefix(conn, "sqlite://")
+	isMemory := dbPath == ":memory:"
 
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
@@ -45,7 +47,19 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		Logger: newLogger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	// Add context to DB
+	db = db.WithContext(ctx)
+
+	// Optional: check DB connection
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
+	}
+	if err := sqlDB.PingContext(ctx); err != nil {
+		return nil, fmt.Errorf("failed to ping SQLite: %w", err)
 	}
 
 	if err := db.AutoMigrate(
@@ -54,75 +68,63 @@ func NewSQLiteRepository(conn string) (*SQLiteRepository, error) {
 		&entity.User{},
 		&entity.SocialAccount{},
 	); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to auto-migrate tables: %w", err)
 	}
 
 	configs.SetDefaults()
 
-	isMemory := dbPath == ":memory:"
-	var (
-		adminAddr, verifierAddr, deployerAddr custom_type.Address
-	)
+	var adminAddr, verifierAddr custom_type.Address
 
 	if isMemory {
-		if a, err := configs.GetTribesAdminAddressTest(); err != nil {
+		a, err := configs.GetAdminAddressTest()
+		if err != nil && err != configs.ErrNotDefined {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
-		} else {
-			adminAddr = custom_type.HexToAddress(a.Hex())
+		} else if err == configs.ErrNotDefined {
+			return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS_TEST is required for the rollup service: %w", err)
 		}
+		adminAddr = custom_type.HexToAddress(a.Hex())
 
-		if v, err := configs.GetTribesVerifierAddressTest(); err != nil {
+		v, err := configs.GetVerifierAddressTest()
+		if err != nil && err != configs.ErrNotDefined {
 			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS_TEST: %w", err)
-		} else {
-			verifierAddr = custom_type.HexToAddress(v.Hex())
+		} else if err == configs.ErrNotDefined {
+			return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS_TEST is required for the rollup service: %w", err)
 		}
-
-		if d, err := configs.GetTribesDeployerAddressTest(); err != nil {
-			return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS_TEST: %w", err)
-		} else {
-			deployerAddr = custom_type.HexToAddress(d.Hex())
-		}
+		verifierAddr = custom_type.HexToAddress(v.Hex())
 	} else {
-		if a, err := configs.GetTribesAdminAddress(); err != nil {
+		a, err := configs.GetAdminAddress()
+		if err != nil && err != configs.ErrNotDefined {
 			return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS: %w", err)
-		} else {
-			adminAddr = custom_type.HexToAddress(a.Hex())
+		} else if err == configs.ErrNotDefined {
+			return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS is required for the rollup service: %w", err)
 		}
+		adminAddr = custom_type.HexToAddress(a.Hex())
 
-		if v, err := configs.GetTribesVerifierAddress(); err != nil {
+		v, err := configs.GetVerifierAddress()
+		if err != nil && err != configs.ErrNotDefined {
 			return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
-		} else {
-			verifierAddr = custom_type.HexToAddress(v.Hex())
+		} else if err == configs.ErrNotDefined {
+			return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS is required for the rollup service: %w", err)
 		}
-
-		if d, err := configs.GetTribesDeployerAddress(); err != nil {
-			return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS: %w", err)
-		} else {
-			deployerAddr = custom_type.HexToAddress(d.Hex())
-		}
+		verifierAddr = custom_type.HexToAddress(v.Hex())
 	}
 
-	now := time.Now().Unix()
+	baseTime := time.Now().Unix()
 	users := []entity.User{
 		{
 			Role:      entity.UserRoleAdmin,
 			Address:   adminAddr,
-			CreatedAt: now,
+			CreatedAt: baseTime,
 		},
 		{
 			Role:      entity.UserRoleVerifier,
 			Address:   verifierAddr,
-			CreatedAt: now,
-		},
-		{
-			Role:      entity.UserRoleDeployer,
-			Address:   deployerAddr,
-			CreatedAt: now,
+			CreatedAt: baseTime,
 		},
 	}
 
 	for _, user := range users {
-		if err := db.Create(&user).Error; err != nil {
+		if err := db.WithContext(ctx).Create(&user).Error; err != nil {
 			return nil, fmt.Errorf("failed to create user %v: %w", user.Role, err)
 		}
 	}

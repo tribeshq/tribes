@@ -1,7 +1,6 @@
 package order
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/holiman/uint256"
@@ -28,26 +27,30 @@ type CreateOrderOutputDTO struct {
 }
 
 type CreateOrderUseCase struct {
-	UserRepository     repository.UserRepository
-	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
+	orderRepository    repository.OrderRepository
+	campaignRepository repository.CampaignRepository
 }
 
-func NewCreateOrderUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository, campaignRepository repository.CampaignRepository) *CreateOrderUseCase {
+func NewCreateOrderUseCase(
+	userRepo repository.UserRepository,
+	orderRepo repository.OrderRepository,
+	campaignRepo repository.CampaignRepository,
+) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
-		UserRepository:     userRepository,
-		OrderRepository:    orderRepository,
-		CampaignRepository: campaignRepository,
+		userRepository:     userRepo,
+		orderRepository:    orderRepo,
+		campaignRepository: campaignRepo,
 	}
 }
 
-func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateOrderOutputDTO, error) {
+func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateOrderOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
 		return nil, fmt.Errorf("invalid deposit custom_type provided for order creation: %T", deposit)
 	}
 
-	campaign, err := c.CampaignRepository.FindCampaignById(ctx, input.CampaignId)
+	campaign, err := c.campaignRepository.FindCampaignById(input.CampaignId)
 	if err != nil {
 		return nil, fmt.Errorf("error finding campaign campaigns: %w", err)
 	}
@@ -75,12 +78,12 @@ func (c *CreateOrderUseCase) Execute(ctx context.Context, input *CreateOrderInpu
 		return nil, err
 	}
 
-	res, err := c.OrderRepository.CreateOrder(ctx, order)
+	res, err := c.orderRepository.CreateOrder(order)
 	if err != nil {
 		return nil, err
 	}
 
-	investor, err := c.UserRepository.FindUserByAddress(ctx, res.Investor)
+	investor, err := c.userRepository.FindUserByAddress(res.Investor)
 	if err != nil {
 		return nil, err
 	}

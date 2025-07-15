@@ -1,7 +1,6 @@
 package advance
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -13,29 +12,31 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
+	"github.com/tribeshq/tribes/assets"
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/campaign"
 )
 
 type CampaignAdvanceHandlers struct {
-	Bytecode           []byte
-	OrderRepository    repository.OrderRepository
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	cfg                *configs.RollupConfig
+	orderRepository    repository.OrderRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
 }
 
 func NewCampaignAdvanceHandlers(
-	bytecode []byte,
-	orderRepository repository.OrderRepository,
-	userRepository repository.UserRepository,
-	campaignRepository repository.CampaignRepository,
+	cfg *configs.RollupConfig,
+	orderRepo repository.OrderRepository,
+	userRepo repository.UserRepository,
+	campaignRepo repository.CampaignRepository,
 ) *CampaignAdvanceHandlers {
 	return &CampaignAdvanceHandlers{
-		Bytecode:           bytecode,
-		OrderRepository:    orderRepository,
-		UserRepository:     userRepository,
-		CampaignRepository: campaignRepository,
+		cfg:                cfg,
+		orderRepository:    orderRepo,
+		userRepository:     userRepo,
+		campaignRepository: campaignRepo,
 	}
 }
 
@@ -50,16 +51,20 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
 	createCampaign := campaign.NewCreateCampaignUseCase(
-		h.Bytecode,
-		h.CampaignRepository,
-		h.UserRepository,
+		h.cfg,
+		h.campaignRepository,
+		h.userRepository,
 	)
 
-	res, err := createCampaign.Execute(ctx, &input, deposit, metadata)
+	res, err := createCampaign.Execute(&input, deposit, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to create campaign: %w", err)
+	}
+
+	bytecode, err := assets.GetBadgeBytecode()
+	if err != nil {
+		return fmt.Errorf("failed to get badge bytecode: %w", err)
 	}
 
 	addressType, _ := abi.NewType("address", "", nil)
@@ -69,7 +74,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	if err != nil {
 		return fmt.Errorf("failed to encode constructor args: %w", err)
 	}
-	initCode := append(h.Bytecode, constructorArgs...)
+	initCode := append(bytecode, constructorArgs...)
 
 	abiJson := `[{
 		"type": "function",
@@ -92,7 +97,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
-	env.Voucher(common.Address(res.DeployerAddress), big.NewInt(0), deploy2Payload)
+	env.Voucher(common.Address(h.cfg.DeployerAddress), big.NewInt(0), deploy2Payload)
 
 	erc20Deposit := deposit.(*rollmelette.ERC20Deposit)
 	if err := env.ERC20Transfer(
@@ -124,9 +129,8 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	closeCampaign := campaign.NewCloseCampaignUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
-	res, err := closeCampaign.Execute(ctx, &input, metadata)
+	closeCampaign := campaign.NewCloseCampaignUseCase(h.userRepository, h.campaignRepository, h.orderRepository)
+	res, err := closeCampaign.Execute(&input, metadata)
 	if err != nil && res == nil {
 		return fmt.Errorf("failed to close campaign: %w", err)
 	}
@@ -202,14 +206,13 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
 	settleCampaign := campaign.NewSettleCampaignUseCase(
-		h.UserRepository,
-		h.CampaignRepository,
-		h.OrderRepository,
+		h.userRepository,
+		h.campaignRepository,
+		h.orderRepository,
 	)
 
-	res, err := settleCampaign.Execute(ctx, &input, deposit, metadata)
+	res, err := settleCampaign.Execute(&input, deposit, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to settle campaign: %w", err)
 	}
@@ -258,9 +261,8 @@ func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env,
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	ctx := context.Background()
-	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
-	res, err := executeCampaignCollateral.Execute(ctx, &input, metadata)
+	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.userRepository, h.campaignRepository, h.orderRepository)
+	res, err := executeCampaignCollateral.Execute(&input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to execute campaign collateral: %w", err)
 	}

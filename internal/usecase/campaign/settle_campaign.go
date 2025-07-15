@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/holiman/uint256"
@@ -39,9 +38,9 @@ type SettleCampaignOutputDTO struct {
 }
 
 type SettleCampaignUseCase struct {
-	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
-	OrderRepository    repository.OrderRepository
+	userRepository     repository.UserRepository
+	campaignRepository repository.CampaignRepository
+	orderRepository    repository.OrderRepository
 }
 
 func NewSettleCampaignUseCase(
@@ -50,14 +49,13 @@ func NewSettleCampaignUseCase(
 	orderRepository repository.OrderRepository,
 ) *SettleCampaignUseCase {
 	return &SettleCampaignUseCase{
-		UserRepository:     userRepository,
-		CampaignRepository: campaignRepository,
-		OrderRepository:    orderRepository,
+		userRepository:     userRepository,
+		campaignRepository: campaignRepository,
+		orderRepository:    orderRepository,
 	}
 }
 
 func (uc *SettleCampaignUseCase) Execute(
-	ctx context.Context,
 	input *SettleCampaignInputDTO,
 	deposit rollmelette.Deposit,
 	metadata rollmelette.Metadata,
@@ -67,7 +65,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	campaign, err := uc.CampaignRepository.FindCampaignById(ctx, input.Id)
+	campaign, err := uc.campaignRepository.FindCampaignById(input.Id)
 	if err != nil {
 		return nil, fmt.Errorf("error finding campaign: %w", err)
 	}
@@ -85,19 +83,19 @@ func (uc *SettleCampaignUseCase) Execute(
 		}
 	}
 	for _, order := range ordersToUpdate {
-		if _, err := uc.OrderRepository.UpdateOrder(ctx, order); err != nil {
+		if _, err := uc.orderRepository.UpdateOrder(order); err != nil {
 			return nil, fmt.Errorf("error updating order: %w", err)
 		}
 	}
 
 	campaign.State = entity.CampaignStateSettled
 	campaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := uc.CampaignRepository.UpdateCampaign(ctx, campaign)
+	res, err := uc.campaignRepository.UpdateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error updating campaign: %w", err)
 	}
 
-	creator, err := uc.UserRepository.FindUserByAddress(ctx, res.Creator)
+	creator, err := uc.userRepository.FindUserByAddress(res.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}

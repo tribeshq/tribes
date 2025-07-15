@@ -1,8 +1,6 @@
 package user
 
 import (
-	"context"
-
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
@@ -25,22 +23,24 @@ type CreateUserOutputDTO struct {
 }
 
 type CreateUserUseCase struct {
-	UserRepository repository.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewCreateUserUseCase(userRepository repository.UserRepository) *CreateUserUseCase {
+func NewCreateUserUseCase(
+	userRepo repository.UserRepository,
+) *CreateUserUseCase {
 	return &CreateUserUseCase{
-		UserRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
-func (u *CreateUserUseCase) Execute(ctx context.Context, input *CreateUserInputDTO, metadata rollmelette.Metadata) (*CreateUserOutputDTO, error) {
+func (u *CreateUserUseCase) Execute(input *CreateUserInputDTO, metadata rollmelette.Metadata) (*CreateUserOutputDTO, error) {
 	user, err := entity.NewUser(input.Role, input.Address, metadata.BlockTimestamp)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := u.UserRepository.CreateUser(ctx, user)
+	res, err := u.userRepository.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}

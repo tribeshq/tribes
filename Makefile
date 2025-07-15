@@ -56,12 +56,20 @@ generate: ## Generate bytecode and Go bindings
 	$(END_LOG)
 
 .PHONY: test
-test: ## Run the application tests (Contracts + Backend)
+test: test-integration test-contracts ## Run the all tests
+
+.PHONY: test-integration
+test-integration: ## Run the integration tests
+	$(START_LOG)
+	@go generate ./...
+	@go test -p 1 ./test/integration/... -coverprofile=./coverage.md -v
+	$(END_LOG)
+
+.PHONY: test-contracts
+test-contracts: ## Run the contracts tests
 	$(START_LOG)
 	@forge clean --root ./contracts
 	@forge test --root ./contracts
-	@go generate ./...
-	@go test ./... -coverprofile=./coverage.md -v
 	$(END_LOG)
 
 .PHONY: lint

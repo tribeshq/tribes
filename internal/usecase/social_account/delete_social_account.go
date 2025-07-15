@@ -1,8 +1,6 @@
 package social_account
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -11,15 +9,17 @@ type DeleteSocialAccountInputDTO struct {
 }
 
 type DeleteSocialAccountUseCase struct {
-	SocialAccountRepository repository.SocialAccountRepository
+	socialAccountRepository repository.SocialAccountRepository
 }
 
-func NewDeleteSocialAccountUseCase(socialAccountRepository repository.SocialAccountRepository) *DeleteSocialAccountUseCase {
+func NewDeleteSocialAccountUseCase(
+	socialAccountRepo repository.SocialAccountRepository,
+) *DeleteSocialAccountUseCase {
 	return &DeleteSocialAccountUseCase{
-		SocialAccountRepository: socialAccountRepository,
+		socialAccountRepository: socialAccountRepo,
 	}
 }
 
-func (s *DeleteSocialAccountUseCase) Execute(ctx context.Context, input *DeleteSocialAccountInputDTO) error {
-	return s.SocialAccountRepository.DeleteSocialAccount(ctx, input.SocialAccountId)
+func (s *DeleteSocialAccountUseCase) Execute(input *DeleteSocialAccountInputDTO) error {
+	return s.socialAccountRepository.DeleteSocialAccount(input.SocialAccountId)
 }

@@ -1,8 +1,6 @@
 package order
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
@@ -11,23 +9,26 @@ type FindOrderByIdInputDTO struct {
 }
 
 type FindOrderByIdUseCase struct {
-	UserRepository  repository.UserRepository
-	OrderRepository repository.OrderRepository
+	userRepository  repository.UserRepository
+	orderRepository repository.OrderRepository
 }
 
-func NewFindOrderByIdUseCase(userRepository repository.UserRepository, orderRepository repository.OrderRepository) *FindOrderByIdUseCase {
+func NewFindOrderByIdUseCase(
+	userRepo repository.UserRepository,
+	orderRepo repository.OrderRepository,
+) *FindOrderByIdUseCase {
 	return &FindOrderByIdUseCase{
-		UserRepository:  userRepository,
-		OrderRepository: orderRepository,
+		userRepository:  userRepo,
+		orderRepository: orderRepo,
 	}
 }
 
-func (c *FindOrderByIdUseCase) Execute(ctx context.Context, input *FindOrderByIdInputDTO) (*OrderOutputDTO, error) {
-	res, err := c.OrderRepository.FindOrderById(ctx, input.Id)
+func (c *FindOrderByIdUseCase) Execute(input *FindOrderByIdInputDTO) (*OrderOutputDTO, error) {
+	res, err := c.orderRepository.FindOrderById(input.Id)
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.UserRepository.FindUserByAddress(ctx, res.Investor)
+	investor, err := c.userRepository.FindUserByAddress(res.Investor)
 	if err != nil {
 		return nil, err
 	}

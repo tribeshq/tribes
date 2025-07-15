@@ -1,8 +1,6 @@
 package social_account
 
 import (
-	"context"
-
 	"github.com/rollmelette/rollmelette"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
@@ -24,19 +22,22 @@ type CreateSocialAccountOutputDTO struct {
 }
 
 type CreateSocialAccountUseCase struct {
-	UserRepository          repository.UserRepository
-	SocialAccountRepository repository.SocialAccountRepository
+	userRepository          repository.UserRepository
+	socialAccountRepository repository.SocialAccountRepository
 }
 
-func NewCreateSocialAccountUseCase(userRepository repository.UserRepository, socialAccountRepository repository.SocialAccountRepository) *CreateSocialAccountUseCase {
+func NewCreateSocialAccountUseCase(
+	userRepo repository.UserRepository,
+	socialAccountRepo repository.SocialAccountRepository,
+) *CreateSocialAccountUseCase {
 	return &CreateSocialAccountUseCase{
-		UserRepository:          userRepository,
-		SocialAccountRepository: socialAccountRepository,
+		userRepository:          userRepo,
+		socialAccountRepository: socialAccountRepo,
 	}
 }
 
-func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateSocialAccountInputDTO, metadata *rollmelette.Metadata) (*CreateSocialAccountOutputDTO, error) {
-	user, err := s.UserRepository.FindUserByAddress(ctx, input.Address)
+func (s *CreateSocialAccountUseCase) Execute(input *CreateSocialAccountInputDTO, metadata *rollmelette.Metadata) (*CreateSocialAccountOutputDTO, error) {
+	user, err := s.userRepository.FindUserByAddress(input.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (s *CreateSocialAccountUseCase) Execute(ctx context.Context, input *CreateS
 		return nil, err
 	}
 
-	socialAccount, err = s.SocialAccountRepository.CreateSocialAccount(ctx, socialAccount)
+	socialAccount, err = s.socialAccountRepository.CreateSocialAccount(socialAccount)
 	if err != nil {
 		return nil, err
 	}

@@ -4,9 +4,10 @@
 //go:build !wireinject
 // +build !wireinject
 
-package root
+package rollup
 
 import (
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/advance"
 	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/inspect"
 	"github.com/tribeshq/tribes/internal/infra/repository"
@@ -14,11 +15,11 @@ import (
 
 // Injectors from wire.go:
 
-func NewHandlers(repo repository.Repository, bytecode2 []byte) (*Handlers, error) {
+func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handlers, error) {
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
-	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
+	userAdvanceHandlers := advance.NewUserAdvanceHandlers(cfg, repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
-	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(bytecode2, repo, repo, repo)
+	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(cfg, repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)

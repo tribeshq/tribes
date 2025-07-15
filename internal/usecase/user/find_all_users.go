@@ -1,25 +1,25 @@
 package user
 
 import (
-	"context"
-
 	"github.com/tribeshq/tribes/internal/infra/repository"
 )
 
 type FindAllUsersOutputDTO []*UserOutputDTO
 
 type FindAllUsersUseCase struct {
-	UserRepository repository.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewFindAllUsersUseCase(userRepository repository.UserRepository) *FindAllUsersUseCase {
+func NewFindAllUsersUseCase(
+	userRepo repository.UserRepository,
+) *FindAllUsersUseCase {
 	return &FindAllUsersUseCase{
-		UserRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
-func (u *FindAllUsersUseCase) Execute(ctx context.Context) (*FindAllUsersOutputDTO, error) {
-	res, err := u.UserRepository.FindAllUsers(ctx)
+func (u *FindAllUsersUseCase) Execute() (*FindAllUsersOutputDTO, error) {
+	res, err := u.userRepository.FindAllUsers()
 	if err != nil {
 		return nil, err
 	}

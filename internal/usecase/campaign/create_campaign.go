@@ -1,7 +1,6 @@
 package campaign
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
+	"github.com/tribeshq/tribes/assets"
+	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/domain/entity"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/usecase/user"
@@ -35,7 +36,6 @@ type CreateCampaignOutputDTO struct {
 	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
 	CollateralAddress custom_type.Address `json:"collateral_address,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
-	DeployerAddress   custom_type.Address `json:"deployer_address,omitempty"`
 	BadgeAddress      custom_type.Address `json:"badge_address,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
@@ -47,30 +47,30 @@ type CreateCampaignOutputDTO struct {
 }
 
 type CreateCampaignUseCase struct {
-	Bytecode           []byte
-	CampaignRepository repository.CampaignRepository
-	UserRepository     repository.UserRepository
+	cfg                *configs.RollupConfig
+	campaignRepository repository.CampaignRepository
+	userRepository     repository.UserRepository
 }
 
 func NewCreateCampaignUseCase(
-	bytecode []byte,
-	CampaignRepository repository.CampaignRepository,
-	UserRepository repository.UserRepository,
+	cfg *configs.RollupConfig,
+	campaignRepo repository.CampaignRepository,
+	userRepo repository.UserRepository,
 ) *CreateCampaignUseCase {
 	return &CreateCampaignUseCase{
-		Bytecode:           bytecode,
-		CampaignRepository: CampaignRepository,
-		UserRepository:     UserRepository,
+		cfg:                cfg,
+		campaignRepository: campaignRepo,
+		userRepository:     userRepo,
 	}
 }
 
-func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampaignInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateCampaignOutputDTO, error) {
+func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateCampaignOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	creator, err := c.UserRepository.FindUserByAddress(ctx, custom_type.Address(erc20Deposit.Sender))
+	creator, err := c.userRepository.FindUserByAddress(custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
@@ -79,7 +79,12 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, err
 	}
 
-	campaigns, err := c.CampaignRepository.FindCampaignsByCreatorAddress(ctx, custom_type.Address(erc20Deposit.Sender))
+	bytecode, err := assets.GetBadgeBytecode()
+	if err != nil {
+		return nil, fmt.Errorf("error getting badge bytecode: %w", err)
+	}
+
+	campaigns, err := c.campaignRepository.FindCampaignsByCreatorAddress(custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Campaigns: %w", err)
 	}
@@ -89,15 +94,10 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		}
 	}
 
-	deployer, err := c.UserRepository.FindUsersByRole(ctx, string(entity.UserRoleDeployer))
-	if err != nil {
-		return nil, fmt.Errorf("error finding deployer: %w", err)
-	}
-
 	badgeAddress := crypto.CreateAddress2(
-		common.Address(deployer[0].Address),
+		c.cfg.DeployerAddress,
 		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
-		crypto.Keccak256(c.Bytecode),
+		bytecode,
 	)
 
 	campaign, err := entity.NewCampaign(
@@ -119,7 +119,7 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
 
-	createdCampaign, err := c.CampaignRepository.CreateCampaign(ctx, campaign)
+	createdCampaign, err := c.campaignRepository.CreateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
@@ -140,7 +140,6 @@ func (c *CreateCampaignUseCase) Execute(ctx context.Context, input *CreateCampai
 		},
 		CollateralAddress: createdCampaign.CollateralAddress,
 		CollateralAmount:  createdCampaign.CollateralAmount,
-		DeployerAddress:   deployer[0].Address,
 		BadgeAddress:      createdCampaign.BadgeAddress,
 		DebtIssued:        createdCampaign.DebtIssued,
 		MaxInterestRate:   createdCampaign.MaxInterestRate,

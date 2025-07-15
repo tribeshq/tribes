@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/tribeshq/tribes/internal/domain/entity"
@@ -9,16 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *SQLiteRepository) CreateCampaign(ctx context.Context, input *entity.Campaign) (*entity.Campaign, error) {
-	if err := r.Db.WithContext(ctx).Create(input).Error; err != nil {
+func (r *SQLiteRepository) CreateCampaign(input *entity.Campaign) (*entity.Campaign, error) {
+	if err := r.Db.Create(input).Error; err != nil {
 		return nil, fmt.Errorf("failed to create campaign: %w", err)
 	}
 	return input, nil
 }
 
-func (r *SQLiteRepository) FindCampaignById(ctx context.Context, id uint) (*entity.Campaign, error) {
+func (r *SQLiteRepository) FindCampaignById(id uint) (*entity.Campaign, error) {
 	var Campaign entity.Campaign
-	if err := r.Db.WithContext(ctx).
+	if err := r.Db.
 		Preload("Orders").
 		First(&Campaign, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -29,9 +28,9 @@ func (r *SQLiteRepository) FindCampaignById(ctx context.Context, id uint) (*enti
 	return &Campaign, nil
 }
 
-func (r *SQLiteRepository) FindAllCampaigns(ctx context.Context) ([]*entity.Campaign, error) {
+func (r *SQLiteRepository) FindAllCampaigns() ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
-	if err := r.Db.WithContext(ctx).
+	if err := r.Db.
 		Preload("Orders").
 		Find(&Campaigns).Error; err != nil {
 		return nil, fmt.Errorf("failed to find all campaigns: %w", err)
@@ -39,9 +38,9 @@ func (r *SQLiteRepository) FindAllCampaigns(ctx context.Context) ([]*entity.Camp
 	return Campaigns, nil
 }
 
-func (r *SQLiteRepository) FindCampaignsByInvestorAddress(ctx context.Context, investor custom_type.Address) ([]*entity.Campaign, error) {
+func (r *SQLiteRepository) FindCampaignsByInvestorAddress(investor custom_type.Address) ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
-	if err := r.Db.WithContext(ctx).
+	if err := r.Db.
 		Joins("JOIN orders ON orders.campaign_id = campaigns.id").
 		Where("orders.investor = ?", investor).
 		Preload("Orders").
@@ -51,9 +50,9 @@ func (r *SQLiteRepository) FindCampaignsByInvestorAddress(ctx context.Context, i
 	return Campaigns, nil
 }
 
-func (r *SQLiteRepository) FindCampaignsByCreatorAddress(ctx context.Context, creator custom_type.Address) ([]*entity.Campaign, error) {
+func (r *SQLiteRepository) FindCampaignsByCreatorAddress(creator custom_type.Address) ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
-	if err := r.Db.WithContext(ctx).
+	if err := r.Db.
 		Where("creator = ?", creator).
 		Preload("Orders").
 		Find(&Campaigns).Error; err != nil {
@@ -62,11 +61,11 @@ func (r *SQLiteRepository) FindCampaignsByCreatorAddress(ctx context.Context, cr
 	return Campaigns, nil
 }
 
-func (r *SQLiteRepository) UpdateCampaign(ctx context.Context, input *entity.Campaign) (*entity.Campaign, error) {
-	if err := r.Db.WithContext(ctx).Updates(&input).Error; err != nil {
+func (r *SQLiteRepository) UpdateCampaign(input *entity.Campaign) (*entity.Campaign, error) {
+	if err := r.Db.Updates(&input).Error; err != nil {
 		return nil, fmt.Errorf("failed to update campaign: %w", err)
 	}
-	campaign, err := r.FindCampaignById(ctx, input.Id)
+	campaign, err := r.FindCampaignById(input.Id)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -13,12 +12,14 @@ import (
 )
 
 type RBACFactory struct {
-	UserRepository repository.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewRBACFactory(userRepository repository.UserRepository) *RBACFactory {
+func NewRBACFactory(
+	userRepo repository.UserRepository,
+) *RBACFactory {
 	return &RBACFactory{
-		UserRepository: userRepository,
+		userRepository: userRepo,
 	}
 }
 
@@ -28,7 +29,6 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 		case router.AdvanceHandlerFunc:
 			return router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
 				var address custom_type.Address
-				ctx := context.Background()
 
 				// Get the sender address from either ERC20 deposit or metadata
 				erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
@@ -39,8 +39,8 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 				}
 
 				// Find user and check roles
-				findUserByAddress := user.NewFindUserByAddressUseCase(f.UserRepository)
-				user, err := findUserByAddress.Execute(ctx, &user.FindUserByAddressInputDTO{
+				findUserByAddress := user.NewFindUserByAddressUseCase(f.userRepository)
+				user, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 					Address: address,
 				})
 				if err != nil {
