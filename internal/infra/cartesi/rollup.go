@@ -15,8 +15,8 @@ type CreateInfo struct {
 	Config *configs.RollupConfig
 }
 
-func Create(info *CreateInfo) *router.Router {
-	handlers, err := NewHandlers(info.Repo, info.Config)
+func Create(c *CreateInfo) *router.Router {
+	handlers, err := NewHandlers(c.Repo, c.Config)
 	if err != nil {
 		slog.Error("Failed to initialize handlers", "error", err)
 		os.Exit(1)
@@ -27,7 +27,7 @@ func Create(info *CreateInfo) *router.Router {
 	r.Use(router.LoggingMiddleware)
 	r.Use(router.ErrorHandlingMiddleware)
 
-	rbacFactory := middleware.NewRBACFactory(info.Repo)
+	rbacFactory := middleware.NewRBACFactory(c.Repo)
 
 	orderGroup := r.Group("order")
 	{
