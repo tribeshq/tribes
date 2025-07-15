@@ -99,11 +99,11 @@ The contract suite features **emergency delegate call operations** for secure as
 
 The deployment infrastructure uses **modular scripts** for better organization and flexibility:
 
-- **Deployer**: Core deployment infrastructure
-- **Tokens**: Collateral and Stablecoin tokens (interactive prompts for initial owners)
-- **VLayer**: WebProofX Prover and Verifier contracts
-- **Emergency**: Emergency withdrawal contracts
-- **SafeCall**: Safe call contract for secure contract interactions
+- **Deployer**: Proxy contract responsible for deploying any contract given arbitrary bytecode;
+- **Tokens**: Collateral and Stablecoin tokens (interactive prompts for initial owners);
+- **VLayer**: WebProofX Prover and Verifier contracts;
+- **Emergency**: Emergency withdrawal contracts via `DELEGATECALL` vouchers;
+- **SafeCall**: Safe call contract for secure contract interactions with `DELEGATECALL` vouchers;
 
 Each deployment script saves its configuration to individual JSON files in the `./deployments/` directory for easy reference and integration.
 
