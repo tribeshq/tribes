@@ -110,7 +110,7 @@ Each deployment script saves its configuration to individual JSON files in the `
 1. Deploy all contracts:
 
    ```sh
-   make contracts
+   make deploy-contracts
    ```
 
 2. Deploy individual contracts:
@@ -141,7 +141,7 @@ Each deployment script saves its configuration to individual JSON files in the `
 
    ```sh
    # Simulate all deployments without broadcasting transactions
-   make deploy-simulate
+   make deploy-contracts-simulate
    ```
 
    This is useful for testing deployment scripts and verifying gas costs without actually deploying contracts.
