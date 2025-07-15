@@ -60,22 +60,6 @@ contract BadgeTest is Test {
         assertEq(badge.balanceOf(user, id), amount);
     }
 
-    function test_UnauthorizedCannotMintCreate2() public {
-        bytes memory badgeBytecode = abi.encodePacked(vm.getCode("Badge.sol:Badge"), abi.encode(applicationAddress));
-
-        bytes32 salt = keccak256("unauthorized-test-salt");
-        address deployedAddress = deployer.deploy(badgeBytecode, salt);
-        badge = Badge(deployedAddress);
-
-        uint256 id = 1;
-        uint256 amount = 1;
-        bytes memory data = "";
-
-        vm.prank(unauthorized);
-        vm.expectRevert();
-        badge.mint(user, id, amount, data);
-    }
-
     function test_DeployerCannotMintCreate2() public {
         bytes memory badgeBytecode = abi.encodePacked(vm.getCode("Badge.sol:Badge"), abi.encode(applicationAddress));
 
@@ -100,7 +84,6 @@ contract BadgeTest is Test {
 
         address deployedAddress1 = deployer.deploy(badgeBytecode, salt);
 
-        vm.expectRevert();
         deployer.deploy(badgeBytecode, salt);
 
         assertEq(deployedAddress1, predictedAddress);

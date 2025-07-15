@@ -18,14 +18,14 @@ func init() {
 }
 
 const (
-	ADMIN_ADDRESS                   = "TRIBES_ADMIN_ADDRESS"
-	ADMIN_ADDRESS_TEST              = "TRIBES_ADMIN_ADDRESS_TEST"
-	DEPLOYER_ADDRESS                = "TRIBES_DEPLOYER_ADDRESS"
-	EMERGENCY_WITHDRAW_ADDRESS      = "TRIBES_EMERGENCY_WITHDRAW_ADDRESS"
-	EMERGENCY_WITHDRAW_ADDRESS_TEST = "TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST"
-	VERIFIER_ADDRESS                = "TRIBES_VERIFIER_ADDRESS"
-	VERIFIER_ADDRESS_TEST           = "TRIBES_VERIFIER_ADDRESS_TEST"
-	MAX_STARTUP_TIME                = "TRIBES_MAX_STARTUP_TIME"
+	ADMIN_ADDRESS              = "TRIBES_ADMIN_ADDRESS"
+	ADMIN_ADDRESS_TEST         = "TRIBES_ADMIN_ADDRESS_TEST"
+	DEPLOYER_ADDRESS           = "TRIBES_DEPLOYER_ADDRESS"
+	EMERGENCY_WITHDRAW_ADDRESS = "TRIBES_EMERGENCY_WITHDRAW_ADDRESS"
+	SAFE_CALL_ADDRESS          = "TRIBES_SAFE_CALL_ADDRESS"
+	VERIFIER_ADDRESS           = "TRIBES_VERIFIER_ADDRESS"
+	VERIFIER_ADDRESS_TEST      = "TRIBES_VERIFIER_ADDRESS_TEST"
+	MAX_STARTUP_TIME           = "TRIBES_MAX_STARTUP_TIME"
 )
 
 func SetDefaults() {
@@ -39,7 +39,7 @@ func SetDefaults() {
 
 	viper.SetDefault(EMERGENCY_WITHDRAW_ADDRESS, "0x0000000000000000000000000000000000000006")
 
-	viper.SetDefault(EMERGENCY_WITHDRAW_ADDRESS_TEST, "0x0000000000000000000000000000000000000001")
+	viper.SetDefault(SAFE_CALL_ADDRESS, "0x0000000000000000000000000000000000000007")
 
 	viper.SetDefault(VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
 
@@ -64,8 +64,8 @@ type RollupConfig struct {
 	// Address of the emergency withdraw address
 	EmergencyWithdrawAddress Address `mapstructure:"TRIBES_EMERGENCY_WITHDRAW_ADDRESS"`
 
-	// Address of the emergency withdraw address
-	EmergencyWithdrawAddressTest Address `mapstructure:"TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST"`
+	// Address of the safe call address
+	SafeCallAddress Address `mapstructure:"TRIBES_SAFE_CALL_ADDRESS"`
 
 	// Address of the verifier contract, who can verify the social accounts
 	VerifierAddress Address `mapstructure:"TRIBES_VERIFIER_ADDRESS"`
@@ -121,11 +121,11 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("TRIBES_EMERGENCY_WITHDRAW_ADDRESS is required for the rollup service: %w", err)
 	}
 
-	cfg.EmergencyWithdrawAddressTest, err = GetEmergencyWithdrawAddressTest()
+	cfg.SafeCallAddress, err = GetSafeCallAddress()
 	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST: %w", err)
+		return nil, fmt.Errorf("failed to get TRIBES_SAFE_CALL_ADDRESS: %w", err)
 	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST is required for the rollup service: %w", err)
+		return nil, fmt.Errorf("TRIBES_SAFE_CALL_ADDRESS is required for the rollup service: %w", err)
 	}
 
 	cfg.VerifierAddress, err = GetVerifierAddress()
@@ -204,17 +204,17 @@ func GetEmergencyWithdrawAddress() (Address, error) {
 	return notDefinedAddress(), fmt.Errorf("%s: %w", EMERGENCY_WITHDRAW_ADDRESS, ErrNotDefined)
 }
 
-// GetEmergencyWithdrawAddressTest returns the value for the environment variable TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST.
-func GetEmergencyWithdrawAddressTest() (Address, error) {
-	s := viper.GetString(EMERGENCY_WITHDRAW_ADDRESS_TEST)
+// GetSafeCallAddress returns the value for the environment variable TRIBES_SAFE_CALL_ADDRESS.
+func GetSafeCallAddress() (Address, error) {
+	s := viper.GetString(SAFE_CALL_ADDRESS)
 	if s != "" {
 		v, err := toAddress(s)
 		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", EMERGENCY_WITHDRAW_ADDRESS_TEST, err)
+			return v, fmt.Errorf("failed to parse %s: %w", SAFE_CALL_ADDRESS, err)
 		}
 		return v, nil
 	}
-	return notDefinedAddress(), fmt.Errorf("%s: %w", EMERGENCY_WITHDRAW_ADDRESS_TEST, ErrNotDefined)
+	return notDefinedAddress(), fmt.Errorf("%s: %w", SAFE_CALL_ADDRESS, ErrNotDefined)
 }
 
 // GetVerifierAddress returns the value for the environment variable TRIBES_VERIFIER_ADDRESS.

@@ -42,12 +42,12 @@ Address of the emergency withdraw address
 * **Default:** `"0x0000000000000000000000000000000000000006"`
 * **Used by:** rollup
 
-## `TRIBES_EMERGENCY_WITHDRAW_ADDRESS_TEST`
+## `TRIBES_SAFE_CALL_ADDRESS`
 
-Address of the emergency withdraw address
+Address of the safe call address
 
 * **Type:** `Address`
-* **Default:** `"0x0000000000000000000000000000000000000001"`
+* **Default:** `"0x0000000000000000000000000000000000000007"`
 * **Used by:** rollup
 
 ## `TRIBES_VERIFIER_ADDRESS`

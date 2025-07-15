@@ -151,7 +151,20 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		}
 	}
 
-	abiJSON := `[{
+	safeCallAbiJSON := `[{
+		"type":"function",
+		"name":"safeCall",
+		"inputs":[
+			{"type":"address"},
+			{"type":"bytes"}
+		]
+	}]`
+	safeCallAbiInterface, err := abi.JSON(strings.NewReader(safeCallAbiJSON))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
+
+	payloadAbiJSON := `[{
 		"type":"function",
 		"name":"mint",
 		"inputs":[
@@ -161,14 +174,14 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 			{"type":"bytes"}
 		]
 	}]`
-	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
+	payloadAbiInterface, err := abi.JSON(strings.NewReader(payloadAbiJSON))
 	if err != nil {
 		return fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
 	for _, order := range res.Orders {
 		if order.State != entity.OrderStateRejected {
-			mintPayload, err := abiInterface.Pack(
+			mintPayload, err := payloadAbiInterface.Pack(
 				"mint",
 				common.Address(order.Investor),
 				big.NewInt(1),
@@ -178,7 +191,17 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 			if err != nil {
 				return fmt.Errorf("failed to pack ABI: %w", err)
 			}
-			env.Voucher(common.Address(res.BadgeAddress), big.NewInt(0), mintPayload)
+
+			safeCallPayload, err := safeCallAbiInterface.Pack(
+				"safeCall",
+				common.Address(res.BadgeAddress),
+				mintPayload,
+			)
+			if err != nil {
+				return fmt.Errorf("failed to pack ABI: %w", err)
+			}
+
+			env.DelegateCallVoucher(common.Address(h.cfg.SafeCallAddress), safeCallPayload)
 		}
 	}
 

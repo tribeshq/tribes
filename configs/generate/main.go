@@ -10,7 +10,7 @@
 package main
 
 func main() {
-	data := readTOML("./Config.toml")
+	data := readTOML("../../config.toml")
 	config := decodeTOML(data)
 	envs := sortConfig(config)
 	for _, env := range envs {

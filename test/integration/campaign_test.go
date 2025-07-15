@@ -21,7 +21,7 @@ type CampaignSuite struct {
 }
 
 func (s *CampaignSuite) TestCreateCampaign() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress := s.setupCommonAddresses()
+	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -90,7 +90,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 }
 
 func (s *CampaignSuite) TestFindAllCampaigns() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress := s.setupCommonAddresses()
+	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -177,7 +177,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 }
 
 func (s *CampaignSuite) TestFindCampaignById() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress := s.setupCommonAddresses()
+	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -261,7 +261,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress := s.setupCommonAddresses()
+	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -348,7 +348,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress := s.setupCommonAddresses()
+	admin, token, creator, deployer, verifier, collateral, badgeAddress, safeCall := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -537,4 +537,14 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
 	s.Len(findCampaignsByCreatorOutput.Reports, 1)
 	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignByCreatorOutput)
+
+	// Verify that delegate call vouchers were created for badge minting
+	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
+
+	// Verify delegate call voucher destinations are SafeCall contract
+	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 }

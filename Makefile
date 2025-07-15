@@ -81,7 +81,7 @@ test-integration: ## Run the integration tests
 test-contracts: ## Run the contracts tests
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@forge test --root ./contracts
+	@forge test --root ./contracts -vvvv
 	$(END_LOG)
 
 .PHONY: lint

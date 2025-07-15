@@ -65,6 +65,7 @@ func (s *TribesRollupSuite) setupCommonAddresses() (
 	verifier common.Address,
 	collateral common.Address,
 	badgeAddress common.Address,
+	safeCall common.Address,
 ) {
 	admin = common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	token = common.HexToAddress("0x0000000000000000000000000000000000000009")
@@ -72,6 +73,7 @@ func (s *TribesRollupSuite) setupCommonAddresses() (
 	deployer = common.HexToAddress("0x0000000000000000000000000000000000000013")
 	verifier = common.HexToAddress("0x0000000000000000000000000000000000000025")
 	collateral = common.HexToAddress("0x0000000000000000000000000000000000000008")
+	safeCall = common.HexToAddress("0x0000000000000000000000000000000000000007")
 
 	badgeAddress = crypto.CreateAddress2(
 		deployer,

@@ -3,7 +3,6 @@ pragma solidity ^0.8.27;
 
 library LibDeployValidator {
     error ContractNotDeployed(address target);
-    error ContractAlreadyExists(address target);
 
     function _isContract(address target) internal view returns (bool) {
         return target.code.length > 0;
