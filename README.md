@@ -28,9 +28,9 @@
 A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse campaign mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
 <br>
 
-[![Docs]][Link-docs] [![Deck]][Link-deck]
+[![One-Page]][Link-docs] [![Deck]][Link-deck]
 	
-[Docs]: https://img.shields.io/badge/Documentation-959CD0?style=for-the-badge
+[One-Page]: https://img.shields.io/badge/One--Page-959CD0?style=for-the-badge
 [Link-docs]: https://docs.google.com/document/d/1l5D6sn9DBbaJFtTCfIM1gxoH7-10fVi9t2tsNr942Rw/edit?tab=t.0#heading=h.dfmi5re7vy34
 
 [Deck]: https://img.shields.io/badge/Pitch%20Deck-D1DCCB?style=for-the-badge
