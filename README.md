@@ -83,7 +83,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    mkdir -p secrets
    echo "YOUR_PRIVATE_KEY" > secrets/pk
    ```
-   > **NOTE**: Replace `YOUR_PRIVATE_KEY` with your actual private key (type: private key, **without** the `0x` prefix). This file is required to run the **Cartesi Node** on testnet or mainnet.
+   > **NOTE**: Replace `YOUR_PRIVATE_KEY` with your actual private key (type: private key, **without** the `0x` prefix). This file is required to run the **Cartesi Rollups Node** on testnet or mainnet.
 
 ### Running
 
