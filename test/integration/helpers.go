@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/tribeshq/tribes/assets"
 	"github.com/tribeshq/tribes/configs"
-	"github.com/tribeshq/tribes/internal/infra/cartesi"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
+	"github.com/tribeshq/tribes/internal/infra/rollup"
 )
 
 // TribesRollupSuite is the base suite for all integration tests
@@ -45,12 +45,12 @@ func (s *TribesRollupSuite) SetupTest() {
 	}
 	slog.Info("Database initialized")
 
-	createInfo := cartesi.CreateInfo{
+	createInfo := rollup.CreateInfo{
 		Repo:   repo,
 		Config: cfg,
 	}
 
-	dapp := cartesi.Create(&createInfo)
+	dapp := rollup.Create(&createInfo)
 	s.Tester = rollmelette.NewTester(dapp)
 }
 

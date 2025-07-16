@@ -4,13 +4,13 @@
 //go:build !wireinject
 // +build !wireinject
 
-package cartesi
+package rollup
 
 import (
 	"github.com/tribeshq/tribes/configs"
-	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/advance"
-	"github.com/tribeshq/tribes/internal/infra/cartesi/handler/inspect"
 	"github.com/tribeshq/tribes/internal/infra/repository"
+	"github.com/tribeshq/tribes/internal/infra/rollup/handler/advance"
+	"github.com/tribeshq/tribes/internal/infra/rollup/handler/inspect"
 )
 
 // Injectors from wire.go:

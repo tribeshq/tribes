@@ -15,7 +15,7 @@ contract BadgeTest is Test {
     MockApplication public mockApplication;
 
     address public user;
-    
+
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
     event BadgeDeployed(address indexed badge, address indexed owner, bytes32 salt);
 
@@ -52,8 +52,10 @@ contract BadgeTest is Test {
         emit BadgeDeployed(predictedAddress, address(mockApplication), salt);
         mockApplication.executeOutput(voucher);
 
-        bytes memory encodedMintTx = abi.encodeCall(SafeERC1155Mint.safeMint, (IERC1155Mintable(predictedAddress), user, 1, 1, ""));
-        bytes memory delegateCallVoucher = abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC1155Mint), encodedMintTx));
+        bytes memory encodedMintTx =
+            abi.encodeCall(SafeERC1155Mint.safeMint, (IERC1155Mintable(predictedAddress), user, 1, 1, ""));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC1155Mint), encodedMintTx));
 
         vm.expectEmit(true, true, false, true);
         emit TransferSingle(address(mockApplication), address(0), user, 1, 1);

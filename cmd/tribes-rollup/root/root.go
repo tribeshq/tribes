@@ -8,8 +8,8 @@ import (
 	"github.com/rollmelette/rollmelette"
 	"github.com/spf13/cobra"
 	"github.com/tribeshq/tribes/configs"
-	"github.com/tribeshq/tribes/internal/infra/cartesi"
 	"github.com/tribeshq/tribes/internal/infra/repository/factory"
+	"github.com/tribeshq/tribes/internal/infra/rollup"
 )
 
 const (
@@ -52,12 +52,12 @@ func run(cmd *cobra.Command, args []string) {
 
 	defer repo.Close()
 
-	createInfo := cartesi.CreateInfo{
+	createInfo := rollup.CreateInfo{
 		Repo:   repo,
 		Config: cfg,
 	}
 
-	r := cartesi.Create(&createInfo)
+	r := rollup.Create(&createInfo)
 	opts := rollmelette.NewRunOpts()
 	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
 		slog.Error("Failed to run rollmelette", "error", err)

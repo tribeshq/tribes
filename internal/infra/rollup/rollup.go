@@ -1,12 +1,12 @@
-package cartesi
+package rollup
 
 import (
 	"log/slog"
 	"os"
 
 	"github.com/tribeshq/tribes/configs"
-	"github.com/tribeshq/tribes/internal/infra/cartesi/middleware"
 	"github.com/tribeshq/tribes/internal/infra/repository"
+	"github.com/tribeshq/tribes/internal/infra/rollup/middleware"
 	"github.com/tribeshq/tribes/pkg/router"
 )
 

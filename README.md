@@ -16,6 +16,7 @@
 </p>
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -25,11 +26,11 @@
   - [Development](#development)
 
 ## Overview
+
 A debt capital market platform designed for the creator economy, enabling content creators to monetize their influence by issuing tokenized debt instruments collateralized. Through a reverse campaign mechanism, the platform connects creators with investors, offering a structured and transparent alternative to finance scalable businesses while leveraging the economic potential of their audiences, ensuring legal compliance and attractive returns for investors.
-<br>
-	
+
 [![Page]][Link-docs] [![Deck]][Link-deck]
-	
+
 [Page]: https://img.shields.io/badge/One--Page-959CD0?style=for-the-badge
 [Link-docs]: https://docs.google.com/document/d/1l5D6sn9DBbaJFtTCfIM1gxoH7-10fVi9t2tsNr942Rw/edit?tab=t.0#heading=h.dfmi5re7vy34
 
@@ -39,10 +40,11 @@ A debt capital market platform designed for the creator economy, enabling conten
 ## Getting Started
 
 ### Prerequisites
+
 1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/).
 
    To install Docker RISC-V support without using Docker Desktop, run the following command:
-    
+
    ```shell
    docker run --privileged --rm tonistiigi/binfmt --install all
    ```
@@ -74,7 +76,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    ```sh
    cast wallet import defaultKey --interactive
    ```
-   
+
    This will prompt you to enter your private key securely for contract deployment operations.
 
 4. Create the `secrets` folder and add your private key:
@@ -83,6 +85,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    mkdir -p secrets
    echo "YOUR_PRIVATE_KEY" > secrets/pk
    ```
+
    > **NOTE**: Replace `YOUR_PRIVATE_KEY` with your actual private key (type: private key, **without** the `0x` prefix). This file is required to run the **Cartesi Rollups Node** on testnet or mainnet.
 
 ### Running
@@ -109,22 +112,21 @@ Each deployment script saves its configuration to individual JSON files in the `
    ```sh
    # Deploy BadgeFactory contract (ERC1155 Badge factory)
    make deploy-badge-factory
-   
+
    # Deploy Tokens (Collateral and Stablecoin) - interactive prompts for initial owners
    make deploy-tokens
-   
+
    # Deploy VLayer contracts (Prover and Verifier)
    make deploy-vlayer
-   
+
    # Deploy Emergency contracts (EmergencyWithdraw)
    make deploy-emergency
-   
+
    # Deploy SafeERC1155Mint contract (Safe ERC1155 minting)
    make deploy-safe-erc1155-mint
    ```
 
    > **Note**: The `deploy-tokens` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
-   
    > **Note**: The `deploy-badge-factory` command deploys the ERC1155 Badge factory contract that will be used to create and manage badge tokens for the platform.
 
 3. Simulate deployment (without broadcasting):
@@ -217,6 +219,7 @@ make test
 ```
 
 This command will:
+
 - Clean and test smart contracts with Foundry
 - Generate Go bindings
 - Run Go tests with coverage
@@ -225,19 +228,13 @@ This command will:
 
 #### Code Quality
 
-1. Run linting and formatting checks:
-
-   ```sh
-   make lint
-   ```
-
-2. Format all code (Contracts + Backend):
+1. Format all code (Contracts + Backend):
 
    ```sh
    make fmt
    ```
 
-3. View test coverage report:
+2. View test coverage report:
 
    ```sh
    make coverage
