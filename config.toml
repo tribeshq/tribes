@@ -33,10 +33,10 @@ default = "0x0000000000000000000000000000000000000025"
 description = """Address of the verifier contract, who can verify the social accounts"""
 used-by = ["rollup"]
 
-[contracts.TRIBES_DEPLOYER_ADDRESS]
+[contracts.TRIBES_BADGE_FACTORY_ADDRESS]
 go-type = "Address"
 default = "0x0000000000000000000000000000000000000013"
-description = """Address of the deployer contract, who can deploy the contracts"""
+description = """Address of the badge factory contract, who can deploy the badges"""
 used-by = ["rollup"]
 
 [contracts.TRIBES_EMERGENCY_WITHDRAW_ADDRESS]
@@ -45,8 +45,8 @@ default = "0x0000000000000000000000000000000000000006"
 description = """Address of the emergency withdraw address"""
 used-by = ["rollup"]
 
-[contracts.TRIBES_SAFE_CALL_ADDRESS]
+[contracts.TRIBES_SAFE_ERC1155_MINT_ADDRESS]
 go-type = "Address"
 default = "0x0000000000000000000000000000000000000007"
-description = """Address of the safe call address"""
+description = """Address of the safe ERC1155 mint address"""
 used-by = ["rollup"]

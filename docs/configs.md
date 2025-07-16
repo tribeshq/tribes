@@ -26,9 +26,9 @@ Address of the admin user
 * **Default:** `"0x976EA74026E726554dB657fA54763abd0C3a0aa9"`
 * **Used by:** rollup
 
-## `TRIBES_DEPLOYER_ADDRESS`
+## `TRIBES_BADGE_FACTORY_ADDRESS`
 
-Address of the deployer contract, who can deploy the contracts
+Address of the badge factory contract, who can deploy the badges
 
 * **Type:** `Address`
 * **Default:** `"0x0000000000000000000000000000000000000013"`
@@ -42,9 +42,9 @@ Address of the emergency withdraw address
 * **Default:** `"0x0000000000000000000000000000000000000006"`
 * **Used by:** rollup
 
-## `TRIBES_SAFE_CALL_ADDRESS`
+## `TRIBES_SAFE_ERC1155_MINT_ADDRESS`
 
-Address of the safe call address
+Address of the safe ERC1155 mint address
 
 * **Type:** `Address`
 * **Default:** `"0x0000000000000000000000000000000000000007"`

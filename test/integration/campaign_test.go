@@ -2,13 +2,17 @@ package integration
 
 import (
 	"fmt"
+	"log/slog"
 	"math/big"
+	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,76 +25,7 @@ type CampaignSuite struct {
 }
 
 func (s *CampaignSuite) TestCreateCampaign() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
-	baseTime, closesAt, maturityAt := s.setupTimeValues()
-
-	// create creator user
-	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
-	createUserOutput := s.Tester.Advance(admin, createUserInput)
-	s.Len(createUserOutput.Notices, 1)
-
-	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
-
-	// verify social account
-	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
-	createSocialAccountOutput := s.Tester.Advance(verifier, createSocialAccountInput)
-	s.Len(createSocialAccountOutput.Notices, 1)
-
-	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
-
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
-		token,
-		badgeAddress,
-		closesAt,
-		maturityAt,
-	),
-	)
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
-
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral_address":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
-		token.Hex(),
-		creator.Hex(),
-		baseTime,
-		baseTime,
-		collateral.Hex(),
-		badgeAddress.Hex(),
-		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
-
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
-
-	abiJson := `[{
-		"type": "function",
-		"name": "deploy",
-		"inputs": [
-			{"type": "bytes"},
-			{"type": "bytes32"}
-		]
-	}]`
-
-	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
-	s.Require().NoError(err)
-
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
-	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
-}
-
-func (s *CampaignSuite) TestFindAllCampaigns() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -109,6 +44,22 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
 
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(2)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
@@ -131,13 +82,13 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -145,17 +96,86 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(applicationAddress, unpacked[0])
+}
+
+func (s *CampaignSuite) TestFindAllCampaigns() {
+	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	baseTime, closesAt, maturityAt := s.setupTimeValues()
+
+	// create creator user
+	createUserInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"creator"}}`, creator))
+	createUserOutput := s.Tester.Advance(admin, createUserInput)
+	s.Len(createUserOutput.Notices, 1)
+
+	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
+	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+
+	// verify social account
+	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
+	createSocialAccountOutput := s.Tester.Advance(verifier, createSocialAccountInput)
+	s.Len(createSocialAccountOutput.Notices, 1)
+
+	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
+	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+
+	// calculate badge address
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(2)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
+	// create campaign
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+		token,
+		badgeAddress,
+		closesAt,
+		maturityAt,
+	),
+	)
+	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
+	s.Len(createCampaignOutput.Notices, 1)
+
+	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral_address":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+		token.Hex(),
+		creator.Hex(),
+		baseTime,
+		baseTime,
+		collateral.Hex(),
+		badgeAddress.Hex(),
+		baseTime, closesAt, maturityAt)
+	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+
+	s.Len(createCampaignOutput.Vouchers, 1)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+
+	abiJson := `[{
+		"type": "function",
+		"name": "newBadge",
+		"inputs": [
+			{"type": "address"},
+			{"type": "bytes32"}
+		]
+	}]`
+
+	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	findAllCampaignsInput := []byte(`{"path":"campaign"}`)
 
@@ -177,7 +197,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 }
 
 func (s *CampaignSuite) TestFindCampaignById() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -195,6 +215,22 @@ func (s *CampaignSuite) TestFindCampaignById() {
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(2)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
 
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
@@ -218,13 +254,13 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -232,17 +268,9 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	findCampaignByIdInput := []byte(`{"path":"campaign/id", "data":{"id":1}}`)
 
@@ -261,7 +289,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, _ := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -279,6 +307,22 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(2)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
 
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
@@ -302,13 +346,13 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -316,17 +360,9 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator_address":"%s"}}`, creator))
 
@@ -348,7 +384,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, safeCall := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -404,6 +440,22 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(7)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
@@ -426,13 +478,13 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -440,17 +492,9 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -542,16 +586,15 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
 	// Verify delegate call voucher destinations are SafeCall contract
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 }
 
 func (s *CampaignSuite) TestCloseCampaign() {
-	badgeId := big.NewInt(1)
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, safeCall := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -607,6 +650,22 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(7)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
@@ -629,13 +688,13 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -643,17 +702,9 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -749,22 +800,14 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"100000"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeCall delegate calls
+	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
-	safeCallAbiJSON := `[{
+	abiJSON := `[{
 		"type":"function",
-		"name":"safeCall",
+		"name":"safeMint",
 		"inputs":[
 			{"type":"address"},
-			{"type":"bytes"}
-		]
-	}]`
-
-	mintAbiJSON := `[{
-		"type":"function",
-		"name":"mint",
-		"inputs":[
 			{"type":"address"},
 			{"type":"uint256"},
 			{"type":"uint256"},
@@ -772,88 +815,64 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		]
 	}]`
 
-	safeCallAbiInterface, err := abi.JSON(strings.NewReader(safeCallAbiJSON))
-	s.Require().NoError(err)
-
-	mintAbiInterface, err := abi.JSON(strings.NewReader(mintAbiJSON))
+	abiInterface, err = abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeCall (investor01)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor01, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload := unpacked[1].([]byte)
-	mintUnpacked, err := mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor01, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor02)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor02, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor02, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor03)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor03, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor03, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor04)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor04, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor04, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor05)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
-
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor05, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
+	s.Equal(investor05, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 }
 
 func (s *CampaignSuite) TestExecuteCampaignCollateral() {
-	badgeId := big.NewInt(1)
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, safeCall := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -909,6 +928,22 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(7)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
@@ -931,13 +966,13 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -945,17 +980,9 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -1129,22 +1156,14 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeCall delegate calls
+	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
-	safeCallAbiJSON := `[{
+	abiJSON := `[{
 		"type":"function",
-		"name":"safeCall",
+		"name":"safeMint",
 		"inputs":[
 			{"type":"address"},
-			{"type":"bytes"}
-		]
-	}]`
-
-	mintAbiJSON := `[{
-		"type":"function",
-		"name":"mint",
-		"inputs":[
 			{"type":"address"},
 			{"type":"uint256"},
 			{"type":"uint256"},
@@ -1152,88 +1171,64 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		]
 	}]`
 
-	safeCallAbiInterface, err := abi.JSON(strings.NewReader(safeCallAbiJSON))
-	s.Require().NoError(err)
-
-	mintAbiInterface, err := abi.JSON(strings.NewReader(mintAbiJSON))
+	abiInterface, err = abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeCall (investor01)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor01, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload := unpacked[1].([]byte)
-	mintUnpacked, err := mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor01, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor02)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor02, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor02, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor03)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor03, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor03, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor04)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor04, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor04, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor05)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
-
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor05, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
+	s.Equal(investor05, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 }
 
 func (s *CampaignSuite) TestSettleCampaign() {
-	badgeId := big.NewInt(1)
-	admin, token, creator, deployer, verifier, collateral, badgeAddress, safeCall := s.setupCommonAddresses()
+	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -1289,6 +1284,22 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
+	// calculate badge address
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(applicationAddress)
+	if err != nil {
+		slog.Error("Failed to encode constructor args", "error", err)
+		os.Exit(1)
+	}
+
+	badgeAddress := crypto.CreateAddress2(
+		factory,
+		common.HexToHash(strconv.Itoa(7)),
+		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
+	)
+
 	// create campaign
 	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
@@ -1311,13 +1322,13 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(deployer, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
-		"name": "deploy",
+		"name": "newBadge",
 		"inputs": [
-			{"type": "bytes"},
+			{"type": "address"},
 			{"type": "bytes32"}
 		]
 	}]`
@@ -1325,17 +1336,9 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-	}.Pack(createCampaignOutput.AppContract)
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	initCode := append(s.Bytecode, constructorArgs...)
-
-	unpacked, err := abiInterface.Methods["deploy"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
-	s.Require().NoError(err)
-	s.Equal(initCode, unpacked[0])
+	s.Equal(applicationAddress, unpacked[0])
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -1470,22 +1473,14 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeCall delegate calls
+	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
-	safeCallAbiJSON := `[{
+	abiJSON := `[{
 		"type":"function",
-		"name":"safeCall",
+		"name":"safeMint",
 		"inputs":[
 			{"type":"address"},
-			{"type":"bytes"}
-		]
-	}]`
-
-	mintAbiJSON := `[{
-		"type":"function",
-		"name":"mint",
-		"inputs":[
 			{"type":"address"},
 			{"type":"uint256"},
 			{"type":"uint256"},
@@ -1493,81 +1488,58 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		]
 	}]`
 
-	safeCallAbiInterface, err := abi.JSON(strings.NewReader(safeCallAbiJSON))
-	s.Require().NoError(err)
-
-	mintAbiInterface, err := abi.JSON(strings.NewReader(mintAbiJSON))
+	abiInterface, err = abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeCall, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeCall (investor01)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor01, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload := unpacked[1].([]byte)
-	mintUnpacked, err := mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor01, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor02)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor02, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor02, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor03)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor03, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor03, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor04)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor04, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor04, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
-
-	// verify delegate call voucher payload for badge safeCall (investor05)
-	unpacked, err = safeCallAbiInterface.Methods["safeCall"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
-
-	mintPayload = unpacked[1].([]byte)
-	mintUnpacked, err = mintAbiInterface.Methods["mint"].Inputs.Unpack(mintPayload[4:])
-	s.Require().NoError(err)
-	s.Equal(investor05, mintUnpacked[0])
-	s.Equal(badgeId, mintUnpacked[1])
-	s.Equal(big.NewInt(1), mintUnpacked[2])
-	s.Equal([]byte{}, mintUnpacked[3])
+	s.Equal(investor05, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 }

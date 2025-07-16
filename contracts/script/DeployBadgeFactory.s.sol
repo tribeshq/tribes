@@ -3,22 +3,22 @@ pragma solidity ^0.8.27;
 
 import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
-import {Deployer} from "../src/proxy/Deployer.sol";
+import {BadgeFactory} from "../src/token/ERC1155/BadgeFactory.sol";
 
-contract DeployDeployer is Script {
-    Deployer public deployer;
+contract DeployBadgeFactory is Script {
+    BadgeFactory public badgeFactory;
 
     function run() external {
         console.log("Starting Deployer deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-        deployer = new Deployer();
-        console.log("Deployer deployed to:", address(deployer));
+        badgeFactory = new BadgeFactory();
+        console.log("BadgeFactory deployed to:", address(badgeFactory));
         vm.stopBroadcast();
 
         _saveDeploymentInfo();
 
-        console.log("Deployer deployment completed!");
+        console.log("BadgeFactory deployment completed!");
     }
 
     function _saveDeploymentInfo() internal {
@@ -31,8 +31,8 @@ contract DeployDeployer is Script {
             vm.toString(block.timestamp),
             ",",
             '"contracts":{',
-            '"deployer":"',
-            vm.toString(address(deployer)),
+            '"badgeFactory":"',
+            vm.toString(address(badgeFactory)),
             '"',
             "}",
             "}}"

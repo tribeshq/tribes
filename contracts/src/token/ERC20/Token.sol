@@ -8,7 +8,10 @@ import {ERC20Pausable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20
 import {Ownable} from "openzeppelin-contracts/access/Ownable.sol";
 
 contract Token is ERC20, Ownable, ERC20Burnable, ERC20Pausable {
-    constructor(string memory _name, string memory _symbol, address initialOwner) ERC20(_name, _symbol) Ownable(initialOwner) {}
+    constructor(string memory _name, string memory _symbol, address initialOwner)
+        ERC20(_name, _symbol)
+        Ownable(initialOwner)
+    {}
 
     function pause() public onlyOwner {
         _pause();

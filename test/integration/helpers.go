@@ -4,11 +4,9 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/rollmelette/rollmelette"
 	"github.com/stretchr/testify/suite"
 	"github.com/tribeshq/tribes/assets"
@@ -61,26 +59,20 @@ func (s *TribesRollupSuite) setupCommonAddresses() (
 	admin common.Address,
 	token common.Address,
 	creator common.Address,
-	deployer common.Address,
+	factory common.Address,
 	verifier common.Address,
 	collateral common.Address,
-	badgeAddress common.Address,
-	safeCall common.Address,
+	safeERC1155MintAddress common.Address,
+	applicationAddress common.Address,
 ) {
 	admin = common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	token = common.HexToAddress("0x0000000000000000000000000000000000000009")
 	creator = common.HexToAddress("0x0000000000000000000000000000000000000007")
-	deployer = common.HexToAddress("0x0000000000000000000000000000000000000013")
+	factory = common.HexToAddress("0x0000000000000000000000000000000000000013")
 	verifier = common.HexToAddress("0x0000000000000000000000000000000000000025")
+	safeERC1155MintAddress = common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral = common.HexToAddress("0x0000000000000000000000000000000000000008")
-	safeCall = common.HexToAddress("0x0000000000000000000000000000000000000007")
-
-	badgeAddress = crypto.CreateAddress2(
-		deployer,
-		common.HexToHash(strconv.Itoa(int(time.Now().Unix()))),
-		s.Bytecode,
-	)
-
+	applicationAddress = common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
 	return
 }
 
@@ -97,7 +89,6 @@ func (s *TribesRollupSuite) setupInvestorAddresses() (
 	investor03 = common.HexToAddress("0x0000000000000000000000000000000000000003")
 	investor04 = common.HexToAddress("0x0000000000000000000000000000000000000004")
 	investor05 = common.HexToAddress("0x0000000000000000000000000000000000000005")
-
 	return
 }
 

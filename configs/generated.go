@@ -20,9 +20,9 @@ func init() {
 const (
 	ADMIN_ADDRESS              = "TRIBES_ADMIN_ADDRESS"
 	ADMIN_ADDRESS_TEST         = "TRIBES_ADMIN_ADDRESS_TEST"
-	DEPLOYER_ADDRESS           = "TRIBES_DEPLOYER_ADDRESS"
+	BADGE_FACTORY_ADDRESS      = "TRIBES_BADGE_FACTORY_ADDRESS"
 	EMERGENCY_WITHDRAW_ADDRESS = "TRIBES_EMERGENCY_WITHDRAW_ADDRESS"
-	SAFE_CALL_ADDRESS          = "TRIBES_SAFE_CALL_ADDRESS"
+	SAFE_ERC1155_MINT_ADDRESS  = "TRIBES_SAFE_ERC1155_MINT_ADDRESS"
 	VERIFIER_ADDRESS           = "TRIBES_VERIFIER_ADDRESS"
 	VERIFIER_ADDRESS_TEST      = "TRIBES_VERIFIER_ADDRESS_TEST"
 	MAX_STARTUP_TIME           = "TRIBES_MAX_STARTUP_TIME"
@@ -35,11 +35,11 @@ func SetDefaults() {
 
 	viper.SetDefault(ADMIN_ADDRESS_TEST, "0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 
-	viper.SetDefault(DEPLOYER_ADDRESS, "0x0000000000000000000000000000000000000013")
+	viper.SetDefault(BADGE_FACTORY_ADDRESS, "0x0000000000000000000000000000000000000013")
 
 	viper.SetDefault(EMERGENCY_WITHDRAW_ADDRESS, "0x0000000000000000000000000000000000000006")
 
-	viper.SetDefault(SAFE_CALL_ADDRESS, "0x0000000000000000000000000000000000000007")
+	viper.SetDefault(SAFE_ERC1155_MINT_ADDRESS, "0x0000000000000000000000000000000000000007")
 
 	viper.SetDefault(VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
 
@@ -58,14 +58,14 @@ type RollupConfig struct {
 	// Address of the admin user
 	AdminAddressTest Address `mapstructure:"TRIBES_ADMIN_ADDRESS_TEST"`
 
-	// Address of the deployer contract, who can deploy the contracts
-	DeployerAddress Address `mapstructure:"TRIBES_DEPLOYER_ADDRESS"`
+	// Address of the badge factory contract, who can deploy the badges
+	BadgeFactoryAddress Address `mapstructure:"TRIBES_BADGE_FACTORY_ADDRESS"`
 
 	// Address of the emergency withdraw address
 	EmergencyWithdrawAddress Address `mapstructure:"TRIBES_EMERGENCY_WITHDRAW_ADDRESS"`
 
-	// Address of the safe call address
-	SafeCallAddress Address `mapstructure:"TRIBES_SAFE_CALL_ADDRESS"`
+	// Address of the safe ERC1155 mint address
+	SafeErc1155MintAddress Address `mapstructure:"TRIBES_SAFE_ERC1155_MINT_ADDRESS"`
 
 	// Address of the verifier contract, who can verify the social accounts
 	VerifierAddress Address `mapstructure:"TRIBES_VERIFIER_ADDRESS"`
@@ -107,11 +107,11 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS_TEST is required for the rollup service: %w", err)
 	}
 
-	cfg.DeployerAddress, err = GetDeployerAddress()
+	cfg.BadgeFactoryAddress, err = GetBadgeFactoryAddress()
 	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_DEPLOYER_ADDRESS: %w", err)
+		return nil, fmt.Errorf("failed to get TRIBES_BADGE_FACTORY_ADDRESS: %w", err)
 	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_DEPLOYER_ADDRESS is required for the rollup service: %w", err)
+		return nil, fmt.Errorf("TRIBES_BADGE_FACTORY_ADDRESS is required for the rollup service: %w", err)
 	}
 
 	cfg.EmergencyWithdrawAddress, err = GetEmergencyWithdrawAddress()
@@ -121,11 +121,11 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("TRIBES_EMERGENCY_WITHDRAW_ADDRESS is required for the rollup service: %w", err)
 	}
 
-	cfg.SafeCallAddress, err = GetSafeCallAddress()
+	cfg.SafeErc1155MintAddress, err = GetSafeErc1155MintAddress()
 	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_SAFE_CALL_ADDRESS: %w", err)
+		return nil, fmt.Errorf("failed to get TRIBES_SAFE_ERC1155_MINT_ADDRESS: %w", err)
 	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_SAFE_CALL_ADDRESS is required for the rollup service: %w", err)
+		return nil, fmt.Errorf("TRIBES_SAFE_ERC1155_MINT_ADDRESS is required for the rollup service: %w", err)
 	}
 
 	cfg.VerifierAddress, err = GetVerifierAddress()
@@ -178,17 +178,17 @@ func GetAdminAddressTest() (Address, error) {
 	return notDefinedAddress(), fmt.Errorf("%s: %w", ADMIN_ADDRESS_TEST, ErrNotDefined)
 }
 
-// GetDeployerAddress returns the value for the environment variable TRIBES_DEPLOYER_ADDRESS.
-func GetDeployerAddress() (Address, error) {
-	s := viper.GetString(DEPLOYER_ADDRESS)
+// GetBadgeFactoryAddress returns the value for the environment variable TRIBES_BADGE_FACTORY_ADDRESS.
+func GetBadgeFactoryAddress() (Address, error) {
+	s := viper.GetString(BADGE_FACTORY_ADDRESS)
 	if s != "" {
 		v, err := toAddress(s)
 		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", DEPLOYER_ADDRESS, err)
+			return v, fmt.Errorf("failed to parse %s: %w", BADGE_FACTORY_ADDRESS, err)
 		}
 		return v, nil
 	}
-	return notDefinedAddress(), fmt.Errorf("%s: %w", DEPLOYER_ADDRESS, ErrNotDefined)
+	return notDefinedAddress(), fmt.Errorf("%s: %w", BADGE_FACTORY_ADDRESS, ErrNotDefined)
 }
 
 // GetEmergencyWithdrawAddress returns the value for the environment variable TRIBES_EMERGENCY_WITHDRAW_ADDRESS.
@@ -204,17 +204,17 @@ func GetEmergencyWithdrawAddress() (Address, error) {
 	return notDefinedAddress(), fmt.Errorf("%s: %w", EMERGENCY_WITHDRAW_ADDRESS, ErrNotDefined)
 }
 
-// GetSafeCallAddress returns the value for the environment variable TRIBES_SAFE_CALL_ADDRESS.
-func GetSafeCallAddress() (Address, error) {
-	s := viper.GetString(SAFE_CALL_ADDRESS)
+// GetSafeErc1155MintAddress returns the value for the environment variable TRIBES_SAFE_ERC1155_MINT_ADDRESS.
+func GetSafeErc1155MintAddress() (Address, error) {
+	s := viper.GetString(SAFE_ERC1155_MINT_ADDRESS)
 	if s != "" {
 		v, err := toAddress(s)
 		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", SAFE_CALL_ADDRESS, err)
+			return v, fmt.Errorf("failed to parse %s: %w", SAFE_ERC1155_MINT_ADDRESS, err)
 		}
 		return v, nil
 	}
-	return notDefinedAddress(), fmt.Errorf("%s: %w", SAFE_CALL_ADDRESS, ErrNotDefined)
+	return notDefinedAddress(), fmt.Errorf("%s: %w", SAFE_ERC1155_MINT_ADDRESS, ErrNotDefined)
 }
 
 // GetVerifierAddress returns the value for the environment variable TRIBES_VERIFIER_ADDRESS.

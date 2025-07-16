@@ -18,7 +18,7 @@ type OrderRepository interface {
 	CreateOrder(order *entity.Order) (*entity.Order, error)
 	FindOrderById(id uint) (*entity.Order, error)
 	FindOrdersByCampaignId(id uint) ([]*entity.Order, error)
-	FindOrdersByState(CampaignId uint, state string) ([]*entity.Order, error)
+	FindOrdersByState(campaignId uint, state string) ([]*entity.Order, error)
 	FindOrdersByInvestorAddress(investor custom_type.Address) ([]*entity.Order, error)
 	FindAllOrders() ([]*entity.Order, error)
 	UpdateOrder(order *entity.Order) (*entity.Order, error)

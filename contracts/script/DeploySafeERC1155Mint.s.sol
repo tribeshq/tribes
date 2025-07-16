@@ -3,18 +3,18 @@ pragma solidity ^0.8.27;
 
 import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
-import {OutputSafeCall} from "../src/delegatecall/OutputSafeCall.sol";
+import {SafeERC1155Mint} from "../src/delegatecall/SafeERC1155Mint.sol";
 
-contract DeployOutputSafeCall is Script {
-    OutputSafeCall public outputSafeCall;
+contract DeploySafeERC1155Mint is Script {
+    SafeERC1155Mint public safeERC1155Mint;
 
     function run() external {
         console.log("Starting SafeCall deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-        console.log("Deploying OutputSafeCall contract...");
-        outputSafeCall = new OutputSafeCall();
-        console.log("OutputSafeCall deployed to:", address(outputSafeCall));
+        console.log("Deploying SafeERC1155Mint contract...");
+        safeERC1155Mint = new SafeERC1155Mint();
+        console.log("SafeERC1155Mint deployed to:", address(safeERC1155Mint));
         vm.stopBroadcast();
 
         _saveDeploymentInfo();
@@ -32,8 +32,8 @@ contract DeployOutputSafeCall is Script {
             vm.toString(block.timestamp),
             ",",
             '"contracts":{',
-            '"outputSafeCall":"',
-            vm.toString(address(outputSafeCall)),
+            '"safeERC1155Mint":"',
+            vm.toString(address(safeERC1155Mint)),
             '"',
             "}",
             "}}"

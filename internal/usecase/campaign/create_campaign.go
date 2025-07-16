@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
@@ -94,10 +95,18 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		}
 	}
 
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+	}.Pack(metadata.AppContract)
+	if err != nil {
+		return nil, fmt.Errorf("error encoding constructor args: %w", err)
+	}
+
 	badgeAddress := crypto.CreateAddress2(
-		c.cfg.DeployerAddress,
-		common.HexToHash(strconv.Itoa(int(metadata.BlockTimestamp))),
-		bytecode,
+		c.cfg.BadgeFactoryAddress,
+		common.HexToHash(strconv.Itoa(metadata.Index)),
+		crypto.Keccak256(append(bytecode, constructorArgs...)),
 	)
 
 	campaign, err := entity.NewCampaign(

@@ -28,8 +28,8 @@ define FORGE_SCRIPT_SIMULATE
 	$(END_LOG)
 endef
 
-define deploy_deployer
-	$(call FORGE_SCRIPT,./contracts/script/DeployDeployer.s.sol:DeployDeployer)
+define deploy_badge_factory
+	$(call FORGE_SCRIPT,./contracts/script/DeployBadgeFactory.s.sol:DeployBadgeFactory)
 endef
 
 define deploy_tokens
@@ -44,8 +44,8 @@ define deploy_emergency
 	$(call FORGE_SCRIPT,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
 endef
 
-define deploy_output_safe_call
-	$(call FORGE_SCRIPT,./contracts/script/DeployOutputSafeCall.s.sol:DeployOutputSafeCall)
+define deploy_safe_erc1155_mint
+	$(call FORGE_SCRIPT,./contracts/script/DeploySafeERC1155Mint.s.sol:DeploySafeERC1155Mint)
 endef
 
 .PHONY: env
@@ -80,14 +80,6 @@ test-contracts: ## Run the contracts tests
 	@forge test --root ./contracts -vvv
 	$(END_LOG)
 
-.PHONY: lint
-lint: ## Run code linting and formatting checks
-	$(START_LOG)
-	@go vet ./...
-	@forge fmt --root ./contracts
-	@echo "Linting completed"
-	$(END_LOG)
-
 .PHONY: fmt
 fmt: ## Format all code (Contracts + Backend)
 	$(START_LOG)
@@ -108,28 +100,28 @@ coverage: ## Open HTML coverage report
 # =============================================================================
 
 .PHONY: deploy-contracts
-deploy-contracts: deploy-deployer deploy-tokens deploy-vlayer deploy-emergency deploy-safe-call ## Deploy all contracts using modular deployment scripts
+deploy-contracts: deploy-badge-factory deploy-tokens deploy-vlayer deploy-emergency deploy-safe-erc1155-mint ## Deploy all contracts using modular deployment scripts
 	$(START_LOG)
 	@echo "All contracts deployed! Check ./deployments/ for individual deployment files"
 	$(END_LOG)
 
 .PHONY: deploy-contracts-simulate
 deploy-contracts-simulate: ## Simulate deployment without broadcasting
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployDeployer.s.sol:DeployDeployer)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployBadgeFactory.s.sol:DeployBadgeFactory)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployTokens.s.sol:DeployTokens)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployVLayer.s.sol:DeployVLayer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployOutputSafeCall.s.sol:DeployOutputSafeCall)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeploySafeERC1155Mint.s.sol:DeploySafeERC1155Mint)
 
 # =============================================================================
 # MODULAR DEPLOYMENT COMMANDS
 # =============================================================================
 
-.PHONY: deploy-deployer
-deploy-deployer: ## Deploy only Deployer contract
+.PHONY: deploy-badge-factory
+deploy-badge-factory: ## Deploy only BadgeFactory contract
 	$(START_LOG)
-	@$(deploy_deployer)
-	@echo "Deployer deployment completed! Check ./deployments/deployer.json for addresses"
+	@$(deploy_badge_factory)
+	@echo "BadgeFactory deployment completed! Check ./deployments/deployer.json for addresses"
 	$(END_LOG)
 
 .PHONY: deploy-tokens
@@ -153,15 +145,12 @@ deploy-emergency: ## Deploy only emergency contracts (EmergencyWithdraw)
 	@echo "Emergency deployment completed! Check ./deployments/emergency.json for addresses"
 	$(END_LOG)
 
-
-.PHONY: deploy-output-safe-call
-deploy-output-safe-call: ## Deploy only OutputSafeCall contract
+.PHONY: deploy-safe-erc1155-mint
+deploy-safe-erc1155-mint: ## Deploy only SafeERC1155Mint contract
 	$(START_LOG)
-	@$(deploy_output_safe_call)
-	@echo "OutputSafeCall deployment completed! Check ./deployments/outputSafeCall.json for addresses"
+	@$(deploy_safe_erc1155_mint)
+	@echo "SafeERC1155Mint deployment completed! Check ./deployments/outputSafeCall.json for addresses"
 	$(END_LOG)
-
-
 
 # =============================================================================
 # UTILITY COMMANDS
