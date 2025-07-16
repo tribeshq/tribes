@@ -44,8 +44,8 @@ define deploy_emergency
 	$(call FORGE_SCRIPT,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
 endef
 
-define deploy_safe_call
-	$(call FORGE_SCRIPT,./contracts/script/DeploySafeCall.s.sol:DeploySafeCall)
+define deploy_output_safe_call
+	$(call FORGE_SCRIPT,./contracts/script/DeployOutputSafeCall.s.sol:DeployOutputSafeCall)
 endef
 
 .PHONY: env
@@ -119,7 +119,7 @@ deploy-contracts-simulate: ## Simulate deployment without broadcasting
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployTokens.s.sol:DeployTokens)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployVLayer.s.sol:DeployVLayer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeploySafeCall.s.sol:DeploySafeCall)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployOutputSafeCall.s.sol:DeployOutputSafeCall)
 
 # =============================================================================
 # MODULAR DEPLOYMENT COMMANDS
@@ -154,11 +154,11 @@ deploy-emergency: ## Deploy only emergency contracts (EmergencyWithdraw)
 	$(END_LOG)
 
 
-.PHONY: deploy-safe-call
-deploy-safe-call: ## Deploy only SafeCall contract
+.PHONY: deploy-output-safe-call
+deploy-output-safe-call: ## Deploy only OutputSafeCall contract
 	$(START_LOG)
-	@$(deploy_safe_call)
-	@echo "SafeCall deployment completed! Check ./deployments/safeCall.json for addresses"
+	@$(deploy_output_safe_call)
+	@echo "OutputSafeCall deployment completed! Check ./deployments/outputSafeCall.json for addresses"
 	$(END_LOG)
 
 

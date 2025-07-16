@@ -127,8 +127,8 @@ Each deployment script saves its configuration to individual JSON files in the `
    # Deploy Emergency contracts (EmergencyWithdraw)
    make deploy-emergency
    
-   # Deploy SafeCall contract
-   make deploy-safe-call
+   # Deploy OutputSafeCall contract
+   make deploy-output-safe-call
    ```
 
    > **Note**: The `deploy-tokens` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.

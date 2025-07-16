@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.27;
 
-import {LibError} from "./LibError.sol";
+import {LibError} from "cartesi-rollups-contracts-2.0.0/src/library/LibError.sol";
 
-library LibSafeCall {
+library LibOutputSafeCall {
     using LibError for bytes;
 
     error NotAContract(address target);

@@ -2,7 +2,7 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.27;
 
-import {LibError} from "../library/LibError.sol";
+import {LibError} from "cartesi-rollups-contracts-2.0.0/src/library/LibError.sol";
 import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 
 contract EmergencyWithdraw {
