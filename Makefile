@@ -77,7 +77,7 @@ test-integration: ## Run the integration tests
 test-contracts: ## Run the contracts tests
 	$(START_LOG)
 	@forge clean --root ./contracts
-	@forge soldeer install --root ./contracts
+	@cd contracts && forge soldeer install
 	@forge test --root ./contracts -vvv
 	$(END_LOG)
 
