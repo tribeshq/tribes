@@ -52,12 +52,12 @@ func run(cmd *cobra.Command, args []string) {
 
 	defer repo.Close()
 
-	createInfo := rollup.CreateInfo{
+	createInfo := &rollup.CreateInfo{
 		Repo:   repo,
 		Config: cfg,
 	}
 
-	r := rollup.Create(&createInfo)
+	r := rollup.Create(createInfo)
 	opts := rollmelette.NewRunOpts()
 	if err := rollmelette.Run(cmd.Context(), opts, r); err != nil {
 		slog.Error("Failed to run rollmelette", "error", err)
