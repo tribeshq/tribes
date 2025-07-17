@@ -6,11 +6,13 @@ import {Badge} from "./Badge.sol";
 
 contract BadgeFactory {
     event BadgeDeployed(address indexed badge, address indexed owner, bytes32 salt);
+    event BadgeAlreadyDeployed(address indexed badge, address indexed owner, bytes32 salt);
 
     function newBadge(address initialOwner, bytes32 salt) external returns (Badge) {
         address predicted = computeAddress(initialOwner, salt);
 
         if (predicted.code.length > 0) {
+            emit BadgeAlreadyDeployed(predicted, initialOwner, salt);
             return Badge(predicted);
         }
 
