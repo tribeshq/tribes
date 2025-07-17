@@ -8,7 +8,7 @@ import {ERC1155Pausable} from "openzeppelin-contracts/token/ERC1155/extensions/E
 import {ERC1155Supply} from "openzeppelin-contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {Ownable} from "openzeppelin-contracts/access/Ownable.sol";
 
-contract Badge is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable, ERC1155Supply {
+contract Badge is ERC1155, ERC1155Burnable, ERC1155Pausable, ERC1155Supply, Ownable {
     constructor(address initialOwner) ERC1155("") Ownable(initialOwner) {}
 
     function setURI(string memory newuri) public onlyOwner {
