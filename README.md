@@ -4,7 +4,7 @@
 </p>
 <br>
 <div align="center">
-    <i>A Linux-powered EVM rollup as a DCM for the creator economy</i>
+    <i>A Linux-powered EVM rollup as a Debit Capital Market</i>
 </div>
 <div align="center">
 <b>Tokenized debt issuance through reverse campaign mechanism with collateralization</b>
