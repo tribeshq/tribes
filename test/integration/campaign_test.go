@@ -2,9 +2,7 @@ package integration
 
 import (
 	"fmt"
-	"log/slog"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -25,7 +23,7 @@ type CampaignSuite struct {
 }
 
 func (s *CampaignSuite) TestCreateCampaign() {
-	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -44,15 +42,14 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -61,13 +58,14 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -89,7 +87,9 @@ func (s *CampaignSuite) TestCreateCampaign() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -99,10 +99,14 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
+	s.Equal("test", unpacked[2])
+	s.Equal("test", unpacked[3])
 }
 
 func (s *CampaignSuite) TestFindAllCampaigns() {
-	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -121,15 +125,14 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -138,13 +141,14 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -166,7 +170,9 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -176,6 +182,10 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
+	s.Equal("test", unpacked[2])
+	s.Equal("test", unpacked[3])
 
 	findAllCampaignsInput := []byte(`{"path":"campaign"}`)
 
@@ -197,7 +207,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 }
 
 func (s *CampaignSuite) TestFindCampaignById() {
-	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -216,15 +226,14 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -233,13 +242,14 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -261,7 +271,9 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -271,6 +283,10 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
+	s.Equal("test", unpacked[2])
+	s.Equal("test", unpacked[3])
 
 	findCampaignByIdInput := []byte(`{"path":"campaign/id", "data":{"id":1}}`)
 
@@ -289,7 +305,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
-	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -308,15 +324,14 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
 	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -325,13 +340,14 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -353,7 +369,9 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -363,6 +381,10 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
+	s.Equal("test", unpacked[2])
+	s.Equal("test", unpacked[3])
 
 	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator_address":"%s"}}`, creator))
 
@@ -382,9 +404,8 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	)
 	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignsByCreatorAddressOutput)
 }
-
 func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
-	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -440,15 +461,14 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -457,13 +477,14 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -485,7 +506,9 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -495,6 +518,8 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -594,7 +619,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 }
 
 func (s *CampaignSuite) TestCloseCampaign() {
-	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -650,15 +675,14 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -667,13 +691,14 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -695,7 +720,9 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -705,6 +732,8 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -872,7 +901,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 }
 
 func (s *CampaignSuite) TestExecuteCampaignCollateral() {
-	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -928,15 +957,14 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -945,13 +973,14 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -973,7 +1002,9 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 
@@ -983,6 +1014,8 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
 	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
@@ -1228,7 +1261,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 }
 
 func (s *CampaignSuite) TestSettleCampaign() {
-	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -1284,15 +1317,14 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
 	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
 
-	// calculate badge address
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(applicationAddress)
-	if err != nil {
-		slog.Error("Failed to encode constructor args", "error", err)
-		os.Exit(1)
-	}
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, badgeName, badgeSymbol)
+	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
 		factory,
@@ -1301,13 +1333,14 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	)
 
 	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
+	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","badge_name":"%s","badge_symbol":"%s","max_interest_rate":"10","debt_issued":"100000","badge_address":"%s","closes_at":%d,"maturity_at":%d}}`,
 		token,
+		badgeName,
+		badgeSymbol,
 		badgeAddress,
 		closesAt,
 		maturityAt,
-	),
-	)
+	))
 	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
 	s.Len(createCampaignOutput.Notices, 1)
 
@@ -1329,7 +1362,9 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 

@@ -10,8 +10,8 @@ contract MockApplication is ReentrancyGuard {
     using LibError for bytes;
     using LibAddress for address;
 
-    error InsufficientFunds(uint256 value, uint256 balance);
     error OutputNotExecutable(bytes output);
+    error InsufficientFunds(uint256 value, uint256 balance);
 
     function executeOutput(bytes calldata output) external nonReentrant {
         bytes4 selector = bytes4(output[:4]);

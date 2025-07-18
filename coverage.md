@@ -15,6 +15,6 @@ github.com/tribeshq/tribes/test/integration/helpers.go:34.16,37.3 2 0
 github.com/tribeshq/tribes/test/integration/helpers.go:39.2,42.16 3 1
 github.com/tribeshq/tribes/test/integration/helpers.go:42.16,45.3 2 0
 github.com/tribeshq/tribes/test/integration/helpers.go:46.2,54.40 4 1
-github.com/tribeshq/tribes/test/integration/helpers.go:67.3,77.2 9 1
-github.com/tribeshq/tribes/test/integration/helpers.go:86.3,93.2 6 1
-github.com/tribeshq/tribes/test/integration/helpers.go:96.98,101.2 4 1
+github.com/tribeshq/tribes/test/integration/helpers.go:69.3,81.2 11 1
+github.com/tribeshq/tribes/test/integration/helpers.go:90.3,97.2 6 1
+github.com/tribeshq/tribes/test/integration/helpers.go:100.98,105.2 4 1

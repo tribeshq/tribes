@@ -22,6 +22,8 @@ type CreateCampaignInputDTO struct {
 	Description     string              `json:"description" validate:"required,min=10,max=1000"`
 	Promotion       string              `json:"promotion" validate:"required,min=5,max=500"`
 	Token           custom_type.Address `json:"token" validate:"required"`
+	BadgeName       string              `json:"badge_name" validate:"required,min=3,max=100"`
+	BadgeSymbol     string              `json:"badge_symbol" validate:"required,min=3,max=100"`
 	DebtIssued      *uint256.Int        `json:"debt_issued" validate:"required"`
 	MaxInterestRate *uint256.Int        `json:"max_interest_rate" validate:"required"`
 	ClosesAt        int64               `json:"closes_at" validate:"required"`
@@ -95,10 +97,13 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		}
 	}
 
+	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
-	}.Pack(metadata.AppContract)
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(metadata.AppContract, input.BadgeName, input.BadgeSymbol)
 	if err != nil {
 		return nil, fmt.Errorf("error encoding constructor args: %w", err)
 	}

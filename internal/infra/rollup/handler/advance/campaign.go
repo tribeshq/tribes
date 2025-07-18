@@ -66,7 +66,9 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		"name": "newBadge",
 		"inputs": [
 			{"type": "address"},
-			{"type": "bytes32"}
+			{"type": "bytes32"},
+			{"type": "string"},
+			{"type": "string"}
 		]
 	}]`
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
@@ -78,6 +80,8 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		"newBadge",
 		env.AppAddress(),
 		common.HexToHash(strconv.Itoa(metadata.Index)),
+		input.BadgeName,
+		input.BadgeSymbol,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)

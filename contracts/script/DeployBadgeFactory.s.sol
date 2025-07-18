@@ -3,7 +3,7 @@ pragma solidity ^0.8.27;
 
 import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
-import {BadgeFactory} from "../src/token/ERC1155/BadgeFactory.sol";
+import {BadgeFactory} from "../src/token/ERC721/BadgeFactory.sol";
 
 contract DeployBadgeFactory is Script {
     BadgeFactory public badgeFactory;

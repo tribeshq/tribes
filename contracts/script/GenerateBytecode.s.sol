@@ -2,7 +2,7 @@
 pragma solidity ^0.8.27;
 
 import "forge-std-1.9.7/src/Script.sol";
-import {Badge} from "../src/token/ERC1155/Badge.sol";
+import {Badge} from "../src/token/ERC721/Badge.sol";
 
 contract GenerateBytecode is Script {
     function run() external {

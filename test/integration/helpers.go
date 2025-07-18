@@ -58,6 +58,8 @@ func (s *TribesRollupSuite) SetupTest() {
 func (s *TribesRollupSuite) setupCommonAddresses() (
 	admin common.Address,
 	token common.Address,
+	badgeName string,
+	badgeSymbol string,
 	creator common.Address,
 	factory common.Address,
 	verifier common.Address,
@@ -67,6 +69,8 @@ func (s *TribesRollupSuite) setupCommonAddresses() (
 ) {
 	admin = common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	token = common.HexToAddress("0x0000000000000000000000000000000000000009")
+	badgeName = "test"
+	badgeSymbol = "test"
 	creator = common.HexToAddress("0x0000000000000000000000000000000000000007")
 	factory = common.HexToAddress("0x0000000000000000000000000000000000000013")
 	verifier = common.HexToAddress("0x0000000000000000000000000000000000000025")
