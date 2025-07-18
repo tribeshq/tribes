@@ -55,6 +55,12 @@ env: ## Create the environment variables file
 	@echo "Environment variables file created"
 	$(END_LOG)
 
+.PHONY: build
+build: generate ## Build the contracts
+	$(START_LOG)
+	@cartesi build
+	$(END_LOG)
+
 .PHONY: generate
 generate: ## Generate bytecode and Go bindings
 	$(START_LOG)
