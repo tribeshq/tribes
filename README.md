@@ -114,7 +114,7 @@ Each deployment script saves its configuration to individual JSON files in the `
    make deploy-badge-factory
 
    # Deploy Tokens (Collateral and Stablecoin) - interactive prompts for initial owners
-   make deploy-tokens
+   make deploy-erc20
 
    # Deploy VLayer contracts (Prover and Verifier)
    make deploy-vlayer
@@ -126,7 +126,7 @@ Each deployment script saves its configuration to individual JSON files in the `
    make deploy-safe-erc1155-mint
    ```
 
-   > **Note**: The `deploy-tokens` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
+   > **Note**: The `deploy-erc20` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
    > **Note**: The `deploy-badge-factory` command deploys the ERC1155 Badge factory contract that will be used to create and manage badge tokens for the platform.
 
 3. Simulate deployment (without broadcasting):

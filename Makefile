@@ -33,7 +33,7 @@ define deploy_badge_factory
 endef
 
 define deploy_tokens
-	$(call FORGE_SCRIPT,./contracts/script/DeployTokens.s.sol:DeployTokens)
+	$(call FORGE_SCRIPT,./contracts/script/DeployERC20.s.sol:DeployERC20)
 endef
 
 define deploy_vlayer
@@ -101,7 +101,7 @@ coverage: ## Open HTML coverage report
 # =============================================================================
 
 .PHONY: deploy-contracts
-deploy-contracts: deploy-badge-factory deploy-tokens deploy-vlayer deploy-emergency deploy-safe-erc1155-mint ## Deploy all contracts using modular deployment scripts
+deploy-contracts: deploy-badge-factory deploy-erc20 deploy-vlayer deploy-emergency deploy-safe-erc1155-mint ## Deploy all contracts using modular deployment scripts
 	$(START_LOG)
 	@echo "All contracts deployed! Check ./deployments/ for individual deployment files"
 	$(END_LOG)
@@ -109,7 +109,7 @@ deploy-contracts: deploy-badge-factory deploy-tokens deploy-vlayer deploy-emerge
 .PHONY: deploy-contracts-simulate
 deploy-contracts-simulate: ## Simulate deployment without broadcasting
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployBadgeFactory.s.sol:DeployBadgeFactory)
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployTokens.s.sol:DeployTokens)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployERC20.s.sol:DeployERC20)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployVLayer.s.sol:DeployVLayer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeploySafeERC1155Mint.s.sol:DeploySafeERC1155Mint)
@@ -125,8 +125,8 @@ deploy-badge-factory: ## Deploy only BadgeFactory contract
 	@echo "BadgeFactory deployment completed! Check ./deployments/deployer.json for addresses"
 	$(END_LOG)
 
-.PHONY: deploy-tokens
-deploy-tokens: ## Deploy only tokens (Collateral, Stablecoin)
+.PHONY: deploy-erc20
+deploy-erc20: ## Deploy only tokens (Collateral, Stablecoin)
 	$(START_LOG)
 	@$(deploy_tokens)
 	@echo "Tokens deployment completed! Check ./deployments/tokens.json for addresses"

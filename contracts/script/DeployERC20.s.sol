@@ -5,7 +5,7 @@ import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
 import {Token} from "../src/token/ERC20/Token.sol";
 
-contract DeployTokens is Script {
+contract DeployERC20 is Script {
     Token public collateral;
     Token public stablecoin;
 
