@@ -5,10 +5,12 @@ import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
 import {WebProofXProver} from "../src/vlayer/WebProofXProver.sol";
 import {WebProofXVerifier} from "../src/vlayer/WebProofXVerifier.sol";
+import {IInputBox} from "cartesi-rollups-contracts-2.0.0/src/inputs/IInputBox.sol";
 
 contract DeployVLayer is Script {
     WebProofXProver public prover;
     WebProofXVerifier public verifier;
+    IInputBox public inputBox;
 
     function run() external {
         console.log("Starting VLayer deployment on chain ID:", block.chainid);
@@ -19,7 +21,8 @@ contract DeployVLayer is Script {
         console.log("Prover deployed to:", address(prover));
 
         console.log("Deploying WebProofX Verifier...");
-        verifier = new WebProofXVerifier(address(prover), 0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051);
+        inputBox = IInputBox(vm.parseAddress(vm.prompt("Input Box address")));
+        verifier = new WebProofXVerifier(address(prover), address(inputBox));
         console.log("Verifier deployed to:", address(verifier));
         vm.stopBroadcast();
 
@@ -44,7 +47,9 @@ contract DeployVLayer is Script {
             '"verifier":"',
             vm.toString(address(verifier)),
             '",',
-            '"inputBoxAddress":"0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051"',
+            '"inputBoxAddress":"',
+            vm.toString(address(inputBox)),
+            '"',
             "}",
             "}}"
         );
