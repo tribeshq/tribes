@@ -97,7 +97,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 #### Contracts
 
-The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, and [Vlayer WebProofs](https://book.vlayer.xyz/features/web.html) that enables **verification of social media profile ownership (X, Instagram, etc.)** through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations.
+The contract suite features **emergency delegate call operations** for secure asset recovery in critical situations, and [Vlayer WebProofs](https://book.vlayer.xyz/features/web.html) that enables **verification of social media profile ownership (X, Instagram, etc.)** through TLSNotary and zero-knowledge proofs. The system also includes **asset contracts** comprising a Stablecoin and Collateral token for the debt capital market operations, and **ERC721 Badge contracts** for managing creator badges and achievements.
 
 Each deployment script saves its configuration to individual JSON files in the `./deployments/` directory for easy reference and integration.
 
@@ -110,7 +110,7 @@ Each deployment script saves its configuration to individual JSON files in the `
 2. Deploy individual contracts:
 
    ```sh
-   # Deploy BadgeFactory contract (ERC1155 Badge factory)
+   # Deploy BadgeFactory contract (ERC721 Badge factory)
    make deploy-badge-factory
 
    # Deploy Tokens (Collateral and Stablecoin) - interactive prompts for initial owners
@@ -122,12 +122,12 @@ Each deployment script saves its configuration to individual JSON files in the `
    # Deploy Emergency contracts (EmergencyWithdraw)
    make deploy-emergency
 
-   # Deploy SafeERC1155Mint contract (Safe ERC1155 minting)
-   make deploy-safe-erc1155-mint
+   # Deploy SafeERC721Mint contract (Safe ERC721 minting)
+   make deploy-safe-erc721-mint
    ```
 
    > **Note**: The `deploy-erc20` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
-   > **Note**: The `deploy-badge-factory` command deploys the ERC1155 Badge factory contract that will be used to create and manage badge tokens for the platform.
+   > **Note**: The `deploy-badge-factory` command deploys the ERC721 Badge factory contract that will be used to create and manage badge tokens for the platform.
 
 3. Simulate deployment (without broadcasting):
 

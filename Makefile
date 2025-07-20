@@ -44,8 +44,8 @@ define deploy_emergency
 	$(call FORGE_SCRIPT,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
 endef
 
-define deploy_safe_erc1155_mint
-	$(call FORGE_SCRIPT,./contracts/script/DeploySafeERC1155Mint.s.sol:DeploySafeERC1155Mint)
+define deploy_safe_erc721_mint
+	$(call FORGE_SCRIPT,./contracts/script/SafeERC721Mint.sol:SafeERC721Mint)
 endef
 
 .PHONY: env
@@ -107,7 +107,7 @@ coverage: ## Open HTML coverage report
 # =============================================================================
 
 .PHONY: deploy-contracts
-deploy-contracts: deploy-badge-factory deploy-erc20 deploy-vlayer deploy-emergency deploy-safe-erc1155-mint ## Deploy all contracts using modular deployment scripts
+deploy-contracts: deploy-badge-factory deploy-erc20 deploy-vlayer deploy-emergency deploy-safe-erc721-mint ## Deploy all contracts using modular deployment scripts
 	$(START_LOG)
 	@echo "All contracts deployed! Check ./deployments/ for individual deployment files"
 	$(END_LOG)
@@ -118,14 +118,14 @@ deploy-contracts-simulate: ## Simulate deployment without broadcasting
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployERC20.s.sol:DeployERC20)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployVLayer.s.sol:DeployVLayer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeploySafeERC1155Mint.s.sol:DeploySafeERC1155Mint)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/SafeERC721Mint.sol:SafeERC721Mint)
 
 # =============================================================================
 # MODULAR DEPLOYMENT COMMANDS
 # =============================================================================
 
 .PHONY: deploy-badge-factory
-deploy-badge-factory: ## Deploy only BadgeFactory contract
+deploy-badge-factory: ## Deploy only BadgeFactory contract (ERC721 Badge factory)
 	$(START_LOG)
 	@$(deploy_badge_factory)
 	@echo "BadgeFactory deployment completed! Check ./deployments/deployer.json for addresses"
@@ -152,11 +152,11 @@ deploy-emergency: ## Deploy only emergency contracts (EmergencyWithdraw)
 	@echo "Emergency deployment completed! Check ./deployments/emergency.json for addresses"
 	$(END_LOG)
 
-.PHONY: deploy-safe-erc1155-mint
-deploy-safe-erc1155-mint: ## Deploy only SafeERC1155Mint contract
+.PHONY: deploy-safe-erc721-mint
+deploy-safe-erc721-mint: ## Deploy only SafeERC721Mint contract (Safe ERC721 minting)
 	$(START_LOG)
-	@$(deploy_safe_erc1155_mint)
-	@echo "SafeERC1155Mint deployment completed! Check ./deployments/outputSafeCall.json for addresses"
+	@$(deploy_safe_erc721_mint)
+	@echo "SafeERC721Mint deployment completed! Check ./deployments/outputSafeCall.json for addresses"
 	$(END_LOG)
 
 # =============================================================================
