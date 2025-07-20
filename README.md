@@ -20,7 +20,7 @@
 - [Overview](#overview)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Environment Setup](#environment-setup)
+  - [Environment](#environment)
   - [Running](#running)
   - [Testing](#testing)
   - [Development](#development)
@@ -61,7 +61,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 5. [Install Go](https://golang.org/doc/install) (version 1.21 or later) for backend development.
 
-### Environment Setup
+### Environment
 
 1. Create the environment variables file:
 
@@ -127,7 +127,6 @@ Each deployment script saves its configuration to individual JSON files in the `
    ```
 
    > **Note**: The `deploy-erc20` command will prompt you interactively to enter the token name, token symbol and initial owner for both the Collateral and Stablecoin tokens. Make sure to have the correct addresses ready.
-   > **Note**: The `deploy-badge-factory` command deploys the ERC721 Badge factory contract that will be used to create and manage badge tokens for the platform.
 
 3. Simulate deployment (without broadcasting):
 
