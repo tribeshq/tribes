@@ -14,7 +14,7 @@ This guide provides step-by-step instructions for deploying a Cartesi Rollups no
 Create a new Fly.io application for the Cartesi Rollups node:
 
 ```sh
-fly app create cartesi-rollups-node
+fly launch --ha=false --no-deploy
 ```
 
 ### 2. Create PostgreSQL Database
@@ -48,26 +48,26 @@ fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_HTTP_ENDPOINT=<web3-p
 fly secrets set -a cartesi-rollups-node CARTESI_BLOCKCHAIN_WS_ENDPOINT=<web3-provider-ws-endpoint>
 
 # Authentication
-fly secrets set -a cartesi-rollups-node CARTESI_AUTH_MNEMONIC=`<mnemonic>`
+fly secrets set -a cartesi-rollups-node CARTESI_AUTH_MNEMONIC=<mnemonic>
 
 # Database connection
 fly secrets set -a cartesi-rollups-node CARTESI_DATABASE_CONNECTION=<connection_string>
 ```
 
 **Important Notes:**
-- Replace `<web3-provider-http-endpoint>` with your blockchain RPC HTTP endpoint
-- Replace `<web3-provider-ws-endpoint>` with your blockchain RPC WebSocket endpoint
-- Replace `<mnemonic>` with your wallet mnemonic phrase (keep secure)
-- Replace `<connection_string>` with the PostgreSQL connection string provided by Fly.io
+
+- Replace `<web3-provider-http-endpoint>` with your blockchain RPC HTTP endpoint;
+- Replace `<web3-provider-ws-endpoint>` with your blockchain RPC WebSocket endpoint;
+- Replace `<mnemonic>` with your wallet mnemonic phrase (keep secure);
+- Replace `<connection_string>` with the PostgreSQL connection string provided by Fly.io;
 
 ### 5. Deploy the Application
 
 Deploy the Cartesi Rollups Node to Fly.io:
 
 ```sh
-fly deploy -a cartesi-rollups-node
+fly deploy -a cartesi-rollups-node --local-only
 ```
-
 
 ## Troubleshooting
 
@@ -85,14 +85,6 @@ Check application logs for debugging:
 
 ```sh
 fly logs -a cartesi-rollups-node
-```
-
-### Restart Application
-
-If needed, restart the application:
-
-```sh
-fly restart -a cartesi-rollups-node
 ```
 
 ## Additional Resources
