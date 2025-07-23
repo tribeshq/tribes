@@ -131,7 +131,6 @@ Each deployment script saves its configuration to individual JSON files in the `
 3. Simulate deployment (without broadcasting):
 
    ```sh
-   # Simulate all deployments without broadcasting transactions
    make deploy-contracts-simulate
    ```
 
