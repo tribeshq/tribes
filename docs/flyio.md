@@ -4,8 +4,8 @@ This guide provides step-by-step instructions for deploying a Cartesi Rollups no
 
 ## Prerequisites
 
-- [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/) installed and authenticated
-- A Fly.io account with billing information set up
+- [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/) installed and authenticated;
+- A Fly.io account with billing information set up;
 
 ## Step-by-Step Deployment
 
@@ -89,5 +89,5 @@ fly logs -a cartesi-rollups-node
 
 ## Additional Resources
 
-- [Fly.io Documentation](https://fly.io/docs/)
-- [PostgreSQL on Fly.io](https://fly.io/docs/postgres/)
+- [Fly.io Documentation](https://fly.io/docs/);
+- [PostgreSQL on Fly.io](https://fly.io/docs/postgres/);

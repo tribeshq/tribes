@@ -41,7 +41,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 ### Prerequisites
 
-1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/).
+1. [Install Docker Desktop for your operating system](https://www.docker.com/products/docker-desktop/);
 
    To install Docker RISC-V support without using Docker Desktop, run the following command:
 
@@ -49,7 +49,7 @@ A debt capital market platform designed for the creator economy, enabling conten
    docker run --privileged --rm tonistiigi/binfmt --install all
    ```
 
-2. [Download and install the latest version of Node.js](https://nodejs.org/en/download).
+2. [Download and install the latest version of Node.js](https://nodejs.org/en/download);
 
 3. Cartesi CLI is an easy-to-use tool to build and deploy your dApps on devnet. To install it, run:
 
@@ -57,9 +57,9 @@ A debt capital market platform designed for the creator economy, enabling conten
    npm install -g @cartesi/cli@2.0.0-alpha.15
    ```
 
-4. [Install Foundry](https://book.getfoundry.sh/getting-started/installation) for smart contract development and testing.
+4. [Install Foundry](https://book.getfoundry.sh/getting-started/installation) for smart contract development and testing;
 
-5. [Install Go](https://golang.org/doc/install) (version 1.21 or later) for backend development.
+5. [Install Go](https://golang.org/doc/install) (version 1.24.4 or later) for backend development;
 
 ### Environment
 
@@ -140,7 +140,7 @@ Each deployment script saves its configuration to individual JSON files in the `
 
 The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scaling solution that combines the security of blockchain with the computational power of Linux. This architecture enables complex off-chain computations while maintaining cryptographic guarantees of correctness and data availability. The system runs a full Linux environment inside the blockchain, handling business logic off-chain for better performance while keeping all computations verifiable on-chain.
 
-1. Generate bytecode and Go bindings:
+1. Generate bytecode and Go bindings
 
    ```sh
    make generate
@@ -208,9 +208,9 @@ make test
 
 This command will:
 
-- Clean and test smart contracts with Foundry
-- Generate Go bindings
-- Run Go tests with coverage
+- Clean and test smart contracts with Foundry;
+- Generate Go bindings;
+- Run Go tests with coverage;
 
 ### Development
 
