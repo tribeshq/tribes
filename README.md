@@ -59,7 +59,7 @@ A debt capital market platform designed for the creator economy, enabling conten
 
 4. [Install Foundry](https://book.getfoundry.sh/getting-started/installation) for smart contract development and testing;
 
-5. [Install Go](https://golang.org/doc/install) (version 1.21 or later) for backend development;
+5. [Install Go](https://golang.org/doc/install) (version 1.24.4 or later) for backend development;
 
 ### Environment
 
