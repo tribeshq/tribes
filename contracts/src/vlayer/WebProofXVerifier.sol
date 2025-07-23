@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.27;
 
 import {Proof} from "vlayer-1.2.0/src/Proof.sol";

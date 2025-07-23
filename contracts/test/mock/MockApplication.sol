@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.27;
 
 import {Outputs} from "cartesi-rollups-contracts-2.0.0/src/common/Outputs.sol";
