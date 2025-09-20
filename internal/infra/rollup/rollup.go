@@ -4,19 +4,17 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/rollup/middleware"
 	"github.com/tribeshq/tribes/pkg/router"
 )
 
 type CreateInfo struct {
-	Repo   repository.Repository
-	Config *configs.RollupConfig
+	Repo repository.Repository
 }
 
 func Create(c *CreateInfo) *router.Router {
-	handlers, err := NewHandlers(c.Repo, c.Config)
+	handlers, err := NewHandlers(c.Repo)
 	if err != nil {
 		slog.Error("Failed to initialize handlers", "error", err)
 		os.Exit(1)
@@ -29,8 +27,8 @@ func Create(c *CreateInfo) *router.Router {
 
 	rbacFactory := middleware.NewRBACFactory(c.Repo)
 
-	orderGroup := r.Group("order")
 	{
+		orderGroup := r.Group("order")
 		orderGroup.Use(rbacFactory.InvestorOnly())
 		orderGroup.HandleAdvance("create", handlers.OrderAdvanceHandlers.CreateOrder)
 		orderGroup.HandleAdvance("cancel", handlers.OrderAdvanceHandlers.CancelOrder)
@@ -42,8 +40,8 @@ func Create(c *CreateInfo) *router.Router {
 		orderGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestorAddress)
 	}
 
-	campaignGroup := r.Group("campaign")
 	{
+		campaignGroup := r.Group("campaign")
 		creatorGroup := campaignGroup.Group("creator")
 		creatorGroup.Use(rbacFactory.CreatorOnly())
 		creatorGroup.HandleAdvance("create", handlers.CampaignAdvanceHandlers.CreateCampaign)
@@ -58,8 +56,8 @@ func Create(c *CreateInfo) *router.Router {
 		campaignGroup.HandleAdvance("execute-collateral", handlers.CampaignAdvanceHandlers.ExecuteCampaignCollateral)
 	}
 
-	userGroup := r.Group("user")
 	{
+		userGroup := r.Group("user")
 		adminGroup := userGroup.Group("admin")
 		adminGroup.Use(rbacFactory.AdminOnly())
 		adminGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
@@ -74,8 +72,8 @@ func Create(c *CreateInfo) *router.Router {
 		userGroup.HandleAdvance("withdraw", handlers.UserAdvanceHandlers.ERC20Withdraw)
 	}
 
-	socialGroup := r.Group("social")
 	{
+		socialGroup := r.Group("social")
 		verifierGroup := socialGroup.Group("verifier")
 		verifierGroup.Use(rbacFactory.VerifierOnly())
 		verifierGroup.HandleAdvance("create", handlers.SocialAccountsHandlers.CreateSocialAccount)

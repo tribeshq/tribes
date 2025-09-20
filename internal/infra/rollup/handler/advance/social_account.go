@@ -11,8 +11,8 @@ import (
 )
 
 type SocialAccountAdvanceHandlers struct {
-	userRepository          repository.UserRepository
-	socialAccountRepository repository.SocialAccountRepository
+	UserRepository          repository.UserRepository
+	SocialAccountRepository repository.SocialAccountRepository
 }
 
 func NewSocialAccountAdvanceHandlers(
@@ -20,8 +20,8 @@ func NewSocialAccountAdvanceHandlers(
 	socialAccountRepo repository.SocialAccountRepository,
 ) *SocialAccountAdvanceHandlers {
 	return &SocialAccountAdvanceHandlers{
-		userRepository:          userRepo,
-		socialAccountRepository: socialAccountRepo,
+		UserRepository:          userRepo,
+		SocialAccountRepository: socialAccountRepo,
 	}
 }
 
@@ -37,7 +37,7 @@ func (s *SocialAccountAdvanceHandlers) CreateSocialAccount(env rollmelette.Env, 
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.userRepository, s.socialAccountRepository)
+	createSocialAccount := social_account.NewCreateSocialAccountUseCase(s.UserRepository, s.SocialAccountRepository)
 	res, err := createSocialAccount.Execute(&input, &metadata)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (s *SocialAccountAdvanceHandlers) DeleteSocialAccount(env rollmelette.Env, 
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	deleteSocialAccount := social_account.NewDeleteSocialAccountUseCase(s.socialAccountRepository)
+	deleteSocialAccount := social_account.NewDeleteSocialAccountUseCase(s.SocialAccountRepository)
 	err = deleteSocialAccount.Execute(&input)
 	if err != nil {
 		return err

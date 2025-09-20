@@ -11,8 +11,8 @@ type FindOrdersByCampaignIdInputDTO struct {
 type FindOrdersByCampaignIdOutputDTO []*OrderOutputDTO
 
 type FindOrdersByCampaignIdUseCase struct {
-	userRepository  repository.UserRepository
-	orderRepository repository.OrderRepository
+	UserRepository  repository.UserRepository
+	OrderRepository repository.OrderRepository
 }
 
 func NewFindOrdersByCampaignIdUseCase(
@@ -20,19 +20,19 @@ func NewFindOrdersByCampaignIdUseCase(
 	orderRepo repository.OrderRepository,
 ) *FindOrdersByCampaignIdUseCase {
 	return &FindOrdersByCampaignIdUseCase{
-		userRepository:  userRepo,
-		orderRepository: orderRepo,
+		UserRepository:  userRepo,
+		OrderRepository: orderRepo,
 	}
 }
 
 func (c *FindOrdersByCampaignIdUseCase) Execute(input *FindOrdersByCampaignIdInputDTO) (*FindOrdersByCampaignIdOutputDTO, error) {
-	res, err := c.orderRepository.FindOrdersByCampaignId(input.CampaignId)
+	res, err := c.OrderRepository.FindOrdersByCampaignId(input.CampaignId)
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindOrdersByCampaignIdOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := c.userRepository.FindUserByAddress(order.Investor)
+		investor, err := c.UserRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}

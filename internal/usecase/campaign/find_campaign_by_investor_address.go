@@ -16,19 +16,19 @@ type FindCampaignsByInvestorAddressInputDTO struct {
 type FindCampaignsByInvestorAddressOutputDTO []*CampaignOutputDTO
 
 type FindCampaignsByInvestorAddressUseCase struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewFindCampaignsByInvestorAddressUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindCampaignsByInvestorAddressUseCase {
 	return &FindCampaignsByInvestorAddressUseCase{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
 func (f *FindCampaignsByInvestorAddressUseCase) Execute(input *FindCampaignsByInvestorAddressInputDTO) (*FindCampaignsByInvestorAddressOutputDTO, error) {
-	res, err := f.campaignRepository.FindCampaignsByInvestorAddress(input.InvestorAddress)
+	res, err := f.CampaignRepository.FindCampaignsByInvestorAddress(input.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +37,8 @@ func (f *FindCampaignsByInvestorAddressUseCase) Execute(input *FindCampaignsByIn
 		orders := make([]*entity.Order, len(campaign.Orders))
 		for j, order := range campaign.Orders {
 			orders[j] = &entity.Order{
-				Id:         order.Id,
-				CampaignId: order.CampaignId,
-
+				Id:           order.Id,
+				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       order.Amount,
 				InterestRate: order.InterestRate,
@@ -48,7 +47,7 @@ func (f *FindCampaignsByInvestorAddressUseCase) Execute(input *FindCampaignsByIn
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
+		creator, err := f.UserRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

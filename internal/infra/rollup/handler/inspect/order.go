@@ -10,8 +10,8 @@ import (
 )
 
 type OrderInspectHandlers struct {
-	userRepository  repository.UserRepository
-	orderRepository repository.OrderRepository
+	UserRepository  repository.UserRepository
+	OrderRepository repository.OrderRepository
 }
 
 func NewOrderInspectHandlers(
@@ -19,8 +19,8 @@ func NewOrderInspectHandlers(
 	orderRepo repository.OrderRepository,
 ) *OrderInspectHandlers {
 	return &OrderInspectHandlers{
-		userRepository:  userRepo,
-		orderRepository: orderRepo,
+		UserRepository:  userRepo,
+		OrderRepository: orderRepo,
 	}
 }
 
@@ -30,7 +30,7 @@ func (h *OrderInspectHandlers) FindOrderById(env rollmelette.EnvInspector, paylo
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
 
-	findOrderById := order.NewFindOrderByIdUseCase(h.userRepository, h.orderRepository)
+	findOrderById := order.NewFindOrderByIdUseCase(h.UserRepository, h.OrderRepository)
 	res, err := findOrderById.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find order: %w", err)
@@ -49,7 +49,7 @@ func (h *OrderInspectHandlers) FindBidsByCampaignId(env rollmelette.EnvInspector
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
 
-	findOrdersByCampaignId := order.NewFindOrdersByCampaignIdUseCase(h.userRepository, h.orderRepository)
+	findOrdersByCampaignId := order.NewFindOrdersByCampaignIdUseCase(h.UserRepository, h.OrderRepository)
 	res, err := findOrdersByCampaignId.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find orders by campaign id: %v", err)
@@ -64,7 +64,7 @@ func (h *OrderInspectHandlers) FindBidsByCampaignId(env rollmelette.EnvInspector
 
 func (h *OrderInspectHandlers) FindAllOrders(env rollmelette.EnvInspector, payload []byte) error {
 
-	findAllOrders := order.NewFindAllOrdersUseCase(h.userRepository, h.orderRepository)
+	findAllOrders := order.NewFindAllOrdersUseCase(h.UserRepository, h.OrderRepository)
 	res, err := findAllOrders.Execute()
 	if err != nil {
 		return fmt.Errorf("failed to find all orders: %w", err)
@@ -83,7 +83,7 @@ func (h *OrderInspectHandlers) FindOrdersByInvestorAddress(env rollmelette.EnvIn
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
 
-	findOrdersByInvestor := order.NewFindOrdersByInvestorAddressUseCase(h.userRepository, h.orderRepository)
+	findOrdersByInvestor := order.NewFindOrdersByInvestorAddressUseCase(h.UserRepository, h.OrderRepository)
 	res, err := findOrdersByInvestor.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find orders by investor: %w", err)

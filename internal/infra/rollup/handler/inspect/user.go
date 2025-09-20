@@ -12,14 +12,14 @@ import (
 )
 
 type UserInspectHandlers struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewUserInspectHandlers(
 	userRepo repository.UserRepository,
 ) *UserInspectHandlers {
 	return &UserInspectHandlers{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
@@ -34,7 +34,7 @@ func (h *UserInspectHandlers) FindUserByAddress(env rollmelette.EnvInspector, pa
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find User: %w", err)
@@ -49,7 +49,7 @@ func (h *UserInspectHandlers) FindUserByAddress(env rollmelette.EnvInspector, pa
 
 func (h *UserInspectHandlers) FindAllUsers(env rollmelette.EnvInspector, payload []byte) error {
 
-	findAllUsers := user.NewFindAllUsersUseCase(h.userRepository)
+	findAllUsers := user.NewFindAllUsersUseCase(h.UserRepository)
 	res, err := findAllUsers.Execute()
 	if err != nil {
 		return fmt.Errorf("failed to find all Users: %w", err)
@@ -73,7 +73,7 @@ func (h *UserInspectHandlers) ERC20BalanceOf(env rollmelette.EnvInspector, paylo
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 		Address: input.Address,
 	})

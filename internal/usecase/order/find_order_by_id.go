@@ -9,8 +9,8 @@ type FindOrderByIdInputDTO struct {
 }
 
 type FindOrderByIdUseCase struct {
-	userRepository  repository.UserRepository
-	orderRepository repository.OrderRepository
+	UserRepository  repository.UserRepository
+	OrderRepository repository.OrderRepository
 }
 
 func NewFindOrderByIdUseCase(
@@ -18,17 +18,17 @@ func NewFindOrderByIdUseCase(
 	orderRepo repository.OrderRepository,
 ) *FindOrderByIdUseCase {
 	return &FindOrderByIdUseCase{
-		userRepository:  userRepo,
-		orderRepository: orderRepo,
+		UserRepository:  userRepo,
+		OrderRepository: orderRepo,
 	}
 }
 
 func (c *FindOrderByIdUseCase) Execute(input *FindOrderByIdInputDTO) (*OrderOutputDTO, error) {
-	res, err := c.orderRepository.FindOrderById(input.Id)
+	res, err := c.OrderRepository.FindOrderById(input.Id)
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.userRepository.FindUserByAddress(res.Investor)
+	investor, err := c.UserRepository.FindUserByAddress(res.Investor)
 	if err != nil {
 		return nil, err
 	}

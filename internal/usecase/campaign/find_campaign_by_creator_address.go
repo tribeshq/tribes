@@ -16,19 +16,19 @@ type FindCampaignsByCreatorAddressInputDTO struct {
 type FindCampaignsByCreatorAddressOutputDTO []*CampaignOutputDTO
 
 type FindCampaignsByCreatorAddressUseCase struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewFindCampaignsByCreatorAddressUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindCampaignsByCreatorAddressUseCase {
 	return &FindCampaignsByCreatorAddressUseCase{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
 func (f *FindCampaignsByCreatorAddressUseCase) Execute(input *FindCampaignsByCreatorAddressInputDTO) (*FindCampaignsByCreatorAddressOutputDTO, error) {
-	res, err := f.campaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
+	res, err := f.CampaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (f *FindCampaignsByCreatorAddressUseCase) Execute(input *FindCampaignsByCre
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
+		creator, err := f.UserRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

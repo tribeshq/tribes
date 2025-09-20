@@ -5,7 +5,7 @@
     "contracts": {
       "prover": "0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496",
       "verifier": "0x34A1D3fff3958843C43aD80F30b94c510645C316",
-      "inputBoxAddress": "0xc70074BDD26d8cF983Ca6A5b89b8db52D5850051"
+      "inputBoxAddress": "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b"
     }
   }
 }

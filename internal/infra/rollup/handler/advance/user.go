@@ -17,17 +17,14 @@ import (
 )
 
 type UserAdvanceHandlers struct {
-	cfg            *configs.RollupConfig
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewUserAdvanceHandlers(
-	cfg *configs.RollupConfig,
 	userRepo repository.UserRepository,
 ) *UserAdvanceHandlers {
 	return &UserAdvanceHandlers{
-		cfg:            cfg,
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
@@ -42,7 +39,7 @@ func (h *UserAdvanceHandlers) CreateUser(env rollmelette.Env, metadata rollmelet
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	createUser := user.NewCreateUserUseCase(h.userRepository)
+	createUser := user.NewCreateUserUseCase(h.UserRepository)
 	res, err := createUser.Execute(&input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
@@ -68,7 +65,7 @@ func (h *UserAdvanceHandlers) DeleteUser(env rollmelette.Env, metadata rollmelet
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	deleteUserByAddress := user.NewDeleteUserUseCase(h.userRepository)
+	deleteUserByAddress := user.NewDeleteUserUseCase(h.UserRepository)
 	if err := deleteUserByAddress.Execute(&input); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
@@ -93,7 +90,7 @@ func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollme
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findUserByAddress := user.NewFindUserByAddressUseCase(h.userRepository)
+	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 		Address: custom_type.Address(metadata.MsgSender),
 	})
@@ -165,8 +162,13 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
 
+	emergencyWithdrawAddress, err := configs.GetEmergencyWithdrawAddress()
+	if err != nil {
+		return fmt.Errorf("error getting emergency withdraw address: %w", err)
+	}
+
 	env.DelegateCallVoucher(
-		h.cfg.EmergencyWithdrawAddress,
+		emergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil
@@ -205,8 +207,13 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
 
+	emergencyWithdrawAddress, err := configs.GetEmergencyWithdrawAddress()
+	if err != nil {
+		return fmt.Errorf("error getting emergency withdraw address: %w", err)
+	}
+
 	env.DelegateCallVoucher(
-		h.cfg.EmergencyWithdrawAddress,
+		emergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil

@@ -1,0 +1,9 @@
+{
+  "badgeFactory": {
+    "chainId": 31337,
+    "timestamp": 1,
+    "contracts": {
+      "badgeFactory": "0x85805ACaf14BAb97b8C6B3A28Ea001e28D9f2554"
+    }
+  }
+}

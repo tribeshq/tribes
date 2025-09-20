@@ -10,19 +10,19 @@ type FindUserByAddressInputDTO struct {
 }
 
 type FindUserByAddressUseCase struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewFindUserByAddressUseCase(
 	userRepo repository.UserRepository,
 ) *FindUserByAddressUseCase {
 	return &FindUserByAddressUseCase{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
 func (u *FindUserByAddressUseCase) Execute(input *FindUserByAddressInputDTO) (*UserOutputDTO, error) {
-	res, err := u.userRepository.FindUserByAddress(input.Address)
+	res, err := u.UserRepository.FindUserByAddress(input.Address)
 	if err != nil {
 		return nil, err
 	}

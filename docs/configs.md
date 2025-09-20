@@ -16,7 +16,6 @@ Address of the admin user
 
 * **Type:** `Address`
 * **Default:** `"0xD554153658E8D466428Fa48487f5aba18dF5E628"`
-* **Used by:** rollup
 
 ## `TRIBES_ADMIN_ADDRESS_TEST`
 
@@ -24,31 +23,27 @@ Address of the admin user
 
 * **Type:** `Address`
 * **Default:** `"0x976EA74026E726554dB657fA54763abd0C3a0aa9"`
-* **Used by:** rollup
 
 ## `TRIBES_BADGE_FACTORY_ADDRESS`
 
 Address of the badge factory contract, who can deploy the badges
 
 * **Type:** `Address`
-* **Default:** `"0x0000000000000000000000000000000000000013"`
-* **Used by:** rollup
+* **Default:** `"0x85805ACaf14BAb97b8C6B3A28Ea001e28D9f2554"`
 
 ## `TRIBES_EMERGENCY_WITHDRAW_ADDRESS`
 
 Address of the emergency withdraw address
 
 * **Type:** `Address`
-* **Default:** `"0x0000000000000000000000000000000000000006"`
-* **Used by:** rollup
+* **Default:** `"0x1EcbED5bFfC231C0eb3E01AF5945fFf902E2D8De"`
 
-## `TRIBES_SAFE_ERC1155_MINT_ADDRESS`
+## `TRIBES_SAFE_ERC721_MINT_ADDRESS`
 
-Address of the safe ERC1155 mint address
+Address of the safe ERC721 mint address
 
 * **Type:** `Address`
-* **Default:** `"0x0000000000000000000000000000000000000007"`
-* **Used by:** rollup
+* **Default:** `"0x287503047cFd7Ca9F2F7dFdf354E09c2b59C1625"`
 
 ## `TRIBES_VERIFIER_ADDRESS`
 
@@ -56,7 +51,6 @@ Address of the verifier contract, who can verify the social accounts
 
 * **Type:** `Address`
 * **Default:** `"0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b"`
-* **Used by:** rollup
 
 ## `TRIBES_VERIFIER_ADDRESS_TEST`
 
@@ -64,6 +58,13 @@ Address of the verifier contract, who can verify the social accounts
 
 * **Type:** `Address`
 * **Default:** `"0x0000000000000000000000000000000000000025"`
+
+## `TRIBES_DATABASE_CONNECTION`
+
+Database connection string
+
+* **Type:** `URL`
+* **Default:** `"sqlite:///mnt/data/tribes.db"`
 * **Used by:** rollup
 
 ## `TRIBES_MAX_STARTUP_TIME`
@@ -71,5 +72,5 @@ Address of the verifier contract, who can verify the social accounts
 Maximum startup time for the rollup service
 
 * **Type:** `Duration`
-* **Default:** `"10"`
+* **Default:** `"15"`
 * **Used by:** rollup

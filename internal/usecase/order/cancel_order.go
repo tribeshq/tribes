@@ -28,28 +28,28 @@ type CancelOrderOutputDTO struct {
 }
 
 type CancelOrderUseCase struct {
-	userRepository     repository.UserRepository
-	orderRepository    repository.OrderRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	OrderRepository    repository.OrderRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCancelOrderUseCase(userRepo repository.UserRepository, orderRepo repository.OrderRepository, campaignRepo repository.CampaignRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
-		userRepository:     userRepo,
-		orderRepository:    orderRepo,
-		campaignRepository: campaignRepo,
+		UserRepository:     userRepo,
+		OrderRepository:    orderRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
 func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollmelette.Metadata) (*CancelOrderOutputDTO, error) {
-	order, err := c.orderRepository.FindOrderById(input.Id)
+	order, err := c.OrderRepository.FindOrderById(input.Id)
 	if err != nil {
 		return nil, err
 	}
 	if order.Investor != custom_type.Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
-	campaign, err := c.campaignRepository.FindCampaignById(order.CampaignId)
+	campaign, err := c.CampaignRepository.FindCampaignById(order.CampaignId)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +57,11 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 		return nil, errors.New("cannot cancel order after Campaign closes")
 	}
 	order.State = entity.OrderStateCancelled
-	res, err := c.orderRepository.UpdateOrder(order)
+	res, err := c.OrderRepository.UpdateOrder(order)
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.userRepository.FindUserByAddress(res.Investor)
+	investor, err := c.UserRepository.FindUserByAddress(res.Investor)
 	if err != nil {
 		return nil, err
 	}

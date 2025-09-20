@@ -39,16 +39,16 @@ type CloseCampaignOutputDTO struct {
 }
 
 type CloseCampaignUseCase struct {
-	userRepository     repository.UserRepository
-	orderRepository    repository.OrderRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	OrderRepository    repository.OrderRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCloseCampaignUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository, orderRepo repository.OrderRepository) *CloseCampaignUseCase {
 	return &CloseCampaignUseCase{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
-		orderRepository:    orderRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
+		OrderRepository:    orderRepo,
 	}
 }
 
@@ -56,7 +56,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.campaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
+	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 3. Fetch and sort campaign orders
 	// -------------------------------------------------------------------------
-	orders, err := u.orderRepository.FindOrdersByCampaignId(ongoingCampaign.Id)
+	orders, err := u.OrderRepository.FindOrdersByCampaignId(ongoingCampaign.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 			// Reject surplus orders
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.orderRepository.UpdateOrder(order); err != nil {
+			if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
 				return nil, err
 			}
 			continue
@@ -129,7 +129,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 			order.State = entity.OrderStatePartiallyAccepted
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
-			_, err := u.orderRepository.CreateOrder(&entity.Order{
+			_, err := u.OrderRepository.CreateOrder(&entity.Order{
 				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       rejectedAmount,
@@ -145,7 +145,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		}
 		order.Amount = acceptAmount
 		order.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.orderRepository.UpdateOrder(order); err != nil {
+		if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
 			return nil, err
 		}
 	}
@@ -160,13 +160,13 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		for _, order := range orders {
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.orderRepository.UpdateOrder(order); err != nil {
+			if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
 				return nil, err
 			}
 		}
 		ongoingCampaign.State = entity.CampaignStateCanceled
 		ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.campaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
+		if _, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
 			return nil, err
 		}
 		return nil, fmt.Errorf("campaign canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
@@ -179,12 +179,12 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	ongoingCampaign.TotalObligation = totalObligation
 	ongoingCampaign.TotalRaised = totalCollected
 	ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := u.campaignRepository.UpdateCampaign(ongoingCampaign)
+	res, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign)
 	if err != nil {
 		return nil, err
 	}
 
-	creator, err := u.userRepository.FindUserByAddress(res.Creator)
+	creator, err := u.UserRepository.FindUserByAddress(res.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}

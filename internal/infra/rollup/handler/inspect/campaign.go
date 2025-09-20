@@ -11,8 +11,8 @@ import (
 )
 
 type CampaignInspectHandlers struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCampaignInspectHandlers(
@@ -20,8 +20,8 @@ func NewCampaignInspectHandlers(
 	campaignRepo repository.CampaignRepository,
 ) *CampaignInspectHandlers {
 	return &CampaignInspectHandlers{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
@@ -36,7 +36,7 @@ func (h *CampaignInspectHandlers) FindCampaignById(env rollmelette.EnvInspector,
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findCampaignById := campaign.NewFindCampaignByIdUseCase(h.userRepository, h.campaignRepository)
+	findCampaignById := campaign.NewFindCampaignByIdUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignById.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaign: %w", err)
@@ -51,7 +51,7 @@ func (h *CampaignInspectHandlers) FindCampaignById(env rollmelette.EnvInspector,
 
 func (h *CampaignInspectHandlers) FindAllCampaigns(env rollmelette.EnvInspector, payload []byte) error {
 
-	findAllCampaignsUseCase := campaign.NewFindAllCampaignsUseCase(h.userRepository, h.campaignRepository)
+	findAllCampaignsUseCase := campaign.NewFindAllCampaignsUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findAllCampaignsUseCase.Execute()
 	if err != nil {
 		return fmt.Errorf("failed to find all campaigns: %w", err)
@@ -75,7 +75,7 @@ func (h *CampaignInspectHandlers) FindCampaignsByInvestorAddress(env rollmelette
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findCampaignsByInvestor := campaign.NewFindCampaignsByInvestorAddressUseCase(h.userRepository, h.campaignRepository)
+	findCampaignsByInvestor := campaign.NewFindCampaignsByInvestorAddressUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignsByInvestor.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaigns by investor: %w", err)
@@ -99,7 +99,7 @@ func (h *CampaignInspectHandlers) FindCampaignsByCreatorAddress(env rollmelette.
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	findCampaignsByCreator := campaign.NewFindCampaignsByCreatorAddressUseCase(h.userRepository, h.campaignRepository)
+	findCampaignsByCreator := campaign.NewFindCampaignsByCreatorAddressUseCase(h.UserRepository, h.CampaignRepository)
 	res, err := findCampaignsByCreator.Execute(&input)
 	if err != nil {
 		return fmt.Errorf("failed to find campaigns by creator: %w", err)

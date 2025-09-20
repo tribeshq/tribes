@@ -43,7 +43,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	defer cancel()
 
-	repo, err := factory.NewRepositoryFromConnectionString(ctx, "sqlite:///mnt/data/tribes.db")
+	repo, err := factory.NewRepositoryFromConnectionString(ctx, cfg.DatabaseConnection.String())
 	if err != nil {
 		slog.Error("Failed to initialize database", "error", err)
 		os.Exit(1)
@@ -54,7 +54,6 @@ func run(cmd *cobra.Command, args []string) {
 
 	createInfo := &rollup.CreateInfo{
 		Repo:   repo,
-		Config: cfg,
 	}
 
 	r := rollup.Create(createInfo)

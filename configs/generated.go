@@ -22,9 +22,10 @@ const (
 	ADMIN_ADDRESS_TEST         = "TRIBES_ADMIN_ADDRESS_TEST"
 	BADGE_FACTORY_ADDRESS      = "TRIBES_BADGE_FACTORY_ADDRESS"
 	EMERGENCY_WITHDRAW_ADDRESS = "TRIBES_EMERGENCY_WITHDRAW_ADDRESS"
-	SAFE_ERC1155_MINT_ADDRESS  = "TRIBES_SAFE_ERC1155_MINT_ADDRESS"
+	SAFE_ERC721_MINT_ADDRESS   = "TRIBES_SAFE_ERC721_MINT_ADDRESS"
 	VERIFIER_ADDRESS           = "TRIBES_VERIFIER_ADDRESS"
 	VERIFIER_ADDRESS_TEST      = "TRIBES_VERIFIER_ADDRESS_TEST"
+	DATABASE_CONNECTION        = "TRIBES_DATABASE_CONNECTION"
 	MAX_STARTUP_TIME           = "TRIBES_MAX_STARTUP_TIME"
 )
 
@@ -35,43 +36,27 @@ func SetDefaults() {
 
 	viper.SetDefault(ADMIN_ADDRESS_TEST, "0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 
-	viper.SetDefault(BADGE_FACTORY_ADDRESS, "0x0000000000000000000000000000000000000013")
+	viper.SetDefault(BADGE_FACTORY_ADDRESS, "0x85805ACaf14BAb97b8C6B3A28Ea001e28D9f2554")
 
-	viper.SetDefault(EMERGENCY_WITHDRAW_ADDRESS, "0x0000000000000000000000000000000000000006")
+	viper.SetDefault(EMERGENCY_WITHDRAW_ADDRESS, "0x1EcbED5bFfC231C0eb3E01AF5945fFf902E2D8De")
 
-	viper.SetDefault(SAFE_ERC1155_MINT_ADDRESS, "0x0000000000000000000000000000000000000007")
+	viper.SetDefault(SAFE_ERC721_MINT_ADDRESS, "0x287503047cFd7Ca9F2F7dFdf354E09c2b59C1625")
 
 	viper.SetDefault(VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
 
 	viper.SetDefault(VERIFIER_ADDRESS_TEST, "0x0000000000000000000000000000000000000025")
 
-	viper.SetDefault(MAX_STARTUP_TIME, "10")
+	viper.SetDefault(DATABASE_CONNECTION, "sqlite:///mnt/data/tribes.db")
+
+	viper.SetDefault(MAX_STARTUP_TIME, "15")
 
 }
 
 // RollupConfig holds configuration values for the rollup service.
 type RollupConfig struct {
 
-	// Address of the admin user
-	AdminAddress Address `mapstructure:"TRIBES_ADMIN_ADDRESS"`
-
-	// Address of the admin user
-	AdminAddressTest Address `mapstructure:"TRIBES_ADMIN_ADDRESS_TEST"`
-
-	// Address of the badge factory contract, who can deploy the badges
-	BadgeFactoryAddress Address `mapstructure:"TRIBES_BADGE_FACTORY_ADDRESS"`
-
-	// Address of the emergency withdraw address
-	EmergencyWithdrawAddress Address `mapstructure:"TRIBES_EMERGENCY_WITHDRAW_ADDRESS"`
-
-	// Address of the safe ERC1155 mint address
-	SafeErc1155MintAddress Address `mapstructure:"TRIBES_SAFE_ERC1155_MINT_ADDRESS"`
-
-	// Address of the verifier contract, who can verify the social accounts
-	VerifierAddress Address `mapstructure:"TRIBES_VERIFIER_ADDRESS"`
-
-	// Address of the verifier contract, who can verify the social accounts
-	VerifierAddressTest Address `mapstructure:"TRIBES_VERIFIER_ADDRESS_TEST"`
+	// Database connection string
+	DatabaseConnection URL `mapstructure:"TRIBES_DATABASE_CONNECTION"`
 
 	// Maximum startup time for the rollup service
 	MaxStartupTime Duration `mapstructure:"TRIBES_MAX_STARTUP_TIME"`
@@ -93,53 +78,11 @@ func LoadRollupConfig() (*RollupConfig, error) {
 	var cfg RollupConfig
 	var err error
 
-	cfg.AdminAddress, err = GetAdminAddress()
+	cfg.DatabaseConnection, err = GetDatabaseConnection()
 	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS: %w", err)
+		return nil, fmt.Errorf("failed to get TRIBES_DATABASE_CONNECTION: %w", err)
 	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS is required for the rollup service: %w", err)
-	}
-
-	cfg.AdminAddressTest, err = GetAdminAddressTest()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_ADMIN_ADDRESS_TEST: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_ADMIN_ADDRESS_TEST is required for the rollup service: %w", err)
-	}
-
-	cfg.BadgeFactoryAddress, err = GetBadgeFactoryAddress()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_BADGE_FACTORY_ADDRESS: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_BADGE_FACTORY_ADDRESS is required for the rollup service: %w", err)
-	}
-
-	cfg.EmergencyWithdrawAddress, err = GetEmergencyWithdrawAddress()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_EMERGENCY_WITHDRAW_ADDRESS: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_EMERGENCY_WITHDRAW_ADDRESS is required for the rollup service: %w", err)
-	}
-
-	cfg.SafeErc1155MintAddress, err = GetSafeErc1155MintAddress()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_SAFE_ERC1155_MINT_ADDRESS: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_SAFE_ERC1155_MINT_ADDRESS is required for the rollup service: %w", err)
-	}
-
-	cfg.VerifierAddress, err = GetVerifierAddress()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS is required for the rollup service: %w", err)
-	}
-
-	cfg.VerifierAddressTest, err = GetVerifierAddressTest()
-	if err != nil && err != ErrNotDefined {
-		return nil, fmt.Errorf("failed to get TRIBES_VERIFIER_ADDRESS_TEST: %w", err)
-	} else if err == ErrNotDefined {
-		return nil, fmt.Errorf("TRIBES_VERIFIER_ADDRESS_TEST is required for the rollup service: %w", err)
+		return nil, fmt.Errorf("TRIBES_DATABASE_CONNECTION is required for the rollup service: %w", err)
 	}
 
 	cfg.MaxStartupTime, err = GetMaxStartupTime()
@@ -204,17 +147,17 @@ func GetEmergencyWithdrawAddress() (Address, error) {
 	return notDefinedAddress(), fmt.Errorf("%s: %w", EMERGENCY_WITHDRAW_ADDRESS, ErrNotDefined)
 }
 
-// GetSafeErc1155MintAddress returns the value for the environment variable TRIBES_SAFE_ERC1155_MINT_ADDRESS.
-func GetSafeErc1155MintAddress() (Address, error) {
-	s := viper.GetString(SAFE_ERC1155_MINT_ADDRESS)
+// GetSafeErc721MintAddress returns the value for the environment variable TRIBES_SAFE_ERC721_MINT_ADDRESS.
+func GetSafeErc721MintAddress() (Address, error) {
+	s := viper.GetString(SAFE_ERC721_MINT_ADDRESS)
 	if s != "" {
 		v, err := toAddress(s)
 		if err != nil {
-			return v, fmt.Errorf("failed to parse %s: %w", SAFE_ERC1155_MINT_ADDRESS, err)
+			return v, fmt.Errorf("failed to parse %s: %w", SAFE_ERC721_MINT_ADDRESS, err)
 		}
 		return v, nil
 	}
-	return notDefinedAddress(), fmt.Errorf("%s: %w", SAFE_ERC1155_MINT_ADDRESS, ErrNotDefined)
+	return notDefinedAddress(), fmt.Errorf("%s: %w", SAFE_ERC721_MINT_ADDRESS, ErrNotDefined)
 }
 
 // GetVerifierAddress returns the value for the environment variable TRIBES_VERIFIER_ADDRESS.
@@ -241,6 +184,19 @@ func GetVerifierAddressTest() (Address, error) {
 		return v, nil
 	}
 	return notDefinedAddress(), fmt.Errorf("%s: %w", VERIFIER_ADDRESS_TEST, ErrNotDefined)
+}
+
+// GetDatabaseConnection returns the value for the environment variable TRIBES_DATABASE_CONNECTION.
+func GetDatabaseConnection() (URL, error) {
+	s := viper.GetString(DATABASE_CONNECTION)
+	if s != "" {
+		v, err := toURL(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", DATABASE_CONNECTION, err)
+		}
+		return v, nil
+	}
+	return notDefinedURL(), fmt.Errorf("%s: %w", DATABASE_CONNECTION, ErrNotDefined)
 }
 
 // GetMaxStartupTime returns the value for the environment variable TRIBES_MAX_STARTUP_TIME.
