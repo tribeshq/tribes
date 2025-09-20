@@ -22,7 +22,7 @@ type CreateSocialAccountOutputDTO struct {
 }
 
 type CreateSocialAccountUseCase struct {
-	userRepository          repository.UserRepository
+	UserRepository          repository.UserRepository
 	socialAccountRepository repository.SocialAccountRepository
 }
 
@@ -31,13 +31,13 @@ func NewCreateSocialAccountUseCase(
 	socialAccountRepo repository.SocialAccountRepository,
 ) *CreateSocialAccountUseCase {
 	return &CreateSocialAccountUseCase{
-		userRepository:          userRepo,
+		UserRepository:          userRepo,
 		socialAccountRepository: socialAccountRepo,
 	}
 }
 
 func (s *CreateSocialAccountUseCase) Execute(input *CreateSocialAccountInputDTO, metadata *rollmelette.Metadata) (*CreateSocialAccountOutputDTO, error) {
-	user, err := s.userRepository.FindUserByAddress(input.Address)
+	user, err := s.UserRepository.FindUserByAddress(input.Address)
 	if err != nil {
 		return nil, err
 	}

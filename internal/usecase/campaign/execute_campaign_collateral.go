@@ -38,21 +38,21 @@ type ExecuteCampaignCollateralOutputDTO struct {
 }
 
 type ExecuteCampaignCollateralUseCase struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
-	orderRepository    repository.OrderRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
+	OrderRepository    repository.OrderRepository
 }
 
 func NewExecuteCampaignCollateralUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository, orderRepo repository.OrderRepository) *ExecuteCampaignCollateralUseCase {
 	return &ExecuteCampaignCollateralUseCase{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
-		orderRepository:    orderRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
+		OrderRepository:    orderRepo,
 	}
 }
 
 func (uc *ExecuteCampaignCollateralUseCase) Execute(input *ExecuteCampaignCollateralInputDTO, metadata rollmelette.Metadata) (*ExecuteCampaignCollateralOutputDTO, error) {
-	campaign, err := uc.campaignRepository.FindCampaignById(input.Id)
+	campaign, err := uc.CampaignRepository.FindCampaignById(input.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -70,19 +70,19 @@ func (uc *ExecuteCampaignCollateralUseCase) Execute(input *ExecuteCampaignCollat
 		}
 	}
 	for _, order := range ordersToUpdate {
-		if _, err := uc.orderRepository.UpdateOrder(order); err != nil {
+		if _, err := uc.OrderRepository.UpdateOrder(order); err != nil {
 			return nil, fmt.Errorf("error updating order: %w", err)
 		}
 	}
 
 	campaign.State = entity.CampaignStateCollateralExecuted
 
-	res, err := uc.campaignRepository.UpdateCampaign(campaign)
+	res, err := uc.CampaignRepository.UpdateCampaign(campaign)
 	if err != nil {
 		return nil, err
 	}
 
-	creator, err := uc.userRepository.FindUserByAddress(res.Creator)
+	creator, err := uc.UserRepository.FindUserByAddress(res.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}

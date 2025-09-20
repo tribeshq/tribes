@@ -23,7 +23,7 @@ type CampaignSuite struct {
 }
 
 func (s *CampaignSuite) TestCreateCampaign() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -52,7 +52,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(2)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -80,7 +80,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -106,7 +106,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 }
 
 func (s *CampaignSuite) TestFindAllCampaigns() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -135,7 +135,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(2)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -163,7 +163,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -207,7 +207,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 }
 
 func (s *CampaignSuite) TestFindCampaignById() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -236,7 +236,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(2)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -264,7 +264,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -305,7 +305,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 }
 
 func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
 	// create creator user
@@ -334,7 +334,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(2)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -362,7 +362,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -405,7 +405,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignsByCreatorAddressOutput)
 }
 func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, safeERC721MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -471,7 +471,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(7)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -499,7 +499,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -611,15 +611,15 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
 	// Verify delegate call voucher destinations are SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 }
 
 func (s *CampaignSuite) TestCloseCampaign() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, safeERC721MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -685,7 +685,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(7)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -713,7 +713,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -829,7 +829,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"100000"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
+	// verify number of vouchers for badge safeERC721MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
 	abiJSON := `[{
@@ -848,13 +848,13 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor01)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -863,7 +863,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor02)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -872,7 +872,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor03)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -881,7 +881,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor04)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -890,7 +890,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor05)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -901,7 +901,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 }
 
 func (s *CampaignSuite) TestExecuteCampaignCollateral() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, safeERC721MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -967,7 +967,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(7)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -995,7 +995,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -1189,7 +1189,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
+	// verify number of vouchers for badge safeERC721MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
 	abiJSON := `[{
@@ -1208,13 +1208,13 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor01)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1223,7 +1223,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor02)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1232,7 +1232,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor03)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1241,7 +1241,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor04)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1250,7 +1250,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor05)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1261,7 +1261,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 }
 
 func (s *CampaignSuite) TestSettleCampaign() {
-	admin, token, badgeName, badgeSymbol, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
+	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, safeERC721MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -1327,7 +1327,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Require().NoError(err)
 
 	badgeAddress := crypto.CreateAddress2(
-		factory,
+		badgeFactory,
 		common.HexToHash(strconv.Itoa(7)),
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
@@ -1355,7 +1355,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
 
 	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -1508,7 +1508,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
+	// verify number of vouchers for badge safeERC721MintAddress delegate calls
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
 
 	abiJSON := `[{
@@ -1527,13 +1527,13 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC721MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor01)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1542,7 +1542,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor02)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1551,7 +1551,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor03)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1560,7 +1560,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor04)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
@@ -1569,7 +1569,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
+	// verify delegate call voucher payload for badge safeERC721MintAddress (investor05)
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress

@@ -14,7 +14,7 @@ contract DeployEmergency is Script {
 
         vm.startBroadcast();
         console.log("Deploying Emergency Withdraw...");
-        emergencyWithdraw = new EmergencyWithdraw();
+        emergencyWithdraw = new EmergencyWithdraw{salt: keccak256("1596")}();
         console.log("Emergency Withdraw deployed to:", address(emergencyWithdraw));
         vm.stopBroadcast();
 

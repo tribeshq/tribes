@@ -5,13 +5,12 @@ package rollup
 
 import (
 	"github.com/google/wire"
-	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/rollup/handler/advance"
 	"github.com/tribeshq/tribes/internal/infra/rollup/handler/inspect"
 )
 
-func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handlers, error) {
+func NewHandlers(repo repository.Repository) (*Handlers, error) {
 	wire.Build(
 		// Bind repository interfaces
 		wire.Bind(new(repository.UserRepository), new(repository.Repository)),

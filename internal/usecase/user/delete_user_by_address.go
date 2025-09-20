@@ -10,17 +10,17 @@ type DeleteUserInputDTO struct {
 }
 
 type DeleteUserUseCase struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewDeleteUserUseCase(
 	userRepo repository.UserRepository,
 ) *DeleteUserUseCase {
 	return &DeleteUserUseCase{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
 func (u *DeleteUserUseCase) Execute(input *DeleteUserInputDTO) error {
-	return u.userRepository.DeleteUser(input.Address)
+	return u.UserRepository.DeleteUser(input.Address)
 }

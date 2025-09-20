@@ -10,10 +10,10 @@ contract DeployBadgeFactory is Script {
     BadgeFactory public badgeFactory;
 
     function run() external {
-        console.log("Starting Deployer deployment on chain ID:", block.chainid);
+        console.log("Starting badge factory deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
-        badgeFactory = new BadgeFactory();
+        badgeFactory = new BadgeFactory{salt: keccak256("1596")}();
         console.log("BadgeFactory deployed to:", address(badgeFactory));
         vm.stopBroadcast();
 
@@ -24,7 +24,7 @@ contract DeployBadgeFactory is Script {
 
     function _saveDeploymentInfo() internal {
         string memory deploymentInfo = string.concat(
-            '{"deployer":{',
+            '{"badgeFactory":{',
             '"chainId":',
             vm.toString(block.chainid),
             ",",
@@ -39,6 +39,6 @@ contract DeployBadgeFactory is Script {
             "}}"
         );
 
-        vm.writeJson(deploymentInfo, "./deployments/deployer.json");
+        vm.writeJson(deploymentInfo, "./deployments/badgeFactory.json");
     }
 }

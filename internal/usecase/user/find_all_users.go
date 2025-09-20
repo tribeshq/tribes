@@ -7,19 +7,19 @@ import (
 type FindAllUsersOutputDTO []*UserOutputDTO
 
 type FindAllUsersUseCase struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewFindAllUsersUseCase(
 	userRepo repository.UserRepository,
 ) *FindAllUsersUseCase {
 	return &FindAllUsersUseCase{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
 func (u *FindAllUsersUseCase) Execute() (*FindAllUsersOutputDTO, error) {
-	res, err := u.userRepository.FindAllUsers()
+	res, err := u.UserRepository.FindAllUsers()
 	if err != nil {
 		return nil, err
 	}

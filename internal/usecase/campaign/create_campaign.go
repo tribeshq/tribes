@@ -50,20 +50,18 @@ type CreateCampaignOutputDTO struct {
 }
 
 type CreateCampaignUseCase struct {
-	cfg                *configs.RollupConfig
-	campaignRepository repository.CampaignRepository
-	userRepository     repository.UserRepository
+	BadgeFactoryAddress common.Address
+	CampaignRepository  repository.CampaignRepository
+	UserRepository      repository.UserRepository
 }
 
 func NewCreateCampaignUseCase(
-	cfg *configs.RollupConfig,
 	campaignRepo repository.CampaignRepository,
 	userRepo repository.UserRepository,
 ) *CreateCampaignUseCase {
 	return &CreateCampaignUseCase{
-		cfg:                cfg,
-		campaignRepository: campaignRepo,
-		userRepository:     userRepo,
+		CampaignRepository: campaignRepo,
+		UserRepository:     userRepo,
 	}
 }
 
@@ -73,7 +71,7 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	creator, err := c.userRepository.FindUserByAddress(custom_type.Address(erc20Deposit.Sender))
+	creator, err := c.UserRepository.FindUserByAddress(custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
@@ -87,7 +85,7 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error getting badge bytecode: %w", err)
 	}
 
-	campaigns, err := c.campaignRepository.FindCampaignsByCreatorAddress(custom_type.Address(erc20Deposit.Sender))
+	campaigns, err := c.CampaignRepository.FindCampaignsByCreatorAddress(custom_type.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Campaigns: %w", err)
 	}
@@ -108,8 +106,13 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error encoding constructor args: %w", err)
 	}
 
+	badgeFactoryAddress, err := configs.GetBadgeFactoryAddress()
+	if err != nil {
+		return nil, fmt.Errorf("error getting badge factory address: %w", err)
+	}
+
 	badgeAddress := crypto.CreateAddress2(
-		c.cfg.BadgeFactoryAddress,
+		badgeFactoryAddress,
 		common.HexToHash(strconv.Itoa(metadata.Index)),
 		crypto.Keccak256(append(bytecode, constructorArgs...)),
 	)
@@ -133,7 +136,7 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
 
-	createdCampaign, err := c.campaignRepository.CreateCampaign(campaign)
+	createdCampaign, err := c.CampaignRepository.CreateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}

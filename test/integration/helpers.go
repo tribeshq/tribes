@@ -24,12 +24,7 @@ type TribesRollupSuite struct {
 
 // SetupTest initializes the test environment
 func (s *TribesRollupSuite) SetupTest() {
-	cfg, err := configs.LoadRollupConfig()
-	if err != nil {
-		slog.Error("Failed to load rollup config", "error", err)
-		os.Exit(1)
-	}
-
+	var err error
 	s.Bytecode, err = assets.GetBadgeBytecode()
 	if err != nil {
 		slog.Error("Failed to get badge bytecode", "error", err)
@@ -46,12 +41,11 @@ func (s *TribesRollupSuite) SetupTest() {
 	slog.Info("Database initialized")
 
 	createInfo := rollup.CreateInfo{
-		Repo:   repo,
-		Config: cfg,
+		Repo: repo,
 	}
 
-	dapp := rollup.Create(&createInfo)
-	s.Tester = rollmelette.NewTester(dapp)
+	app := rollup.Create(&createInfo)
+	s.Tester = rollmelette.NewTester(app)
 }
 
 // setupCommonAddresses returns common addresses used in tests
@@ -61,20 +55,28 @@ func (s *TribesRollupSuite) setupCommonAddresses() (
 	badgeName string,
 	badgeSymbol string,
 	creator common.Address,
-	factory common.Address,
+	badgeFactory common.Address,
 	verifier common.Address,
 	collateral common.Address,
-	safeERC1155MintAddress common.Address,
+	safeERC721Mint common.Address,
 	applicationAddress common.Address,
 ) {
+	badgeFactory, err := configs.GetBadgeFactoryAddress()
+	if err != nil {
+		slog.Error("Failed to get BadgeFactory address", "error", err)
+		os.Exit(1)
+	}
+	safeERC721Mint, err = configs.GetSafeErc721MintAddress()
+	if err != nil {
+		slog.Error("Failed to get SafeERC721Mint address", "error", err)
+		os.Exit(1)
+	}
 	admin = common.HexToAddress("0x976EA74026E726554dB657fA54763abd0C3a0aa9")
 	token = common.HexToAddress("0x0000000000000000000000000000000000000009")
 	badgeName = "test"
 	badgeSymbol = "test"
 	creator = common.HexToAddress("0x0000000000000000000000000000000000000007")
-	factory = common.HexToAddress("0x0000000000000000000000000000000000000013")
 	verifier = common.HexToAddress("0x0000000000000000000000000000000000000025")
-	safeERC1155MintAddress = common.HexToAddress("0x0000000000000000000000000000000000000007")
 	collateral = common.HexToAddress("0x0000000000000000000000000000000000000008")
 	applicationAddress = common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
 	return

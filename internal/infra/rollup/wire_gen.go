@@ -7,7 +7,6 @@
 package rollup
 
 import (
-	"github.com/tribeshq/tribes/configs"
 	"github.com/tribeshq/tribes/internal/infra/repository"
 	"github.com/tribeshq/tribes/internal/infra/rollup/handler/advance"
 	"github.com/tribeshq/tribes/internal/infra/rollup/handler/inspect"
@@ -15,11 +14,11 @@ import (
 
 // Injectors from wire.go:
 
-func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handlers, error) {
+func NewHandlers(repo repository.Repository) (*Handlers, error) {
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
-	userAdvanceHandlers := advance.NewUserAdvanceHandlers(cfg, repo)
+	userAdvanceHandlers := advance.NewUserAdvanceHandlers(repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
-	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(cfg, repo, repo, repo)
+	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)

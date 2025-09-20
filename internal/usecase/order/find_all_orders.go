@@ -7,8 +7,8 @@ import (
 type FindAllOrdersOutputDTO []*OrderOutputDTO
 
 type FindAllOrdersUseCase struct {
-	userRepository  repository.UserRepository
-	orderRepository repository.OrderRepository
+	UserRepository  repository.UserRepository
+	OrderRepository repository.OrderRepository
 }
 
 func NewFindAllOrdersUseCase(
@@ -16,19 +16,19 @@ func NewFindAllOrdersUseCase(
 	orderRepo repository.OrderRepository,
 ) *FindAllOrdersUseCase {
 	return &FindAllOrdersUseCase{
-		userRepository:  userRepo,
-		orderRepository: orderRepo,
+		UserRepository:  userRepo,
+		OrderRepository: orderRepo,
 	}
 }
 
 func (f *FindAllOrdersUseCase) Execute() (*FindAllOrdersOutputDTO, error) {
-	res, err := f.orderRepository.FindAllOrders()
+	res, err := f.OrderRepository.FindAllOrders()
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindAllOrdersOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := f.userRepository.FindUserByAddress(order.Investor)
+		investor, err := f.UserRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}

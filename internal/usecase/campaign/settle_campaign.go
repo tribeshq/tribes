@@ -38,20 +38,20 @@ type SettleCampaignOutputDTO struct {
 }
 
 type SettleCampaignUseCase struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
-	orderRepository    repository.OrderRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
+	OrderRepository    repository.OrderRepository
 }
 
 func NewSettleCampaignUseCase(
-	userRepository repository.UserRepository,
-	campaignRepository repository.CampaignRepository,
-	orderRepository repository.OrderRepository,
+	UserRepository repository.UserRepository,
+	CampaignRepository repository.CampaignRepository,
+	OrderRepository repository.OrderRepository,
 ) *SettleCampaignUseCase {
 	return &SettleCampaignUseCase{
-		userRepository:     userRepository,
-		campaignRepository: campaignRepository,
-		orderRepository:    orderRepository,
+		UserRepository:     UserRepository,
+		CampaignRepository: CampaignRepository,
+		OrderRepository:    OrderRepository,
 	}
 }
 
@@ -65,7 +65,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		return nil, fmt.Errorf("invalid deposit custom_type: %T", deposit)
 	}
 
-	campaign, err := uc.campaignRepository.FindCampaignById(input.Id)
+	campaign, err := uc.CampaignRepository.FindCampaignById(input.Id)
 	if err != nil {
 		return nil, fmt.Errorf("error finding campaign: %w", err)
 	}
@@ -83,19 +83,19 @@ func (uc *SettleCampaignUseCase) Execute(
 		}
 	}
 	for _, order := range ordersToUpdate {
-		if _, err := uc.orderRepository.UpdateOrder(order); err != nil {
+		if _, err := uc.OrderRepository.UpdateOrder(order); err != nil {
 			return nil, fmt.Errorf("error updating order: %w", err)
 		}
 	}
 
 	campaign.State = entity.CampaignStateSettled
 	campaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := uc.campaignRepository.UpdateCampaign(campaign)
+	res, err := uc.CampaignRepository.UpdateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error updating campaign: %w", err)
 	}
 
-	creator, err := uc.userRepository.FindUserByAddress(res.Creator)
+	creator, err := uc.UserRepository.FindUserByAddress(res.Creator)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}

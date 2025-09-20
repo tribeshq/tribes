@@ -11,19 +11,19 @@ import (
 type FindAllCampaignsOutputDTO []*CampaignOutputDTO
 
 type FindAllCampaignsUseCase struct {
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewFindAllCampaignsUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindAllCampaignsUseCase {
 	return &FindAllCampaignsUseCase{
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
 func (f *FindAllCampaignsUseCase) Execute() (*FindAllCampaignsOutputDTO, error) {
-	res, err := f.campaignRepository.FindAllCampaigns()
+	res, err := f.CampaignRepository.FindAllCampaigns()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (f *FindAllCampaignsUseCase) Execute() (*FindAllCampaignsOutputDTO, error) 
 				UpdatedAt:    order.UpdatedAt,
 			}
 		}
-		creator, err := f.userRepository.FindUserByAddress(campaign.Creator)
+		creator, err := f.UserRepository.FindUserByAddress(campaign.Creator)
 		if err != nil {
 			return nil, fmt.Errorf("error finding creator: %w", err)
 		}

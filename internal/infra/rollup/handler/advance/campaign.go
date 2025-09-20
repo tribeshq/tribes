@@ -19,23 +19,20 @@ import (
 )
 
 type CampaignAdvanceHandlers struct {
-	cfg                *configs.RollupConfig
-	orderRepository    repository.OrderRepository
-	userRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	OrderRepository    repository.OrderRepository
+	UserRepository     repository.UserRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCampaignAdvanceHandlers(
-	cfg *configs.RollupConfig,
 	orderRepo repository.OrderRepository,
 	userRepo repository.UserRepository,
 	campaignRepo repository.CampaignRepository,
 ) *CampaignAdvanceHandlers {
 	return &CampaignAdvanceHandlers{
-		cfg:                cfg,
-		orderRepository:    orderRepo,
-		userRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		OrderRepository:    orderRepo,
+		UserRepository:     userRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
@@ -51,9 +48,8 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	}
 
 	createCampaign := campaign.NewCreateCampaignUseCase(
-		h.cfg,
-		h.campaignRepository,
-		h.userRepository,
+		h.CampaignRepository,
+		h.UserRepository,
 	)
 
 	res, err := createCampaign.Execute(&input, deposit, metadata)
@@ -86,8 +82,14 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 	if err != nil {
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
+
+	badgeFactoryAddress, err := configs.GetBadgeFactoryAddress()
+	if err != nil {
+		return fmt.Errorf("error getting badge factory address: %w", err)
+	}
+
 	env.Voucher(
-		common.Address(h.cfg.BadgeFactoryAddress),
+		badgeFactoryAddress,
 		big.NewInt(0),
 		deployBadgePayload,
 	)
@@ -122,7 +124,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	closeCampaign := campaign.NewCloseCampaignUseCase(h.userRepository, h.campaignRepository, h.orderRepository)
+	closeCampaign := campaign.NewCloseCampaignUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
 	res, err := closeCampaign.Execute(&input, metadata)
 	if err != nil && res == nil {
 		return fmt.Errorf("failed to close campaign: %w", err)
@@ -142,6 +144,11 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 				return fmt.Errorf("failed to transfer rejected order: %w", err)
 			}
 		}
+	}
+
+	safeErc721MintAddress, err := configs.GetSafeErc721MintAddress()
+	if err != nil {
+		return fmt.Errorf("error getting SafeERC721Mint address: %w", err)
 	}
 
 	abiJSON := `[{
@@ -173,7 +180,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 			if err != nil {
 				return fmt.Errorf("failed to pack ABI: %w", err)
 			}
-			env.DelegateCallVoucher(common.Address(h.cfg.SafeErc1155MintAddress), safeMintPayload)
+			env.DelegateCallVoucher(safeErc721MintAddress, safeMintPayload)
 		}
 	}
 
@@ -202,9 +209,9 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 	}
 
 	settleCampaign := campaign.NewSettleCampaignUseCase(
-		h.userRepository,
-		h.campaignRepository,
-		h.orderRepository,
+		h.UserRepository,
+		h.CampaignRepository,
+		h.OrderRepository,
 	)
 
 	res, err := settleCampaign.Execute(&input, deposit, metadata)
@@ -256,7 +263,7 @@ func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env,
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.userRepository, h.campaignRepository, h.orderRepository)
+	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
 	res, err := executeCampaignCollateral.Execute(&input, metadata)
 	if err != nil {
 		return fmt.Errorf("failed to execute campaign collateral: %w", err)

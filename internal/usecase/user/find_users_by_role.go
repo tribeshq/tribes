@@ -11,19 +11,19 @@ type FindUserByRoleInputDTO struct {
 type FindUserByRoleOutputDTO []*UserOutputDTO
 
 type FindUsersByRoleUseCase struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewFindUsersByRoleUseCase(
 	userRepo repository.UserRepository,
 ) *FindUsersByRoleUseCase {
 	return &FindUsersByRoleUseCase{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
 func (u *FindUsersByRoleUseCase) Execute(input *FindUserByRoleInputDTO) ([]*UserOutputDTO, error) {
-	res, err := u.userRepository.FindUsersByRole(input.Role)
+	res, err := u.UserRepository.FindUsersByRole(input.Role)
 	if err != nil {
 		return nil, err
 	}

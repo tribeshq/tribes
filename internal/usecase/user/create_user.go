@@ -23,14 +23,14 @@ type CreateUserOutputDTO struct {
 }
 
 type CreateUserUseCase struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewCreateUserUseCase(
 	userRepo repository.UserRepository,
 ) *CreateUserUseCase {
 	return &CreateUserUseCase{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
@@ -40,7 +40,7 @@ func (u *CreateUserUseCase) Execute(input *CreateUserInputDTO, metadata rollmele
 		return nil, err
 	}
 
-	res, err := u.userRepository.CreateUser(user)
+	res, err := u.UserRepository.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}

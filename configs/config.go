@@ -5,47 +5,23 @@ package configs
 import (
 	"encoding/hex"
 	"fmt"
+	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// Redacted is a wrapper that redacts a given field from the logs.
-type Redacted[T any] struct {
-	Value T
-}
-
-func (r Redacted[T]) String() string {
-	return "[REDACTED]"
-}
-
 type (
-	Address  = common.Address
+	URL      = *url.URL
 	Duration = time.Duration
+	Address  = common.Address
 )
 
 // ------------------------------------------------------------------------------------------------
 // Parsing functions
 // ------------------------------------------------------------------------------------------------
-
-func ToUint64FromString(s string) (uint64, error) {
-	value, err := strconv.ParseUint(s, 10, 64)
-	return value, err
-}
-
-func ToUint64FromDecimalOrHexString(s string) (uint64, error) {
-	if len(s) >= 2 && (strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X")) {
-		return strconv.ParseUint(s[2:], 16, 64)
-	}
-	return ToUint64FromString(s)
-}
-
-func ToStringFromString(s string) (string, error) {
-	return s, nil
-}
 
 func ToDurationFromSeconds(s string) (Duration, error) {
 	return time.ParseDuration(s + "s")
@@ -63,6 +39,14 @@ func ToAddressFromString(s string) (Address, error) {
 	return common.BytesToAddress(b), nil
 }
 
+func ToURLFromString(s string) (URL, error) {
+	result, err := url.Parse(s)
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL [Redacted]")
+	}
+	return result, nil
+}
+
 func ToApplicationNameFromString(s string) (string, error) {
 	if s == "" {
 		return "", fmt.Errorf("application name cannot be empty")
@@ -76,17 +60,13 @@ func ToApplicationNameFromString(s string) (string, error) {
 
 // Aliases to be used by the generated functions.
 var (
-	toBool     = strconv.ParseBool
-	toUint64   = ToUint64FromString
-	toString   = ToStringFromString
+	toURL      = ToURLFromString
 	toDuration = ToDurationFromSeconds
 	toAddress  = ToAddressFromString
 )
 
 var (
-	notDefinedbool     = func() bool { return false }
-	notDefineduint64   = func() uint64 { return 0 }
-	notDefinedstring   = func() string { return "" }
 	notDefinedDuration = func() Duration { return 0 }
+	notDefinedURL      = func() URL { return &url.URL{} }
 	notDefinedAddress  = func() Address { return common.Address{} }
 )

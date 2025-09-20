@@ -12,8 +12,8 @@ type FindOrdersByInvestorAddressInputDTO struct {
 type FindOrdersByInvestorAddressOutputDTO []*OrderOutputDTO
 
 type FindOrdersByInvestorAddressUseCase struct {
-	userRepository  repository.UserRepository
-	orderRepository repository.OrderRepository
+	UserRepository  repository.UserRepository
+	OrderRepository repository.OrderRepository
 }
 
 func NewFindOrdersByInvestorAddressUseCase(
@@ -21,19 +21,19 @@ func NewFindOrdersByInvestorAddressUseCase(
 	orderRepo repository.OrderRepository,
 ) *FindOrdersByInvestorAddressUseCase {
 	return &FindOrdersByInvestorAddressUseCase{
-		userRepository:  userRepo,
-		orderRepository: orderRepo,
+		UserRepository:  userRepo,
+		OrderRepository: orderRepo,
 	}
 }
 
 func (o *FindOrdersByInvestorAddressUseCase) Execute(input *FindOrdersByInvestorAddressInputDTO) (FindOrdersByInvestorAddressOutputDTO, error) {
-	res, err := o.orderRepository.FindOrdersByInvestorAddress(input.InvestorAddress)
+	res, err := o.OrderRepository.FindOrdersByInvestorAddress(input.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}
 	output := make(FindOrdersByInvestorAddressOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := o.userRepository.FindUserByAddress(order.Investor)
+		investor, err := o.UserRepository.FindUserByAddress(order.Investor)
 		if err != nil {
 			return nil, err
 		}

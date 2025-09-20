@@ -12,14 +12,14 @@ import (
 )
 
 type RBACFactory struct {
-	userRepository repository.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func NewRBACFactory(
 	userRepo repository.UserRepository,
 ) *RBACFactory {
 	return &RBACFactory{
-		userRepository: userRepo,
+		UserRepository: userRepo,
 	}
 }
 
@@ -39,7 +39,7 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 				}
 
 				// Find user and check roles
-				findUserByAddress := user.NewFindUserByAddressUseCase(f.userRepository)
+				findUserByAddress := user.NewFindUserByAddressUseCase(f.UserRepository)
 				user, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
 					Address: address,
 				})

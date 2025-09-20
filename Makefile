@@ -1,7 +1,7 @@
 -include .env
 
 START_LOG = @echo "======================= START OF LOG ======================="
-END_LOG   = @echo "======================== END OF LOG ======================="
+END_LOG   = @echo "======================== END OF LOG ========================"
 
 # Generic forge script runner
 define FORGE_SCRIPT
@@ -24,7 +24,7 @@ define FORGE_SCRIPT_SIMULATE
 	@forge clean --root ./contracts
 	@forge script $(1) \
 		--root ./contracts \
-		-vvv
+		-vvvv
 	$(END_LOG)
 endef
 
@@ -45,7 +45,7 @@ define deploy_emergency
 endef
 
 define deploy_safe_erc721_mint
-	$(call FORGE_SCRIPT,./contracts/script/SafeERC721Mint.sol:SafeERC721Mint)
+	$(call FORGE_SCRIPT,./contracts/script/DeploySafeERC721Mint.s.sol:DeploySafeERC721Mint)
 endef
 
 .PHONY: env
@@ -118,7 +118,7 @@ deploy-contracts-simulate: ## Simulate deployment without broadcasting
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployERC20.s.sol:DeployERC20)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployVLayer.s.sol:DeployVLayer)
 	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeployEmergency.s.sol:DeployEmergency)
-	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/SafeERC721Mint.sol:SafeERC721Mint)
+	@$(call FORGE_SCRIPT_SIMULATE,./contracts/script/DeploySafeERC721Mint.s.sol:DeploySafeERC721Mint)
 
 # =============================================================================
 # MODULAR DEPLOYMENT COMMANDS
@@ -128,7 +128,7 @@ deploy-contracts-simulate: ## Simulate deployment without broadcasting
 deploy-badge-factory: ## Deploy only BadgeFactory contract (ERC721 Badge factory)
 	$(START_LOG)
 	@$(deploy_badge_factory)
-	@echo "BadgeFactory deployment completed! Check ./deployments/deployer.json for addresses"
+	@echo "BadgeFactory deployment completed! Check ./deployments/badgeFactory.json for addresses"
 	$(END_LOG)
 
 .PHONY: deploy-erc20
@@ -156,7 +156,7 @@ deploy-emergency: ## Deploy only emergency contracts (EmergencyWithdraw)
 deploy-safe-erc721-mint: ## Deploy only SafeERC721Mint contract (Safe ERC721 minting)
 	$(START_LOG)
 	@$(deploy_safe_erc721_mint)
-	@echo "SafeERC721Mint deployment completed! Check ./deployments/outputSafeCall.json for addresses"
+	@echo "SafeERC721Mint deployment completed! Check ./deployments/safeERC721Mint.json for addresses"
 	$(END_LOG)
 
 # =============================================================================

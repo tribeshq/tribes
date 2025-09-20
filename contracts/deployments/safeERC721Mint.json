@@ -1,0 +1,9 @@
+{
+  "safeERC721Mint": {
+    "chainId": 31337,
+    "timestamp": 1,
+    "contracts": {
+      "safeERC721Mint": "0x287503047cFd7Ca9F2F7dFdf354E09c2b59C1625"
+    }
+  }
+}
