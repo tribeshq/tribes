@@ -45,17 +45,17 @@ type Campaign struct {
 	UpdatedAt         int64               `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(title string, description string, promotion string, token custom_type.Address, creator custom_type.Address, collateral_address custom_type.Address, collateral_amount *uint256.Int, badge_address custom_type.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
+func NewCampaign(title string, description string, promotion string, token custom_type.Address, creator custom_type.Address, collateralAddress custom_type.Address, collateralAmount *uint256.Int, badgeAddress custom_type.Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
 	campaign := &Campaign{
 		Title:             title,
 		Description:       description,
 		Promotion:         promotion,
 		Token:             token,
 		Creator:           creator,
-		CollateralAddress: collateral_address,
-		CollateralAmount:  collateral_amount,
-		BadgeAddress:      badge_address,
-		DebtIssued:        debt_issued,
+		CollateralAddress: collateralAddress,
+		CollateralAmount:  collateralAmount,
+		BadgeAddress:      badgeAddress,
+		DebtIssued:        debtIssued,
 		MaxInterestRate:   maxInterestRate,
 		State:             CampaignStateOngoing,
 		Orders:            []*Order{},
