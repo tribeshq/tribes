@@ -56,16 +56,9 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
+	ongoingCampaign, err := u.CampaignRepository.FindOngoingCampaignByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
-	}
-	var ongoingCampaign *entity.Campaign
-	for _, campaign := range campaigns {
-		if campaign.State == entity.CampaignStateOngoing {
-			ongoingCampaign = campaign
-			break
-		}
 	}
 	if ongoingCampaign == nil {
 		return nil, fmt.Errorf("no ongoing campaign found, cannot close it")
@@ -79,7 +72,15 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	}
 
 	// -------------------------------------------------------------------------
-	// 3. Fetch and sort campaign orders
+	// 3. Fetch creator info
+	// -------------------------------------------------------------------------
+	creator, err := u.UserRepository.FindUserByAddress(ongoingCampaign.Creator)
+	if err != nil {
+		return nil, fmt.Errorf("error finding creator: %w", err)
+	}
+
+	// -------------------------------------------------------------------------
+	// 4. Fetch and sort campaign orders
 	// -------------------------------------------------------------------------
 	orders, err := u.OrderRepository.FindOrdersByCampaignId(ongoingCampaign.Id)
 	if err != nil {
@@ -93,20 +94,21 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	})
 
 	// -------------------------------------------------------------------------
-	// 4. Select winning orders and calculate obligations
+	// 5. Select winning orders and calculate obligations
 	// -------------------------------------------------------------------------
 	debtRemaining := new(uint256.Int).Set(ongoingCampaign.DebtIssued)
 	totalCollected := uint256.NewInt(0)
 	totalObligation := uint256.NewInt(0)
 
+	var ordersToUpdate []*entity.Order
+	var ordersToCreate []*entity.Order
+
 	for _, order := range orders {
 		if debtRemaining.IsZero() {
-			// Reject surplus orders
+			// Reject surplus orders (batch later)
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
-				return nil, err
-			}
+			ordersToUpdate = append(ordersToUpdate, order)
 			continue
 		}
 
@@ -127,9 +129,9 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 			debtRemaining.Sub(debtRemaining, order.Amount)
 		} else {
 			order.State = entity.OrderStatePartiallyAccepted
-			// Create rejected order for the surplus
+			// Queue rejected order for batch creation
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
-			_, err := u.OrderRepository.CreateOrder(&entity.Order{
+			ordersToCreate = append(ordersToCreate, &entity.Order{
 				CampaignId:   order.CampaignId,
 				Investor:     order.Investor,
 				Amount:       rejectedAmount,
@@ -138,29 +140,40 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 				CreatedAt:    order.CreatedAt,
 				UpdatedAt:    metadata.BlockTimestamp,
 			})
-			if err != nil {
-				return nil, err
-			}
 			debtRemaining.Clear()
 		}
 		order.Amount = acceptAmount
 		order.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
-			return nil, err
+		ordersToUpdate = append(ordersToUpdate, order)
+	}
+
+	// Batch update and create orders
+	if len(ordersToUpdate) > 0 {
+		if _, err := u.OrderRepository.UpdateOrdersBatch(ordersToUpdate); err != nil {
+			return nil, fmt.Errorf("error batch updating orders: %w", err)
+		}
+	}
+	if len(ordersToCreate) > 0 {
+		if _, err := u.OrderRepository.CreateOrdersBatch(ordersToCreate); err != nil {
+			return nil, fmt.Errorf("error batch creating orders: %w", err)
 		}
 	}
 
 	// -------------------------------------------------------------------------
-	// 5. Check if minimum funding (2/3) was reached
+	// 6. Check if minimum funding (2/3) was reached
 	// -------------------------------------------------------------------------
 	twoThirds := new(uint256.Int).Mul(ongoingCampaign.DebtIssued, uint256.NewInt(2))
 	twoThirds.Div(twoThirds, uint256.NewInt(3))
 	if totalCollected.Lt(twoThirds) {
-		// Cancel campaign and reject all orders
+		// Cancel campaign and reject all orders (batch operation)
+		var canceledOrders []*entity.Order
 		for _, order := range orders {
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
-			if _, err := u.OrderRepository.UpdateOrder(order); err != nil {
+			canceledOrders = append(canceledOrders, order)
+		}
+		if len(canceledOrders) > 0 {
+			if _, err := u.OrderRepository.UpdateOrdersBatch(canceledOrders); err != nil {
 				return nil, err
 			}
 		}
@@ -173,7 +186,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	}
 
 	// -------------------------------------------------------------------------
-	// 6. Close campaign and return result
+	// 7. Close campaign and return result
 	// -------------------------------------------------------------------------
 	ongoingCampaign.State = entity.CampaignStateClosed
 	ongoingCampaign.TotalObligation = totalObligation
@@ -184,15 +197,12 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		return nil, err
 	}
 
-	creator, err := u.UserRepository.FindUserByAddress(res.Creator)
-	if err != nil {
-		return nil, fmt.Errorf("error finding creator: %w", err)
-	}
 
 	return &CloseCampaignOutputDTO{
 		Id:          res.Id,
 		Title:       res.Title,
 		Description: res.Description,
+		
 		Promotion:   res.Promotion,
 		Token:       res.Token,
 		Creator: &user.UserOutputDTO{

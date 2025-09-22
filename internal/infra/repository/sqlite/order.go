@@ -81,3 +81,30 @@ func (r *SQLiteRepository) DeleteOrder(id uint) error {
 	}
 	return nil
 }
+
+func (r *SQLiteRepository) CreateOrdersBatch(orders []*entity.Order) ([]*entity.Order, error) {
+	if err := r.Db.CreateInBatches(orders, 100).Error; err != nil {
+		return nil, fmt.Errorf("failed to create orders in batch: %w", err)
+	}
+	return orders, nil
+}
+
+func (r *SQLiteRepository) UpdateOrdersBatch(orders []*entity.Order) ([]*entity.Order, error) {
+	tx := r.Db.Begin()
+	if tx.Error != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", tx.Error)
+	}
+
+	for _, order := range orders {
+		if err := tx.Updates(order).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to update order in batch: %w", err)
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("failed to commit batch update: %w", err)
+	}
+
+	return orders, nil
+}
