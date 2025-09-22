@@ -12,6 +12,7 @@ type CampaignRepository interface {
 	FindCampaignById(id uint) (*entity.Campaign, error)
 	FindAllCampaigns() ([]*entity.Campaign, error)
 	UpdateCampaign(Campaign *entity.Campaign) (*entity.Campaign, error)
+	FindOngoingCampaignByCreatorAddress(creator custom_type.Address) (*entity.Campaign, error)
 }
 
 type OrderRepository interface {
@@ -23,6 +24,8 @@ type OrderRepository interface {
 	FindAllOrders() ([]*entity.Order, error)
 	UpdateOrder(order *entity.Order) (*entity.Order, error)
 	DeleteOrder(id uint) error
+	CreateOrdersBatch(orders []*entity.Order) ([]*entity.Order, error)
+	UpdateOrdersBatch(orders []*entity.Order) ([]*entity.Order, error)
 }
 
 type SocialAccountRepository interface {

@@ -71,3 +71,17 @@ func (r *SQLiteRepository) UpdateCampaign(input *entity.Campaign) (*entity.Campa
 	}
 	return campaign, nil
 }
+
+func (r *SQLiteRepository) FindOngoingCampaignByCreatorAddress(creator custom_type.Address) (*entity.Campaign, error) {
+	var campaign entity.Campaign
+	if err := r.Db.
+		Where("creator = ? AND state = ?", creator, entity.CampaignStateOngoing).
+		Preload("Orders").
+		First(&campaign).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to find ongoing campaign by creator: %w", err)
+	}
+	return &campaign, nil
+}

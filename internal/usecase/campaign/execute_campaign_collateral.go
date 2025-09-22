@@ -61,6 +61,11 @@ func (uc *ExecuteCampaignCollateralUseCase) Execute(input *ExecuteCampaignCollat
 		return nil, err
 	}
 
+	creator, err := uc.UserRepository.FindUserByAddress(campaign.Creator)
+	if err != nil {
+		return nil, fmt.Errorf("error finding creator: %w", err)
+	}
+
 	var ordersToUpdate []*entity.Order
 	for _, order := range campaign.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
@@ -69,23 +74,19 @@ func (uc *ExecuteCampaignCollateralUseCase) Execute(input *ExecuteCampaignCollat
 			ordersToUpdate = append(ordersToUpdate, order)
 		}
 	}
-	for _, order := range ordersToUpdate {
-		if _, err := uc.OrderRepository.UpdateOrder(order); err != nil {
-			return nil, fmt.Errorf("error updating order: %w", err)
+
+	if len(ordersToUpdate) > 0 {
+		if _, err := uc.OrderRepository.UpdateOrdersBatch(ordersToUpdate); err != nil {
+			return nil, fmt.Errorf("error batch updating orders: %w", err)
 		}
 	}
 
 	campaign.State = entity.CampaignStateCollateralExecuted
-
 	res, err := uc.CampaignRepository.UpdateCampaign(campaign)
 	if err != nil {
 		return nil, err
 	}
 
-	creator, err := uc.UserRepository.FindUserByAddress(res.Creator)
-	if err != nil {
-		return nil, fmt.Errorf("error finding creator: %w", err)
-	}
 
 	return &ExecuteCampaignCollateralOutputDTO{
 		Id:          res.Id,
