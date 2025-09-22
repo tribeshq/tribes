@@ -32,7 +32,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -40,7 +40,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -77,7 +77,7 @@ func (s *CampaignSuite) TestCreateCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -115,7 +115,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -123,7 +123,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -160,7 +160,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -203,7 +203,7 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		closesAt,
 		maturityAt,
 	)
-	s.Equal(string(findAllCampaignsOutput.Reports[0].Payload), expectedFindAllCampaignsOutput)
+	s.Equal(expectedFindAllCampaignsOutput, string(findAllCampaignsOutput.Reports[0].Payload))
 }
 
 func (s *CampaignSuite) TestFindCampaignById() {
@@ -216,7 +216,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -224,7 +224,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -261,7 +261,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -301,7 +301,7 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(findCampaignByIdOutput.Reports[0].Payload), expectedFindCampaignByIdOutput)
+	s.Equal(expectedFindCampaignByIdOutput, string(findCampaignByIdOutput.Reports[0].Payload))
 }
 
 func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
@@ -314,7 +314,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -322,7 +322,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -359,7 +359,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -402,7 +402,7 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		closesAt,
 		maturityAt,
 	)
-	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignsByCreatorAddressOutput)
+	s.Equal(expectedFindCampaignsByCreatorAddressOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
 }
 func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	admin, token, badgeName, badgeSymbol, creator, badgeFactory, verifier, collateral, safeERC721MintAddress, applicationAddress := s.setupCommonAddresses()
@@ -415,7 +415,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -423,7 +423,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create investors users
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
@@ -431,35 +431,35 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor01, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor02))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor02, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor03))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor03, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor04))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor04, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor05))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -496,7 +496,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -569,7 +569,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		investor05.Hex(), baseTime, closesAt, // Order 5
 		investor01.Hex(), baseTime, closesAt, // Order 6 (rejected portion)
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(string(closeCampaignOutput.Notices[0].Payload), expectedCloseCampaignOutput)
+	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -577,7 +577,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
-	s.Equal(string(withdrawRaisedAmountOutput.Notices[0].Payload), expectedWithdrawRaisedAmountOutput)
+	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral_address":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
 		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
@@ -605,7 +605,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 
 	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
 	s.Len(findCampaignsByCreatorOutput.Reports, 1)
-	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignByCreatorOutput)
+	s.Equal(expectedFindCampaignByCreatorOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
 
 	// Verify that delegate call vouchers were created for badge minting
 	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
@@ -629,7 +629,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -637,7 +637,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create investors users
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
@@ -645,35 +645,35 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor01, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor02))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor02, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor03))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor03, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor04))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor04, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor05))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -710,7 +710,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -783,7 +783,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		investor05.Hex(), baseTime, closesAt,
 		investor01.Hex(), baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(string(closeCampaignOutput.Notices[0].Payload), expectedCloseCampaignOutput)
+	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
 	// Verify final balances after campaign close
 	// investor01: deposited 60000, partially accepted 59500, rejected 500
@@ -911,7 +911,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -919,7 +919,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create investors users
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
@@ -927,35 +927,35 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor01, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor02))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor02, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor03))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor03, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor04))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor04, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor05))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -992,7 +992,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -1065,7 +1065,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		investor05.Hex(), baseTime, closesAt,
 		investor01.Hex(), baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(string(closeCampaignOutput.Notices[0].Payload), expectedCloseCampaignOutput)
+	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -1073,7 +1073,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
-	s.Equal(string(withdrawRaisedAmountOutput.Notices[0].Payload), expectedWithdrawRaisedAmountOutput)
+	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	findCampaignByIdInput := []byte(`{"path":"campaign/id", "data":{"id":1}}`)
 
@@ -1106,7 +1106,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 
 	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
 	s.Len(findCampaignsByCreatorOutput.Reports, 1)
-	s.Equal(string(findCampaignsByCreatorOutput.Reports[0].Payload), expectedFindCampaignByCreatorOutput)
+	s.Equal(expectedFindCampaignByCreatorOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
 
 	time.Sleep(6 * time.Second)
 
@@ -1137,7 +1137,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		investor05.Hex(), baseTime, collateralExecutedAt,
 		investor01.Hex(), baseTime, closesAt,
 		baseTime, closesAt, maturityAt, collateralExecutedAt)
-	s.Equal(string(executeCampaignCollateralOutput.Notices[0].Payload), expectedExecuteCampaignCollateralOutput)
+	s.Equal(expectedExecuteCampaignCollateralOutput, string(executeCampaignCollateralOutput.Notices[0].Payload))
 
 	// Verify final balances after campaign collateral execution
 	// The collateral (10000) is distributed proportionally to accepted orders based on their final value
@@ -1271,7 +1271,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput := fmt.Sprintf(`user created - {"id":3,"role":"creator","address":"%s","social_accounts":[],"created_at":%d}`, creator, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	// verify social account
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
@@ -1279,7 +1279,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(createSocialAccountOutput.Notices, 1)
 
 	expectedCreateSocialAccountOutput := fmt.Sprintf(`social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}`, baseTime)
-	s.Equal(string(createSocialAccountOutput.Notices[0].Payload), expectedCreateSocialAccountOutput)
+	s.Equal(expectedCreateSocialAccountOutput, string(createSocialAccountOutput.Notices[0].Payload))
 
 	// create investors users
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
@@ -1287,35 +1287,35 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor01, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor02))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor02, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor03))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor03, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor04))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor04, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	createUserInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor05))
 	createUserOutput = s.Tester.Advance(admin, createUserInput)
 	s.Len(createUserOutput.Notices, 1)
 
 	expectedCreateUserOutput = fmt.Sprintf(`user created - {"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d}`, investor05, baseTime)
-	s.Equal(string(createUserOutput.Notices[0].Payload), expectedCreateUserOutput)
+	s.Equal(expectedCreateUserOutput, string(createUserOutput.Notices[0].Payload))
 
 	stringType, _ := abi.NewType("string", "", nil)
 	addressType, _ := abi.NewType("address", "", nil)
@@ -1352,7 +1352,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(string(createCampaignOutput.Notices[0].Payload), expectedCreateCampaignOutput)
+	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
 
 	s.Len(createCampaignOutput.Vouchers, 1)
 	s.Equal(badgeFactory, createCampaignOutput.Vouchers[0].Destination)
@@ -1423,7 +1423,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		investor05.Hex(), baseTime, closesAt,
 		investor01.Hex(), baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(string(closeCampaignOutput.Notices[0].Payload), expectedCloseCampaignOutput)
+	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -1431,7 +1431,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
-	s.Equal(string(withdrawRaisedAmountOutput.Notices[0].Payload), expectedWithdrawRaisedAmountOutput)
+	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	time.Sleep(5 * time.Second)
 
@@ -1462,7 +1462,7 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		investor05.Hex(), baseTime, settledAt,
 		investor01.Hex(), baseTime, closesAt,
 		baseTime, closesAt, maturityAt, settledAt)
-	s.Equal(string(settleCampaignOutput.Notices[0].Payload), expectedSettleCampaignOutput)
+	s.Equal(expectedSettleCampaignOutput, string(settleCampaignOutput.Notices[0].Payload))
 
 	// Verify final balances after campaign settlement
 	// investor01: should receive 59500 + (59500 * 9% = 5355) = 64855
