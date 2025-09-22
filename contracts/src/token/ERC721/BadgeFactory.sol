@@ -22,7 +22,7 @@ contract BadgeFactory {
         return badge;
     }
 
-    function computeAddress(address initialOwner, bytes32 salt, string memory name, string memory symbol) public view returns (address) {
+    function computeAddress(address initialOwner, bytes32 salt, string memory name, string memory symbol) private view returns (address) {
         return address(
             uint160(
                 uint256(

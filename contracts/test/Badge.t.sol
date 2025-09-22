@@ -35,7 +35,24 @@ contract BadgeTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(BadgeFactory.newBadge, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(badgeFactory), 0, encodedDeployTx));
 
-        address predictedAddress = badgeFactory.computeAddress(address(mockApplication), salt, name, symbol);
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(badgeFactory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(Badge).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
         vm.expectEmit(true, true, false, true);
         emit BadgeDeployed(predictedAddress, salt);
@@ -53,7 +70,24 @@ contract BadgeTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(BadgeFactory.newBadge, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(badgeFactory), 0, encodedDeployTx));
 
-        address predictedAddress = badgeFactory.computeAddress(address(mockApplication), salt, name, symbol);
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(badgeFactory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(Badge).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
         vm.expectEmit(true, true, false, true);
         emit BadgeDeployed(predictedAddress, salt);
