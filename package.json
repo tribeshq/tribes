@@ -1,0 +1,27 @@
+{
+  "name": "rollup",
+  "version": "",
+  "description": "Rollup",
+  "main": "index.js",
+  "scripts": {
+    "codegen": "wagmi generate",
+    "test": "vitest",
+    "bench:close-campaign": "tsx perf/closeCampaign.ts"
+  },
+  "keywords": [
+    "rollup"
+  ],
+  "author": "Henrique Marlon",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.7.1",
+  "devDependencies": {
+    "@cartesi/rollups": "^2.0.1",
+    "@tuler/node-cartesi-machine": "^0.8.0",
+    "@types/node": "^24.1.0",
+    "@wagmi/cli": "^2.3.2",
+    "prettier": "^3.7.4",
+    "tsx": "^4.19.2",
+    "viem": "^2.33.0",
+    "vitest": "^3.2.4"
+  }
+}

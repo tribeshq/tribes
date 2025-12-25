@@ -1,0 +1,52 @@
+[rollup.MAX_STARTUP_TIME]
+go-type = "Duration"
+default = "10"
+description = """Maximum startup time for the rollup service"""
+used-by = ["rollup"]
+
+
+#
+# Contracts
+#
+
+[contracts.ADMIN_ADDRESS]
+go-type = "Address"
+default = "0xD554153658E8D466428Fa48487f5aba18dF5E628"
+description = """Address of the admin user"""
+used-by = ["rollup"]
+
+[contracts.ADMIN_ADDRESS_TEST]
+go-type = "Address"
+default = "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+description = """Address of the admin user"""
+used-by = ["rollup"]
+
+[contracts.VERIFIER_ADDRESS]
+go-type = "Address"
+default = "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b"
+description = """Address of the verifier contract, who can verify the social accounts"""
+used-by = ["rollup"]
+
+[contracts.VERIFIER_ADDRESS_TEST]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000025"
+description = """Address of the verifier contract, who can verify the social accounts"""
+used-by = ["rollup"]
+
+[contracts.BADGE_FACTORY_ADDRESS]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000013"
+description = """Address of the badge factory contract, who can deploy the badges"""
+used-by = ["rollup"]
+
+[contracts.EMERGENCY_WITHDRAW_ADDRESS]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000006"
+description = """Address of the emergency withdraw address"""
+used-by = ["rollup"]
+
+[contracts.SAFE_ERC1155_MINT_ADDRESS]
+go-type = "Address"
+default = "0x0000000000000000000000000000000000000007"
+description = """Address of the safe ERC1155 mint address"""
+used-by = ["rollup"]

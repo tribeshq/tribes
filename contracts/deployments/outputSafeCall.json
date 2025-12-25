@@ -1,0 +1,9 @@
+{
+  "outputSafeCall": {
+    "chainId": 31337,
+    "timestamp": 1,
+    "contracts": {
+      "safeERC1155Mint": "0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496"
+    }
+  }
+}

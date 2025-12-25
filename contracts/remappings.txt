@@ -1,0 +1,3 @@
+forge-std-1.9.7/=dependencies/forge-std-1.9.7/
+openzeppelin-contracts/=dependencies/@openzeppelin-contracts-5.0.1/
+cartesi-rollups-contracts-2.0.0/=dependencies/cartesi-rollups-contracts-2.0.0/
