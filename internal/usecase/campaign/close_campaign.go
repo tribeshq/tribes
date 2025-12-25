@@ -6,6 +6,7 @@ import (
 
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
@@ -17,37 +18,37 @@ type CloseCampaignInputDTO struct {
 }
 
 type CloseCampaignOutputDTO struct {
-	Id                uint                `json:"id"`
-	Title             string              `json:"title,omitempty"`
-	Description       string              `json:"description,omitempty"`
-	Promotion         string              `json:"promotion,omitempty"`
-	Token             types.Address       `json:"token,omitempty"`
-	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
-	CollateralAddress types.Address       `json:"collateral,omitempty"`
-	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
-	BadgeAddress      types.Address       `json:"badge_address,omitempty"`
-	DebtIssued        *uint256.Int        `json:"debt_issued,omitempty"`
-	MaxInterestRate   *uint256.Int        `json:"max_interest_rate,omitempty"`
-	TotalObligation   *uint256.Int        `json:"total_obligation,omitempty"`
-	TotalRaised       *uint256.Int        `json:"total_raised,omitempty"`
-	State             string              `json:"state,omitempty"`
-	Orders            []*entity.Order     `json:"orders,omitempty"`
-	CreatedAt         int64               `json:"created_at,omitempty"`
-	ClosesAt          int64               `json:"closes_at,omitempty"`
-	MaturityAt        int64               `json:"maturity_at,omitempty"`
-	UpdatedAt         int64               `json:"updated_at,omitempty"`
+	Id                uint                    `json:"id"`
+	Title             string                  `json:"title,omitempty"`
+	Description       string                  `json:"description,omitempty"`
+	Promotion         string                  `json:"promotion,omitempty"`
+	Token             types.Address           `json:"token,omitempty"`
+	Creator           *user.UserOutputDTO     `json:"creator,omitempty"`
+	CollateralAddress types.Address           `json:"collateral,omitempty"`
+	CollateralAmount  *uint256.Int            `json:"collateral_amount,omitempty"`
+	BadgeAddress      types.Address           `json:"badge_address,omitempty"`
+	DebtIssued        *uint256.Int            `json:"debt_issued,omitempty"`
+	MaxInterestRate   *uint256.Int            `json:"max_interest_rate,omitempty"`
+	TotalObligation   *uint256.Int            `json:"total_obligation,omitempty"`
+	TotalRaised       *uint256.Int            `json:"total_raised,omitempty"`
+	State             string                  `json:"state,omitempty"`
+	Orders            []*order.OrderOutputDTO `json:"orders,omitempty"`
+	CreatedAt         int64                   `json:"created_at,omitempty"`
+	ClosesAt          int64                   `json:"closes_at,omitempty"`
+	MaturityAt        int64                   `json:"maturity_at,omitempty"`
+	UpdatedAt         int64                   `json:"updated_at,omitempty"`
 }
 
 type CloseCampaignUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCloseCampaignUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository, orderRepo repository.OrderRepository) *CloseCampaignUseCase {
 	return &CloseCampaignUseCase{
 		UserRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		CampaignRepository: campaignRepo,
 		OrderRepository:    orderRepo,
 	}
 }
@@ -56,7 +57,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing campaign for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.campaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
+	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +131,13 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(&entity.Order{
-				CampaignId:   order.CampaignId,
-				Investor:     order.Investor,
-				Amount:       rejectedAmount,
-				InterestRate: order.InterestRate,
-				State:        entity.OrderStateRejected,
-				CreatedAt:    order.CreatedAt,
-				UpdatedAt:    metadata.BlockTimestamp,
+				CampaignId:      order.CampaignId,
+				InvestorAddress: order.InvestorAddress,
+				Amount:          rejectedAmount,
+				InterestRate:    order.InterestRate,
+				State:           entity.OrderStateRejected,
+				CreatedAt:       order.CreatedAt,
+				UpdatedAt:       metadata.BlockTimestamp,
 			})
 			if err != nil {
 				return nil, err
@@ -166,7 +167,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		}
 		ongoingCampaign.State = entity.CampaignStateCanceled
 		ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.campaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
+		if _, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
 			return nil, err
 		}
 		return nil, fmt.Errorf("campaign canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
@@ -179,14 +180,39 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	ongoingCampaign.TotalObligation = totalObligation
 	ongoingCampaign.TotalRaised = totalCollected
 	ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := u.campaignRepository.UpdateCampaign(ongoingCampaign)
+	res, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign)
 	if err != nil {
 		return nil, err
 	}
 
-	creator, err := u.UserRepository.FindUserByAddress(res.Creator)
+	creator, err := u.UserRepository.FindUserByAddress(res.CreatorAddress)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
+	}
+
+	orderDTOs := make([]*order.OrderOutputDTO, len(res.Orders))
+	for i, o := range res.Orders {
+		investor, err := u.UserRepository.FindUserByAddress(o.InvestorAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error finding investor: %w", err)
+		}
+		orderDTOs[i] = &order.OrderOutputDTO{
+			Id:         o.Id,
+			CampaignId: o.CampaignId,
+			Investor: &user.UserOutputDTO{
+				Id:             investor.Id,
+				Role:           string(investor.Role),
+				Address:        investor.Address,
+				SocialAccounts: investor.SocialAccounts,
+				CreatedAt:      investor.CreatedAt,
+				UpdatedAt:      investor.UpdatedAt,
+			},
+			Amount:       o.Amount,
+			InterestRate: o.InterestRate,
+			State:        string(o.State),
+			CreatedAt:    o.CreatedAt,
+			UpdatedAt:    o.UpdatedAt,
+		}
 	}
 
 	return &CloseCampaignOutputDTO{
@@ -210,7 +236,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		MaxInterestRate:   res.MaxInterestRate,
 		TotalObligation:   res.TotalObligation,
 		TotalRaised:       res.TotalRaised,
-		Orders:            res.Orders,
+		Orders:            orderDTOs,
 		State:             string(res.State),
 		ClosesAt:          res.ClosesAt,
 		MaturityAt:        res.MaturityAt,

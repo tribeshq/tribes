@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 )
 
 type FindOrderByIdInputDTO struct {
@@ -28,14 +29,21 @@ func (c *FindOrderByIdUseCase) Execute(input *FindOrderByIdInputDTO) (*OrderOutp
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.UserRepository.FindUserByAddress(res.Investor)
+	investor, err := c.UserRepository.FindUserByAddress(res.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}
 	return &OrderOutputDTO{
-		Id:           res.Id,
-		CampaignId:   res.CampaignId,
-		Investor:     investor,
+		Id:         res.Id,
+		CampaignId: res.CampaignId,
+		Investor: &user.UserOutputDTO{
+			Id:             investor.Id,
+			Role:           string(investor.Role),
+			Address:        investor.Address,
+			SocialAccounts: investor.SocialAccounts,
+			CreatedAt:      investor.CreatedAt,
+			UpdatedAt:      investor.UpdatedAt,
+		},
 		Amount:       res.Amount,
 		InterestRate: res.InterestRate,
 		State:        string(res.State),

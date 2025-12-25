@@ -26,24 +26,24 @@ const (
 )
 
 type Order struct {
-	Id           uint          `json:"id" gorm:"primaryKey"`
-	CampaignId   uint          `json:"campaign_id" gorm:"not null;index"`
-	Investor     types.Address `json:"investor,omitempty" gorm:"not null"`
-	Amount       *uint256.Int  `json:"amount,omitempty" gorm:"types:text;not null"`
-	InterestRate *uint256.Int  `json:"interest_rate,omitempty" gorm:"types:text;not null"`
-	State        OrderState    `json:"state,omitempty" gorm:"types:text;not null"`
-	CreatedAt    int64         `json:"created_at,omitempty" gorm:"not null"`
-	UpdatedAt    int64         `json:"updated_at,omitempty" gorm:"default:0"`
+	Id              uint          `json:"id" gorm:"primaryKey"`
+	CampaignId      uint          `json:"campaign_id" gorm:"not null;index"`
+	InvestorAddress types.Address `json:"investor_address,omitempty" gorm:"not null"`
+	Amount          *uint256.Int  `json:"amount,omitempty" gorm:"types:text;not null"`
+	InterestRate    *uint256.Int  `json:"interest_rate,omitempty" gorm:"types:text;not null"`
+	State           OrderState    `json:"state,omitempty" gorm:"types:text;not null"`
+	CreatedAt       int64         `json:"created_at,omitempty" gorm:"not null"`
+	UpdatedAt       int64         `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewOrder(campaignId uint, investor types.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
+func NewOrder(campaignId uint, investorAddress types.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
 	order := &Order{
-		CampaignId:   campaignId,
-		Investor:     investor,
-		Amount:       amount,
-		InterestRate: interestRate,
-		State:        OrderStatePending,
-		CreatedAt:    createdAt,
+		CampaignId:      campaignId,
+		InvestorAddress: investorAddress,
+		Amount:          amount,
+		InterestRate:    interestRate,
+		State:           OrderStatePending,
+		CreatedAt:       createdAt,
 	}
 	if err := order.validate(); err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (b *Order) validate() error {
 	if b.CampaignId == 0 {
 		return fmt.Errorf("%w: Campaign ID cannot be zero", ErrInvalidOrder)
 	}
-	if b.Investor == (types.Address{}) {
+	if b.InvestorAddress == (types.Address{}) {
 		return fmt.Errorf("%w: investor address cannot be empty", ErrInvalidOrder)
 	}
 	if b.Amount.Sign() <= 0 {

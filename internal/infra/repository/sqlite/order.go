@@ -46,7 +46,7 @@ func (r *SQLiteRepository) FindOrdersByState(campaignId uint, state string) ([]*
 
 func (r *SQLiteRepository) FindOrdersByInvestorAddress(investor types.Address) ([]*entity.Order, error) {
 	var orders []*entity.Order
-	if err := r.Db.Where("investor = ?", investor).Find(&orders).Error; err != nil {
+	if err := r.Db.Where("investor_address = ?", investor).Find(&orders).Error; err != nil {
 		return nil, fmt.Errorf("failed to find orders by investor: %w", err)
 	}
 	return orders, nil

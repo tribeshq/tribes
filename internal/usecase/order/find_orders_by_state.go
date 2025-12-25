@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 )
 
 type FindOrdersByStateInputDTO struct {
@@ -33,15 +34,21 @@ func (f *FindOrdersByStateUseCase) Execute(input *FindOrdersByStateInputDTO) (Fi
 	}
 	output := make(FindOrdersByStateOutputDTO, len(res))
 	for i, order := range res {
-		investor, err := f.UserRepository.FindUserByAddress(order.Investor)
+		investor, err := f.UserRepository.FindUserByAddress(order.InvestorAddress)
 		if err != nil {
 			return nil, err
 		}
 		output[i] = &OrderOutputDTO{
 			Id:         order.Id,
 			CampaignId: order.CampaignId,
-
-			Investor:     investor,
+			Investor: &user.UserOutputDTO{
+				Id:             investor.Id,
+				Role:           string(investor.Role),
+				Address:        investor.Address,
+				SocialAccounts: investor.SocialAccounts,
+				CreatedAt:      investor.CreatedAt,
+				UpdatedAt:      investor.UpdatedAt,
+			},
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,
 			State:        string(order.State),

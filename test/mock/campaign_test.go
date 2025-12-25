@@ -501,12 +501,12 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Len(closeCampaignOutput.Notices, 1)
 
 	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -514,12 +514,12 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt, // Order 1
-		investor02.Hex(), baseTime, closesAt, // Order 2
-		investor03.Hex(), baseTime, closesAt, // Order 3
-		investor04.Hex(), baseTime, closesAt, // Order 4
-		investor05.Hex(), baseTime, closesAt, // Order 5
-		investor01.Hex(), baseTime, closesAt, // Order 6 (rejected portion)
+		investor01.Hex(), baseTime, baseTime, closesAt, // Order 1
+		investor02.Hex(), baseTime, baseTime, closesAt, // Order 2
+		investor03.Hex(), baseTime, baseTime, closesAt, // Order 3
+		investor04.Hex(), baseTime, baseTime, closesAt, // Order 4
+		investor05.Hex(), baseTime, baseTime, closesAt, // Order 5
+		investor01.Hex(), baseTime, baseTime, closesAt, // Order 6 (rejected portion)
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
@@ -532,12 +532,12 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -545,12 +545,12 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt, // Order 1
-		investor02.Hex(), baseTime, closesAt, // Order 2
-		investor03.Hex(), baseTime, closesAt, // Order 3
-		investor04.Hex(), baseTime, closesAt, // Order 4
-		investor05.Hex(), baseTime, closesAt, // Order 5
-		investor01.Hex(), baseTime, closesAt, // Order 6 (rejected portion)
+		investor01.Hex(), baseTime, baseTime, closesAt, // Order 1
+		investor02.Hex(), baseTime, baseTime, closesAt, // Order 2
+		investor03.Hex(), baseTime, baseTime, closesAt, // Order 3
+		investor04.Hex(), baseTime, baseTime, closesAt, // Order 4
+		investor05.Hex(), baseTime, baseTime, closesAt, // Order 5
+		investor01.Hex(), baseTime, baseTime, closesAt, // Order 6 (rejected portion)
 		baseTime, closesAt, maturityAt, closesAt)
 
 	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
@@ -707,12 +707,12 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Len(closeCampaignOutput.Notices, 1)
 
 	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -720,12 +720,12 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt,
-		investor02.Hex(), baseTime, closesAt,
-		investor03.Hex(), baseTime, closesAt,
-		investor04.Hex(), baseTime, closesAt,
-		investor05.Hex(), baseTime, closesAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
+		investor02.Hex(), baseTime, baseTime, closesAt,
+		investor03.Hex(), baseTime, baseTime, closesAt,
+		investor04.Hex(), baseTime, baseTime, closesAt,
+		investor05.Hex(), baseTime, baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
@@ -981,12 +981,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(closeCampaignOutput.Notices, 1)
 
 	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -994,12 +994,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt,
-		investor02.Hex(), baseTime, closesAt,
-		investor03.Hex(), baseTime, closesAt,
-		investor04.Hex(), baseTime, closesAt,
-		investor05.Hex(), baseTime, closesAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
+		investor02.Hex(), baseTime, baseTime, closesAt,
+		investor03.Hex(), baseTime, baseTime, closesAt,
+		investor04.Hex(), baseTime, baseTime, closesAt,
+		investor05.Hex(), baseTime, baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
@@ -1017,12 +1017,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Len(findCampaignByIdOutput.Reports, 1)
 
 	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -1030,12 +1030,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt,
-		investor02.Hex(), baseTime, closesAt,
-		investor03.Hex(), baseTime, closesAt,
-		investor04.Hex(), baseTime, closesAt,
-		investor05.Hex(), baseTime, closesAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
+		investor02.Hex(), baseTime, baseTime, closesAt,
+		investor03.Hex(), baseTime, baseTime, closesAt,
+		investor04.Hex(), baseTime, baseTime, closesAt,
+		investor05.Hex(), baseTime, baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
 
 	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
@@ -1053,12 +1053,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	updatedAt := baseTime + 11
 
 	expectedExecuteCampaignCollateralOutput := fmt.Sprintf(`campaign collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1066,12 +1066,12 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, updatedAt,
-		investor02.Hex(), baseTime, updatedAt,
-		investor03.Hex(), baseTime, updatedAt,
-		investor04.Hex(), baseTime, updatedAt,
-		investor05.Hex(), baseTime, updatedAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, updatedAt,
+		investor02.Hex(), baseTime, baseTime, updatedAt,
+		investor03.Hex(), baseTime, baseTime, updatedAt,
+		investor04.Hex(), baseTime, baseTime, updatedAt,
+		investor05.Hex(), baseTime, baseTime, updatedAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, updatedAt)
 	s.Equal(expectedExecuteCampaignCollateralOutput, string(executeCampaignCollateralOutput.Notices[0].Payload))
 
@@ -1331,12 +1331,12 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(closeCampaignOutput.Notices, 1)
 
 	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1344,12 +1344,12 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, closesAt,
-		investor02.Hex(), baseTime, closesAt,
-		investor03.Hex(), baseTime, closesAt,
-		investor04.Hex(), baseTime, closesAt,
-		investor05.Hex(), baseTime, closesAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
+		investor02.Hex(), baseTime, baseTime, closesAt,
+		investor03.Hex(), baseTime, baseTime, closesAt,
+		investor04.Hex(), baseTime, baseTime, closesAt,
+		investor05.Hex(), baseTime, baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
 
@@ -1370,12 +1370,12 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	settledAt := baseTime + 10
 
 	expectedSettleCampaignOutput := fmt.Sprintf(`campaign settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":"%s","amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":"%s","amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":"%s","amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":"%s","amount":"5000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":"%s","amount":"5500","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":"%s","amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1383,12 +1383,12 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		baseTime,
 		collateral.Hex(),
 		badgeAddress.Hex(),
-		investor01.Hex(), baseTime, settledAt,
-		investor02.Hex(), baseTime, settledAt,
-		investor03.Hex(), baseTime, settledAt,
-		investor04.Hex(), baseTime, settledAt,
-		investor05.Hex(), baseTime, settledAt,
-		investor01.Hex(), baseTime, closesAt,
+		investor01.Hex(), baseTime, baseTime, settledAt,
+		investor02.Hex(), baseTime, baseTime, settledAt,
+		investor03.Hex(), baseTime, baseTime, settledAt,
+		investor04.Hex(), baseTime, baseTime, settledAt,
+		investor05.Hex(), baseTime, baseTime, settledAt,
+		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, settledAt)
 	s.Equal(expectedSettleCampaignOutput, string(settleCampaignOutput.Notices[0].Payload))
 

@@ -30,14 +30,14 @@ type CancelOrderOutputDTO struct {
 type CancelOrderUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCancelOrderUseCase(userRepo repository.UserRepository, orderRepo repository.OrderRepository, campaignRepo repository.CampaignRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
 		UserRepository:     userRepo,
 		OrderRepository:    orderRepo,
-		campaignRepository: campaignRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
@@ -46,10 +46,10 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 	if err != nil {
 		return nil, err
 	}
-	if order.Investor != types.Address(metadata.MsgSender) {
+	if order.InvestorAddress != types.Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
-	campaign, err := c.campaignRepository.FindCampaignById(order.CampaignId)
+	campaign, err := c.CampaignRepository.FindCampaignById(order.CampaignId)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 	if err != nil {
 		return nil, err
 	}
-	investor, err := c.UserRepository.FindUserByAddress(res.Investor)
+	investor, err := c.UserRepository.FindUserByAddress(res.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}

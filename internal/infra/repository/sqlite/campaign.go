@@ -42,7 +42,7 @@ func (r *SQLiteRepository) FindCampaignsByInvestorAddress(investor types.Address
 	var Campaigns []*entity.Campaign
 	if err := r.Db.
 		Joins("JOIN orders ON orders.campaign_id = campaigns.id").
-		Where("orders.investor = ?", investor).
+		Where("orders.investor_address = ?", investor).
 		Preload("Orders").
 		Find(&Campaigns).Error; err != nil {
 		return nil, fmt.Errorf("failed to find Campaigns by investor: %w", err)
@@ -53,7 +53,7 @@ func (r *SQLiteRepository) FindCampaignsByInvestorAddress(investor types.Address
 func (r *SQLiteRepository) FindCampaignsByCreatorAddress(creator types.Address) ([]*entity.Campaign, error) {
 	var Campaigns []*entity.Campaign
 	if err := r.Db.
-		Where("creator = ?", creator).
+		Where("creator_address = ?", creator).
 		Preload("Orders").
 		Find(&Campaigns).Error; err != nil {
 		return nil, fmt.Errorf("failed to find campaigns by creator: %w", err)

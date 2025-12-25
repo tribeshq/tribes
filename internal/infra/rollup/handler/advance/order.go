@@ -14,7 +14,7 @@ import (
 type OrderAdvanceHandlers struct {
 	OrderRepository    repository.OrderRepository
 	UserRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewOrderAdvanceHandlers(
@@ -25,7 +25,7 @@ func NewOrderAdvanceHandlers(
 	return &OrderAdvanceHandlers{
 		OrderRepository:    orderRepo,
 		UserRepository:     userRepo,
-		campaignRepository: campaignRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
@@ -43,7 +43,7 @@ func (h *OrderAdvanceHandlers) CreateOrder(env rollmelette.Env, metadata rollmel
 	createOrder := order.NewCreateOrderUseCase(
 		h.UserRepository,
 		h.OrderRepository,
-		h.campaignRepository,
+		h.CampaignRepository,
 	)
 
 	res, err := createOrder.Execute(&input, deposit, metadata)
@@ -88,7 +88,7 @@ func (h *OrderAdvanceHandlers) CancelOrder(env rollmelette.Env, metadata rollmel
 	cancelOrder := order.NewCancelOrderUseCase(
 		h.UserRepository,
 		h.OrderRepository,
-		h.campaignRepository,
+		h.CampaignRepository,
 	)
 
 	res, err := cancelOrder.Execute(&input, metadata)

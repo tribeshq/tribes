@@ -29,7 +29,7 @@ type CreateOrderOutputDTO struct {
 type CreateOrderUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 }
 
 func NewCreateOrderUseCase(
@@ -40,7 +40,7 @@ func NewCreateOrderUseCase(
 	return &CreateOrderUseCase{
 		UserRepository:     userRepo,
 		OrderRepository:    orderRepo,
-		campaignRepository: campaignRepo,
+		CampaignRepository: campaignRepo,
 	}
 }
 
@@ -50,7 +50,7 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 		return nil, fmt.Errorf("invalid deposit type provided for order creation: %T", deposit)
 	}
 
-	campaign, err := c.campaignRepository.FindCampaignById(input.CampaignId)
+	campaign, err := c.CampaignRepository.FindCampaignById(input.CampaignId)
 	if err != nil {
 		return nil, fmt.Errorf("error finding campaign campaigns: %w", err)
 	}
@@ -83,7 +83,7 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 		return nil, err
 	}
 
-	investor, err := c.UserRepository.FindUserByAddress(res.Investor)
+	investor, err := c.UserRepository.FindUserByAddress(res.InvestorAddress)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
@@ -16,41 +17,41 @@ type SettleCampaignInputDTO struct {
 }
 
 type SettleCampaignOutputDTO struct {
-	Id                uint                `json:"id"`
-	Title             string              `json:"title,omitempty"`
-	Description       string              `json:"description,omitempty"`
-	Promotion         string              `json:"promotion,omitempty"`
-	Token             types.Address       `json:"token"`
-	Creator           *user.UserOutputDTO `json:"creator"`
-	CollateralAddress types.Address       `json:"collateral"`
-	CollateralAmount  *uint256.Int        `json:"collateral_amount"`
-	BadgeAddress      types.Address       `json:"badge_address"`
-	DebtIssued        *uint256.Int        `json:"debt_issued"`
-	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
-	TotalObligation   *uint256.Int        `json:"total_obligation"`
-	TotalRaised       *uint256.Int        `json:"total_raised"`
-	State             string              `json:"state"`
-	Orders            []*entity.Order     `json:"orders"`
-	CreatedAt         int64               `json:"created_at"`
-	ClosesAt          int64               `json:"closes_at"`
-	MaturityAt        int64               `json:"maturity_at"`
-	UpdatedAt         int64               `json:"updated_at"`
+	Id                uint                    `json:"id"`
+	Title             string                  `json:"title,omitempty"`
+	Description       string                  `json:"description,omitempty"`
+	Promotion         string                  `json:"promotion,omitempty"`
+	Token             types.Address           `json:"token"`
+	Creator           *user.UserOutputDTO     `json:"creator"`
+	CollateralAddress types.Address           `json:"collateral"`
+	CollateralAmount  *uint256.Int            `json:"collateral_amount"`
+	BadgeAddress      types.Address           `json:"badge_address"`
+	DebtIssued        *uint256.Int            `json:"debt_issued"`
+	MaxInterestRate   *uint256.Int            `json:"max_interest_rate"`
+	TotalObligation   *uint256.Int            `json:"total_obligation"`
+	TotalRaised       *uint256.Int            `json:"total_raised"`
+	State             string                  `json:"state"`
+	Orders            []*order.OrderOutputDTO `json:"orders"`
+	CreatedAt         int64                   `json:"created_at"`
+	ClosesAt          int64                   `json:"closes_at"`
+	MaturityAt        int64                   `json:"maturity_at"`
+	UpdatedAt         int64                   `json:"updated_at"`
 }
 
 type SettleCampaignUseCase struct {
 	UserRepository     repository.UserRepository
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 	OrderRepository    repository.OrderRepository
 }
 
 func NewSettleCampaignUseCase(
 	UserRepository repository.UserRepository,
-	campaignRepository repository.CampaignRepository,
+	CampaignRepository repository.CampaignRepository,
 	OrderRepository repository.OrderRepository,
 ) *SettleCampaignUseCase {
 	return &SettleCampaignUseCase{
 		UserRepository:     UserRepository,
-		campaignRepository: campaignRepository,
+		CampaignRepository: CampaignRepository,
 		OrderRepository:    OrderRepository,
 	}
 }
@@ -65,7 +66,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		return nil, fmt.Errorf("invalid deposit types: %T", deposit)
 	}
 
-	campaign, err := uc.campaignRepository.FindCampaignById(input.Id)
+	campaign, err := uc.CampaignRepository.FindCampaignById(input.Id)
 	if err != nil {
 		return nil, fmt.Errorf("error finding campaign: %w", err)
 	}
@@ -90,14 +91,39 @@ func (uc *SettleCampaignUseCase) Execute(
 
 	campaign.State = entity.CampaignStateSettled
 	campaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := uc.campaignRepository.UpdateCampaign(campaign)
+	res, err := uc.CampaignRepository.UpdateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error updating campaign: %w", err)
 	}
 
-	creator, err := uc.UserRepository.FindUserByAddress(res.Creator)
+	creator, err := uc.UserRepository.FindUserByAddress(res.CreatorAddress)
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
+	}
+
+	orderDTOs := make([]*order.OrderOutputDTO, len(res.Orders))
+	for i, o := range res.Orders {
+		investor, err := uc.UserRepository.FindUserByAddress(o.InvestorAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error finding investor: %w", err)
+		}
+		orderDTOs[i] = &order.OrderOutputDTO{
+			Id:         o.Id,
+			CampaignId: o.CampaignId,
+			Investor: &user.UserOutputDTO{
+				Id:             investor.Id,
+				Role:           string(investor.Role),
+				Address:        investor.Address,
+				SocialAccounts: investor.SocialAccounts,
+				CreatedAt:      investor.CreatedAt,
+				UpdatedAt:      investor.UpdatedAt,
+			},
+			Amount:       o.Amount,
+			InterestRate: o.InterestRate,
+			State:        string(o.State),
+			CreatedAt:    o.CreatedAt,
+			UpdatedAt:    o.UpdatedAt,
+		}
 	}
 
 	return &SettleCampaignOutputDTO{
@@ -122,7 +148,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		TotalObligation:   res.TotalObligation,
 		TotalRaised:       res.TotalRaised,
 		State:             string(res.State),
-		Orders:            res.Orders,
+		Orders:            orderDTOs,
 		CreatedAt:         res.CreatedAt,
 		ClosesAt:          res.ClosesAt,
 		MaturityAt:        res.MaturityAt,
@@ -151,7 +177,7 @@ func (uc *SettleCampaignUseCase) Validate(
 		return fmt.Errorf("deposit amount is lower than the total obligation")
 	}
 
-	if Campaign.Creator != types.Address(deposit.Sender) {
+	if Campaign.CreatorAddress != types.Address(deposit.Sender) {
 		return fmt.Errorf("only the campaign creator can settle the campaign")
 	}
 	return nil

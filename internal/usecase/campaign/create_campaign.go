@@ -49,7 +49,7 @@ type CreateCampaignOutputDTO struct {
 
 type CreateCampaignUseCase struct {
 	cfg                *configs.RollupConfig
-	campaignRepository repository.CampaignRepository
+	CampaignRepository repository.CampaignRepository
 	UserRepository     repository.UserRepository
 }
 
@@ -60,7 +60,7 @@ func NewCreateCampaignUseCase(
 ) *CreateCampaignUseCase {
 	return &CreateCampaignUseCase{
 		cfg:                cfg,
-		campaignRepository: campaignRepo,
+		CampaignRepository: campaignRepo,
 		UserRepository:     userRepo,
 	}
 }
@@ -85,7 +85,7 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error getting badge bytecode: %w", err)
 	}
 
-	campaigns, err := c.campaignRepository.FindCampaignsByCreatorAddress(types.Address(erc20Deposit.Sender))
+	campaigns, err := c.CampaignRepository.FindCampaignsByCreatorAddress(types.Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Campaigns: %w", err)
 	}
@@ -128,7 +128,7 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}
 
-	createdCampaign, err := c.campaignRepository.CreateCampaign(campaign)
+	createdCampaign, err := c.CampaignRepository.CreateCampaign(campaign)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Campaign: %w", err)
 	}

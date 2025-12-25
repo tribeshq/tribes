@@ -91,7 +91,7 @@ func (s *OrderSuite) TestFindAllOrders() {
 	findAllOrdersOutput := s.Tester.Inspect(findAllOrdersInput)
 	s.Len(findAllOrdersOutput.Reports, 1)
 
-	expectedFindAllOrdersOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","created_at":%d},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","created_at":%d},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindAllOrdersOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime,
 		investor02, baseTime, baseTime)
 	s.Equal(expectedFindAllOrdersOutput, string(findAllOrdersOutput.Reports[0].Payload))
@@ -127,7 +127,7 @@ func (s *OrderSuite) TestFindOrderById() {
 	findOrderByIdOutput := s.Tester.Inspect(findOrderByIdInput)
 	s.Len(findOrderByIdOutput.Reports, 1)
 
-	expectedFindOrderByIdOutput := fmt.Sprintf(`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","created_at":%d},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}`,
+	expectedFindOrderByIdOutput := fmt.Sprintf(`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}`,
 		investor01, baseTime, baseTime)
 	s.Equal(expectedFindOrderByIdOutput, string(findOrderByIdOutput.Reports[0].Payload))
 }
@@ -168,7 +168,7 @@ func (s *OrderSuite) TestFindOrdersByCampaignId() {
 	findOrdersByCampaignIdOutput := s.Tester.Inspect(findOrdersByCampaignIdInput)
 	s.Len(findOrdersByCampaignIdOutput.Reports, 1)
 
-	expectedFindOrdersByCampaignIdOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","created_at":%d},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","created_at":%d},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindOrdersByCampaignIdOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime,
 		investor02, baseTime, baseTime)
 	s.Equal(expectedFindOrdersByCampaignIdOutput, string(findOrdersByCampaignIdOutput.Reports[0].Payload))
@@ -204,7 +204,7 @@ func (s *OrderSuite) TestFindOrdersByInvestorAddress() {
 	findOrdersByInvestorAddressOutput := s.Tester.Inspect(findOrdersByInvestorAddressInput)
 	s.Len(findOrdersByInvestorAddressOutput.Reports, 1)
 
-	expectedFindOrdersByInvestorAddressOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","created_at":%d},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindOrdersByInvestorAddressOutput := fmt.Sprintf(`[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime)
 	s.Equal(expectedFindOrdersByInvestorAddressOutput, string(findOrdersByInvestorAddressOutput.Reports[0].Payload))
 }

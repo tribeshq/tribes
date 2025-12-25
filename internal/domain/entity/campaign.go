@@ -29,8 +29,8 @@ type Campaign struct {
 	Description       string        `json:"description,omitempty" gorm:"not null"`
 	Promotion         string        `json:"promotion,omitempty" gorm:"not null"`
 	Token             types.Address `json:"token,omitempty" gorm:"types:text;not null"`
-	Creator           types.Address `json:"creator,omitempty" gorm:"types:text;not null"`
-	CollateralAddress types.Address `json:"collateral,omitempty" gorm:"types:text;not null"`
+	CreatorAddress    types.Address `json:"creator_address,omitempty" gorm:"types:text;not null"`
+	CollateralAddress types.Address `json:"collateral_address,omitempty" gorm:"types:text;not null"`
 	CollateralAmount  *uint256.Int  `json:"collateral_amount,omitempty" gorm:"types:text;not null"`
 	BadgeAddress      types.Address `json:"badge_address,omitempty" gorm:"types:text;not null"`
 	DebtIssued        *uint256.Int  `json:"debt_issued,omitempty" gorm:"types:text;not null"`
@@ -45,17 +45,17 @@ type Campaign struct {
 	UpdatedAt         int64         `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(title string, description string, promotion string, token types.Address, creator types.Address, collateral types.Address, collateral_amount *uint256.Int, badge_address types.Address, debt_issued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
+func NewCampaign(title string, description string, promotion string, token types.Address, creatorAddress types.Address, collateralAddress types.Address, collateralAmount *uint256.Int, badgeAddress types.Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
 	campaign := &Campaign{
 		Title:             title,
 		Description:       description,
 		Promotion:         promotion,
 		Token:             token,
-		Creator:           creator,
-		CollateralAddress: collateral,
-		CollateralAmount:  collateral_amount,
-		BadgeAddress:      badge_address,
-		DebtIssued:        debt_issued,
+		CreatorAddress:    creatorAddress,
+		CollateralAddress: collateralAddress,
+		CollateralAmount:  collateralAmount,
+		BadgeAddress:      badgeAddress,
+		DebtIssued:        debtIssued,
 		MaxInterestRate:   maxInterestRate,
 		State:             CampaignStateOngoing,
 		Orders:            []*Order{},
@@ -82,7 +82,7 @@ func (a *Campaign) validate() error {
 	if a.Token == (types.Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidCampaign)
 	}
-	if a.Creator == (types.Address{}) {
+	if a.CreatorAddress == (types.Address{}) {
 		return fmt.Errorf("%w: invalid creator address", ErrInvalidCampaign)
 	}
 	if a.CollateralAddress == (types.Address{}) {
