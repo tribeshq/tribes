@@ -21,7 +21,7 @@ var (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "rollup-" + CMD_NAME,
+	Use:   "tribes-" + CMD_NAME,
 	Short: "Runs Debt Capital Market as rollup",
 	Long:  `A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy`,
 	Run:   run,
