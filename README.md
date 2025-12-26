@@ -15,7 +15,6 @@
 	<img src="https://img.shields.io/github/last-commit/tribeshq/tribes?style=default&logo=git&logoColor=white&color=D1DCCB" alt="last-commit">
 </p>
 
-
 ## Table of Contents
 
 - [Getting Started](#getting-started)
@@ -118,11 +117,13 @@ The backend is built on [Cartesi Rollups](https://cartesi.io/), a Layer 2 scalin
 2. Devnet
 
    2.1 Build application:
+
    ```sh
    make build
    ```
 
    2.2 Run application on devnet:
+
    ```sh
    cartesi run
    ```

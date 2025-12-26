@@ -42,7 +42,7 @@ contract BadgeTest is Test {
         assertEq(Badge(predictedAddress).owner(), address(mockApplication));
     }
 
-    function test_MintNFTThroughDelegatecallVoucher() public {
+    function test_MintERC1155ThroughDelegatecallVoucher() public {
         bytes32 salt = keccak256("test-salt");
 
         bytes memory encodedDeployTx = abi.encodeCall(BadgeFactory.newBadge, (address(mockApplication), salt));
@@ -59,7 +59,7 @@ contract BadgeTest is Test {
         bytes memory data = "";
 
         bytes memory encodedMintTx =
-            abi.encodeCall(SafeERC1155Mint.mint, (IERC1155Mintable(predictedAddress), user, tokenId, amount, data));
+            abi.encodeCall(SafeERC1155Mint.safeMint, (IERC1155Mintable(predictedAddress), user, tokenId, amount, data));
         bytes memory delegateCallVoucher =
             abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC1155Mint), encodedMintTx));
 

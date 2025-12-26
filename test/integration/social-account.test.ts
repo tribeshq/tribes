@@ -1,142 +1,143 @@
-import { bytesToHex, stringToHex } from "viem";
-import { afterAll, describe, expect, it } from "vitest";
-import { encodeAdvanceInput, encodeNoticeOutput } from "./encoder";
-import {
-  createMachine,
-  ADMIN_ADDRESS,
-  VERIFIER_ADDRESS,
-  CREATOR_ADDRESS,
-} from "./helpers";
+import { bytesToHex, getAddress, stringToHex } from 'viem'
+import { afterAll, describe, expect, it } from 'vitest'
+import { encodeAdvanceInput, encodeNoticeOutput } from './encoder'
+import { createMachine } from './helpers'
 
-describe("Social Account Tests", () => {
-  const machine = createMachine();
+const ADMIN_ADDRESS = getAddress('0xD554153658E8D466428Fa48487f5aba18dF5E628')
 
-  const baseTime = Math.floor(Date.now() / 1000);
+const VERIFIER_ADDRESS = getAddress('0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b')
 
-  it("should create social account", () => {
+const CREATOR_ADDRESS = getAddress('0x0000000000000000000000000000000000000007')
+
+describe('Social Account Tests', () => {
+  const machine = createMachine()
+
+  const baseTime = Math.floor(Date.now() / 1000)
+
+  it('should create social account', () => {
     const createUserInput = JSON.stringify({
-      path: "user/admin/create",
+      path: 'user/admin/create',
       data: {
         address: CREATOR_ADDRESS,
-        role: "creator",
+        role: 'creator',
       },
-    });
+    })
 
     machine.advance(
       encodeAdvanceInput({
         msgSender: ADMIN_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(createUserInput).toString("hex")}`,
+        payload: `0x${Buffer.from(createUserInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
     const createSocialAccountInput = JSON.stringify({
-      path: "social/verifier/create",
+      path: 'social/verifier/create',
       data: {
         address: CREATOR_ADDRESS,
-        username: "test",
-        platform: "twitter",
+        username: 'test',
+        platform: 'twitter',
       },
-    });
+    })
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: VERIFIER_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(createSocialAccountInput).toString("hex")}`,
+        payload: `0x${Buffer.from(createSocialAccountInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
-    expect(outputs.length).toBe(1);
+    expect(outputs.length).toBe(1)
 
-    const expectedNoticePayload = `social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}`;
+    const expectedNoticePayload = `social account created - {"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}`
     const expectedOutput = encodeNoticeOutput({
       payload: stringToHex(expectedNoticePayload),
-    });
-    expect(bytesToHex(outputs[0])).toBe(expectedOutput);
-  });
+    })
+    expect(bytesToHex(outputs[0])).toBe(expectedOutput)
+  })
 
-  it("should find social account by id", () => {
+  it('should find social account by id', () => {
     const findSocialAccountInput = JSON.stringify({
-      path: "social/id",
+      path: 'social/id',
       data: {
         social_account_id: 1,
       },
-    });
+    })
 
     const reports = machine.inspect(Buffer.from(findSocialAccountInput), {
       collect: true,
-    });
+    })
 
-    expect(reports.length).toBe(1);
-    const output = JSON.parse(Buffer.from(reports[0]).toString("utf-8"));
+    expect(reports.length).toBe(1)
+    const output = JSON.parse(Buffer.from(reports[0]).toString('utf-8'))
     const expectedOutput = {
       id: 1,
       user_id: 3,
-      username: "test",
-      platform: "twitter",
+      username: 'test',
+      platform: 'twitter',
       created_at: baseTime,
       updated_at: 0,
-    };
-    expect(output).toEqual(expectedOutput);
-  });
+    }
+    expect(output).toEqual(expectedOutput)
+  })
 
-  it("should find social account by user id", () => {
+  it('should find social account by user id', () => {
     const findSocialAccountInput = JSON.stringify({
-      path: "social/user/id",
+      path: 'social/user/id',
       data: {
         user_id: 3,
       },
-    });
+    })
 
     const reports = machine.inspect(Buffer.from(findSocialAccountInput), {
       collect: true,
-    });
+    })
 
-    expect(reports.length).toBe(1);
-    const output = JSON.parse(Buffer.from(reports[0]).toString("utf-8"));
+    expect(reports.length).toBe(1)
+    const output = JSON.parse(Buffer.from(reports[0]).toString('utf-8'))
     const expectedFindSocialAccountsByUserIdOutput = [
       {
         id: 1,
         user_id: 3,
-        username: "test",
-        platform: "twitter",
+        username: 'test',
+        platform: 'twitter',
         created_at: baseTime,
         updated_at: 0,
       },
-    ];
-    expect(output).toEqual(expectedFindSocialAccountsByUserIdOutput);
-  });
+    ]
+    expect(output).toEqual(expectedFindSocialAccountsByUserIdOutput)
+  })
 
-  it("should delete social account", () => {
+  it('should delete social account', () => {
     const deleteSocialAccountInput = JSON.stringify({
-      path: "social/admin/delete",
+      path: 'social/admin/delete',
       data: {
         social_account_id: 1,
       },
-    });
+    })
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: ADMIN_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(deleteSocialAccountInput).toString("hex")}`,
+        payload: `0x${Buffer.from(deleteSocialAccountInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
-    expect(outputs.length).toBe(1);
+    expect(outputs.length).toBe(1)
 
-    const expectedNoticePayload = `social account deleted - {"social_account_id":1}`;
+    const expectedNoticePayload = `social account deleted - {"social_account_id":1}`
     const expectedOutput = encodeNoticeOutput({
       payload: stringToHex(expectedNoticePayload),
-    });
-    expect(bytesToHex(outputs[0])).toBe(expectedOutput);
-  });
+    })
+    expect(bytesToHex(outputs[0])).toBe(expectedOutput)
+  })
 
   afterAll(() => {
-    machine.shutdown();
-  });
-});
+    machine.shutdown()
+  })
+})
