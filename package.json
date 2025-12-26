@@ -6,7 +6,7 @@
   "scripts": {
     "codegen": "wagmi generate",
     "test": "vitest",
-    "bench:close-campaign": "tsx perf/closeCampaign.ts"
+    "bench:close-issuance": "tsx perf/closeIssuance.ts"
   },
   "keywords": [
     "rollup"

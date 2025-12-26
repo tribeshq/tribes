@@ -38,25 +38,25 @@ func Create(c *CreateInfo) *router.Router {
 		// Public operations
 		orderInvestorGroup.HandleInspect("", handlers.OrderInspectHandlers.FindAllOrders)
 		orderInvestorGroup.HandleInspect("id", handlers.OrderInspectHandlers.FindOrderById)
-		orderInvestorGroup.HandleInspect("campaign", handlers.OrderInspectHandlers.FindBidsByCampaignId)
+		orderInvestorGroup.HandleInspect("issuance", handlers.OrderInspectHandlers.FindBidsByIssuanceId)
 		orderInvestorGroup.HandleInspect("investor", handlers.OrderInspectHandlers.FindOrdersByInvestorAddress)
 	}
 
-	campaignGroup := r.Group("campaign")
-	campaignCreatorGroup := campaignGroup.Group("creator")
-	campaignCreatorGroup.Use(rbacFactory.CreatorOnly())
+	issuanceGroup := r.Group("issuance")
+	issuanceCreatorGroup := issuanceGroup.Group("creator")
+	issuanceCreatorGroup.Use(rbacFactory.CreatorOnly())
 	{
 		// restricted operations
-		campaignCreatorGroup.HandleAdvance("create", handlers.CampaignAdvanceHandlers.CreateCampaign)
-		campaignCreatorGroup.HandleAdvance("settle", handlers.CampaignAdvanceHandlers.SettleCampaign)
+		issuanceCreatorGroup.HandleAdvance("create", handlers.IssuanceAdvanceHandlers.CreateIssuance)
+		issuanceCreatorGroup.HandleAdvance("settle", handlers.IssuanceAdvanceHandlers.SettleIssuance)
 
 		// Public operations
-		campaignGroup.HandleInspect("", handlers.CampaignInspectHandlers.FindAllCampaigns)
-		campaignGroup.HandleInspect("id", handlers.CampaignInspectHandlers.FindCampaignById)
-		campaignGroup.HandleAdvance("close", handlers.CampaignAdvanceHandlers.CloseCampaign)
-		campaignGroup.HandleInspect("creator", handlers.CampaignInspectHandlers.FindCampaignsByCreatorAddress)
-		campaignGroup.HandleInspect("investor", handlers.CampaignInspectHandlers.FindCampaignsByInvestorAddress)
-		campaignGroup.HandleAdvance("execute-collateral", handlers.CampaignAdvanceHandlers.ExecuteCampaignCollateral)
+		issuanceGroup.HandleInspect("", handlers.IssuanceInspectHandlers.FindAllIssuances)
+		issuanceGroup.HandleInspect("id", handlers.IssuanceInspectHandlers.FindIssuanceById)
+		issuanceGroup.HandleAdvance("close", handlers.IssuanceAdvanceHandlers.CloseIssuance)
+		issuanceGroup.HandleInspect("creator", handlers.IssuanceInspectHandlers.FindIssuancesByCreatorAddress)
+		issuanceGroup.HandleInspect("investor", handlers.IssuanceInspectHandlers.FindIssuancesByInvestorAddress)
+		issuanceGroup.HandleAdvance("execute-collateral", handlers.IssuanceAdvanceHandlers.ExecuteIssuanceCollateral)
 	}
 
 	userGroup := r.Group("user")

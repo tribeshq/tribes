@@ -27,7 +27,7 @@ const (
 
 type Order struct {
 	Id              uint          `json:"id" gorm:"primaryKey"`
-	CampaignId      uint          `json:"campaign_id" gorm:"not null;index"`
+	IssuanceId      uint          `json:"issuance_id" gorm:"not null;index"`
 	InvestorAddress types.Address `json:"investor_address,omitempty" gorm:"not null"`
 	Amount          *uint256.Int  `json:"amount,omitempty" gorm:"types:text;not null"`
 	InterestRate    *uint256.Int  `json:"interest_rate,omitempty" gorm:"types:text;not null"`
@@ -36,9 +36,9 @@ type Order struct {
 	UpdatedAt       int64         `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewOrder(campaignId uint, investorAddress types.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
+func NewOrder(issuanceId uint, investorAddress types.Address, amount *uint256.Int, interestRate *uint256.Int, createdAt int64) (*Order, error) {
 	order := &Order{
-		CampaignId:      campaignId,
+		IssuanceId:      issuanceId,
 		InvestorAddress: investorAddress,
 		Amount:          amount,
 		InterestRate:    interestRate,
@@ -52,8 +52,8 @@ func NewOrder(campaignId uint, investorAddress types.Address, amount *uint256.In
 }
 
 func (b *Order) validate() error {
-	if b.CampaignId == 0 {
-		return fmt.Errorf("%w: Campaign ID cannot be zero", ErrInvalidOrder)
+	if b.IssuanceId == 0 {
+		return fmt.Errorf("%w: Issuance ID cannot be zero", ErrInvalidOrder)
 	}
 	if b.InvestorAddress == (types.Address{}) {
 		return fmt.Errorf("%w: investor address cannot be empty", ErrInvalidOrder)

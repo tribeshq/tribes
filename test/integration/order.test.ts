@@ -61,9 +61,9 @@ describe("Order Tests", () => {
       { collect: true },
     );
 
-    // Setup: create campaign
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    // Setup: create issuance
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -76,11 +76,11 @@ describe("Order Tests", () => {
       },
     });
 
-    const campaignErc20DepositPayload = encodeErc20Deposit({
+    const issuanceErc20DepositPayload = encodeErc20Deposit({
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     machine.advance(
@@ -88,7 +88,7 @@ describe("Order Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: campaignErc20DepositPayload,
+        payload: issuanceErc20DepositPayload,
         index: 0n,
       }),
       { collect: true },
@@ -116,7 +116,7 @@ describe("Order Tests", () => {
     const createOrderInput = JSON.stringify({
       path: "order/create",
       data: {
-        campaign_id: 1,
+        issuance_id: 1,
         interest_rate: "9",
       },
     });
@@ -141,7 +141,7 @@ describe("Order Tests", () => {
 
     const expectedCreateOrderNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `order created - {"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":${baseTime}}`,
+        `order created - {"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":${baseTime}}`,
       ),
     });
     expect(bytesToHex(outputs[0])).toBe(expectedCreateOrderNoticeOutput);
@@ -162,7 +162,7 @@ describe("Order Tests", () => {
     const expectedFindAllOrdersOutput = [
       {
         id: 1,
-        campaign_id: 1,
+        issuance_id: 1,
         state: "pending",
         investor: {
           id: 4,
@@ -198,7 +198,7 @@ describe("Order Tests", () => {
 
     const expectedFindOrderByIdOutput = {
       id: 1,
-      campaign_id: 1,
+      issuance_id: 1,
       state: "pending",
       investor: {
         id: 4,
@@ -216,25 +216,25 @@ describe("Order Tests", () => {
     expect(output).toEqual(expectedFindOrderByIdOutput);
   });
 
-  it("should find orders by campaign id", () => {
-    const findOrdersByCampaignInput = JSON.stringify({
-      path: "order/campaign",
+  it("should find orders by issuance id", () => {
+    const findOrdersByIssuanceInput = JSON.stringify({
+      path: "order/issuance",
       data: {
-        campaign_id: 1,
+        issuance_id: 1,
       },
     });
 
-    const reports = machine.inspect(Buffer.from(findOrdersByCampaignInput), {
+    const reports = machine.inspect(Buffer.from(findOrdersByIssuanceInput), {
       collect: true,
     });
 
     expect(reports.length).toBe(1);
     const output = JSON.parse(Buffer.from(reports[0]).toString("utf-8"));
 
-    const expectedFindOrdersByCampaignOutput = [
+    const expectedFindOrdersByIssuanceOutput = [
       {
         id: 1,
-        campaign_id: 1,
+        issuance_id: 1,
         state: "pending",
         investor: {
           id: 4,
@@ -250,7 +250,7 @@ describe("Order Tests", () => {
         updated_at: 0,
       },
     ];
-    expect(output).toEqual(expectedFindOrdersByCampaignOutput);
+    expect(output).toEqual(expectedFindOrdersByIssuanceOutput);
   });
 
   it("should find orders by investor address", () => {
@@ -271,7 +271,7 @@ describe("Order Tests", () => {
     const expectedFindOrdersByInvestorOutput = [
       {
         id: 1,
-        campaign_id: 1,
+        issuance_id: 1,
         state: "pending",
         investor: {
           id: 4,

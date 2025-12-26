@@ -1,9 +1,10 @@
-import { bytesToHex, encodeFunctionData, padHex, stringToHex } from "viem";
+import { bytesToHex, encodeAbiParameters, encodeFunctionData, padHex, stringToHex } from "viem";
 import { afterAll, describe, expect, it } from "vitest";
 import {
   encodeAdvanceInput,
   encodeErc20Deposit,
   encodeVoucherOutput,
+  encodeDelegateCallVoucherOutput,
   encodeNoticeOutput,
 } from "./encoder";
 import {
@@ -17,6 +18,7 @@ import {
   COLLATERAL,
   APPLICATION_ADDRESS,
   ERC20_PORTAL_ADDRESS,
+  SAFE_ERC1155_MINT_ADDRESS,
   INVESTOR_01_ADDRESS,
   INVESTOR_02_ADDRESS,
   INVESTOR_03_ADDRESS,
@@ -26,12 +28,12 @@ import {
 } from "./helpers";
 import { badgeFactoryAbi } from "../../contracts";
 
-describe("Campaign Tests", () => {
+describe("Issuance Tests", () => {
   const machine = createMachine();
 
   const { baseTime, closesAt, maturityAt } = setupTimeValues();
 
-  it("should create campaign", () => {
+  it("should create issuance", () => {
     const createUserInput = JSON.stringify({
       path: "user/admin/create",
       data: {
@@ -67,8 +69,8 @@ describe("Campaign Tests", () => {
       { collect: true },
     );
 
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -85,7 +87,7 @@ describe("Campaign Tests", () => {
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     const metadataIndex = 0n;
@@ -122,21 +124,21 @@ describe("Campaign Tests", () => {
     });
     expect(bytesToHex(outputs[0])).toBe(expectedVoucher);
 
-    // Verify notice for campaign creation
-    const expectedCreateCampaignNoticeOutput = encodeNoticeOutput({
+    // Verify notice for issuance creation
+    const expectedCreateIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt}}`,
+        `issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt}}`,
       ),
     });
-    expect(bytesToHex(outputs[1])).toBe(expectedCreateCampaignNoticeOutput);
+    expect(bytesToHex(outputs[1])).toBe(expectedCreateIssuanceNoticeOutput);
   });
 
-  it("should find all campaigns", () => {
-    const findAllCampaignsInput = JSON.stringify({
-      path: "campaign",
+  it("should find all issuances", () => {
+    const findAllIssuancesInput = JSON.stringify({
+      path: "issuance",
     });
 
-    const reports = machine.inspect(Buffer.from(findAllCampaignsInput), {
+    const reports = machine.inspect(Buffer.from(findAllIssuancesInput), {
       collect: true,
     });
 
@@ -151,7 +153,7 @@ describe("Campaign Tests", () => {
       APPLICATION_ADDRESS,
     );
 
-    const expectedFindAllCampaignsOutput = [
+    const expectedFindAllIssuancesOutput = [
       {
         id: 1,
         title: "test",
@@ -189,18 +191,18 @@ describe("Campaign Tests", () => {
         updated_at: 0,
       },
     ];
-    expect(output).toEqual(expectedFindAllCampaignsOutput);
+    expect(output).toEqual(expectedFindAllIssuancesOutput);
   });
 
-  it("should find campaign by id", () => {
-    const findCampaignByIdInput = JSON.stringify({
-      path: "campaign/id",
+  it("should find issuance by id", () => {
+    const findIssuanceByIdInput = JSON.stringify({
+      path: "issuance/id",
       data: {
         id: 1,
       },
     });
 
-    const reports = machine.inspect(Buffer.from(findCampaignByIdInput), {
+    const reports = machine.inspect(Buffer.from(findIssuanceByIdInput), {
       collect: true,
     });
 
@@ -215,7 +217,7 @@ describe("Campaign Tests", () => {
       APPLICATION_ADDRESS,
     );
 
-    const expectedFindCampaignByIdOutput = {
+    const expectedFindIssuanceByIdOutput = {
       id: 1,
       title: "test",
       description: "testtesttesttesttest",
@@ -251,18 +253,18 @@ describe("Campaign Tests", () => {
       created_at: baseTime,
       updated_at: 0,
     };
-    expect(output).toEqual(expectedFindCampaignByIdOutput);
+    expect(output).toEqual(expectedFindIssuanceByIdOutput);
   });
 
-  it("should find campaign by creator address", () => {
-    const findCampaignByCreatorInput = JSON.stringify({
-      path: "campaign/creator",
+  it("should find issuance by creator address", () => {
+    const findIssuanceByCreatorInput = JSON.stringify({
+      path: "issuance/creator",
       data: {
         creator: CREATOR_ADDRESS,
       },
     });
 
-    const reports = machine.inspect(Buffer.from(findCampaignByCreatorInput), {
+    const reports = machine.inspect(Buffer.from(findIssuanceByCreatorInput), {
       collect: true,
     });
 
@@ -277,7 +279,7 @@ describe("Campaign Tests", () => {
       APPLICATION_ADDRESS,
     );
 
-    const expectedFindCampaignByCreatorOutput = [
+    const expectedFindIssuanceByCreatorOutput = [
       {
         id: 1,
         title: "test",
@@ -315,7 +317,7 @@ describe("Campaign Tests", () => {
         updated_at: 0,
       },
     ];
-    expect(output).toEqual(expectedFindCampaignByCreatorOutput);
+    expect(output).toEqual(expectedFindIssuanceByCreatorOutput);
   });
 
   afterAll(() => {
@@ -323,12 +325,12 @@ describe("Campaign Tests", () => {
   });
 });
 
-describe("Campaign Close Tests", () => {
+describe("Issuance Close Tests", () => {
   const machine = createMachine();
 
   const { baseTime, closesAt, maturityAt } = setupTimeValues();
 
-  it("should close campaign after time passes", async () => {
+  it("should close issuance after time passes", async () => {
     // Setup: create creator user
     const createUserInput = JSON.stringify({
       path: "user/admin/create",
@@ -366,9 +368,9 @@ describe("Campaign Close Tests", () => {
       { collect: true },
     );
 
-    // Setup: create campaign
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    // Setup: create issuance
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -381,11 +383,11 @@ describe("Campaign Close Tests", () => {
       },
     });
 
-    const campaignErc20DepositPayload = encodeErc20Deposit({
+    const issuanceErc20DepositPayload = encodeErc20Deposit({
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     const metadataIndex = 0n;
@@ -401,7 +403,7 @@ describe("Campaign Close Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: campaignErc20DepositPayload,
+        payload: issuanceErc20DepositPayload,
         index: metadataIndex,
       }),
       { collect: true },
@@ -429,7 +431,7 @@ describe("Campaign Close Tests", () => {
     const createOrderInput = JSON.stringify({
       path: "order/create",
       data: {
-        campaign_id: 1,
+        issuance_id: 1,
         interest_rate: "9",
       },
     });
@@ -452,10 +454,10 @@ describe("Campaign Close Tests", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 6000));
 
-    // Close campaign
+    // Close issuance
     const anyone = INVESTOR_01_ADDRESS;
-    const closeCampaignInput = JSON.stringify({
-      path: "campaign/close",
+    const closeIssuanceInput = JSON.stringify({
+      path: "issuance/close",
       data: {
         creator_address: CREATOR_ADDRESS,
       },
@@ -465,21 +467,54 @@ describe("Campaign Close Tests", () => {
       encodeAdvanceInput({
         msgSender: anyone,
         blockTimestamp: BigInt(baseTime + 6),
-        payload: `0x${Buffer.from(closeCampaignInput).toString("hex")}`,
+        payload: `0x${Buffer.from(closeIssuanceInput).toString("hex")}`,
       }),
       { collect: true },
     );
 
     expect(outputs.length).toBeGreaterThanOrEqual(1);
 
-    const expectedCloseCampaignNoticeOutput = encodeNoticeOutput({
+    const expectedCloseIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"closed","orders":[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"accepted","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"closed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"accepted","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
-      expectedCloseCampaignNoticeOutput,
+      expectedCloseIssuanceNoticeOutput,
     );
+
+    // Verify ERC1155 Bond Certificate voucher for accepted order
+    // The close should emit a delegate call voucher with safeMint for token ID 1 (Bond Certificate)
+    const safeMintAbi = [
+      {
+        type: "function",
+        name: "safeMint",
+        inputs: [
+          { type: "address", name: "target" },
+          { type: "address", name: "to" },
+          { type: "uint256", name: "id" },
+          { type: "uint256", name: "amount" },
+          { type: "bytes", name: "data" },
+        ],
+      },
+    ] as const;
+
+    const expectedBondCertificatePayload = encodeFunctionData({
+      abi: safeMintAbi,
+      functionName: "safeMint",
+      args: [badgeAddress, INVESTOR_01_ADDRESS, 1n, 1n, "0x"],
+    });
+
+    const expectedDelegateCallVoucher = encodeDelegateCallVoucherOutput({
+      destination: SAFE_ERC1155_MINT_ADDRESS,
+      payload: expectedBondCertificatePayload,
+    });
+
+    // Find the delegate call voucher in outputs
+    const delegateCallVoucherFound = outputs.some(
+      (output) => bytesToHex(output) === expectedDelegateCallVoucher,
+    );
+    expect(delegateCallVoucherFound).toBe(true);
   }, 15000);
 
   afterAll(() => {
@@ -487,12 +522,12 @@ describe("Campaign Close Tests", () => {
   });
 });
 
-describe("Campaign Execute Collateral Tests", () => {
+describe("Issuance Execute Collateral Tests", () => {
   const machine = createMachine();
 
   const { baseTime, closesAt, maturityAt } = setupTimeValues();
 
-  it("should execute campaign collateral", async () => {
+  it("should execute issuance collateral", async () => {
     // Setup: create creator user
     const createUserInput = JSON.stringify({
       path: "user/admin/create",
@@ -532,9 +567,9 @@ describe("Campaign Execute Collateral Tests", () => {
       { collect: true },
     );
 
-    // Setup: create campaign
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    // Setup: create issuance
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -547,11 +582,11 @@ describe("Campaign Execute Collateral Tests", () => {
       },
     });
 
-    const campaignErc20DepositPayload = encodeErc20Deposit({
+    const issuanceErc20DepositPayload = encodeErc20Deposit({
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     const metadataIndex = 0n;
@@ -567,7 +602,7 @@ describe("Campaign Execute Collateral Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: campaignErc20DepositPayload,
+        payload: issuanceErc20DepositPayload,
         index: metadataIndex,
       }),
       { collect: true },
@@ -596,7 +631,7 @@ describe("Campaign Execute Collateral Tests", () => {
     const createOrderInput = JSON.stringify({
       path: "order/create",
       data: {
-        campaign_id: 1,
+        issuance_id: 1,
         interest_rate: "9",
       },
     });
@@ -620,10 +655,10 @@ describe("Campaign Execute Collateral Tests", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 6000));
 
-    // Close campaign
+    // Close issuance
     const anyone = INVESTOR_01_ADDRESS;
-    const closeCampaignInput = JSON.stringify({
-      path: "campaign/close",
+    const closeIssuanceInput = JSON.stringify({
+      path: "issuance/close",
       data: {
         creator_address: CREATOR_ADDRESS,
       },
@@ -634,16 +669,16 @@ describe("Campaign Execute Collateral Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: anyone,
         blockTimestamp: BigInt(baseTime + 6),
-        payload: `0x${Buffer.from(closeCampaignInput).toString("hex")}`,
+        payload: `0x${Buffer.from(closeIssuanceInput).toString("hex")}`,
       }),
       { collect: true },
     );
 
     await new Promise((resolve) => setTimeout(resolve, 6000));
 
-    // Execute campaign collateral
-    const executeCampaignCollateralInput = JSON.stringify({
-      path: "campaign/execute-collateral",
+    // Execute issuance collateral
+    const executeIssuanceCollateralInput = JSON.stringify({
+      path: "issuance/execute-collateral",
       data: {
         id: 1,
       },
@@ -654,20 +689,20 @@ describe("Campaign Execute Collateral Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: CREATOR_ADDRESS,
         blockTimestamp: BigInt(baseTime + 11),
-        payload: `0x${Buffer.from(executeCampaignCollateralInput).toString("hex")}`,
+        payload: `0x${Buffer.from(executeIssuanceCollateralInput).toString("hex")}`,
       }),
       { collect: true },
     );
 
     expect(outputs.length).toBeGreaterThanOrEqual(1);
 
-    const expectedExecuteCampaignCollateralNoticeOutput = encodeNoticeOutput({
+    const expectedExecuteIssuanceCollateralNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `campaign collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"collateral_executed","orders":[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled_by_collateral","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"collateral_executed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled_by_collateral","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
-      expectedExecuteCampaignCollateralNoticeOutput,
+      expectedExecuteIssuanceCollateralNoticeOutput,
     );
   }, 15000);
 
@@ -676,12 +711,12 @@ describe("Campaign Execute Collateral Tests", () => {
   });
 });
 
-describe("Campaign Settle Tests", () => {
+describe("Issuance Settle Tests", () => {
   const machine = createMachine();
 
   const { baseTime, closesAt, maturityAt } = setupTimeValues();
 
-  it("should settle campaign", async () => {
+  it("should settle issuance", async () => {
     // Setup: create creator user
     const createUserInput = JSON.stringify({
       path: "user/admin/create",
@@ -719,9 +754,9 @@ describe("Campaign Settle Tests", () => {
       { collect: true },
     );
 
-    // Setup: create campaign
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    // Setup: create issuance
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -734,11 +769,11 @@ describe("Campaign Settle Tests", () => {
       },
     });
 
-    const campaignErc20DepositPayload = encodeErc20Deposit({
+    const issuanceErc20DepositPayload = encodeErc20Deposit({
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     const metadataIndex = 0n;
@@ -754,7 +789,7 @@ describe("Campaign Settle Tests", () => {
         appContract: APPLICATION_ADDRESS,
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: campaignErc20DepositPayload,
+        payload: issuanceErc20DepositPayload,
         index: metadataIndex,
       }),
       { collect: true },
@@ -782,7 +817,7 @@ describe("Campaign Settle Tests", () => {
     const createOrderInput = JSON.stringify({
       path: "order/create",
       data: {
-        campaign_id: 1,
+        issuance_id: 1,
         interest_rate: "9",
       },
     });
@@ -805,10 +840,10 @@ describe("Campaign Settle Tests", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 6000));
 
-    // Close campaign
+    // Close issuance
     const anyone = INVESTOR_01_ADDRESS;
-    const closeCampaignInput = JSON.stringify({
-      path: "campaign/close",
+    const closeIssuanceInput = JSON.stringify({
+      path: "issuance/close",
       data: {
         creator_address: CREATOR_ADDRESS,
       },
@@ -818,7 +853,7 @@ describe("Campaign Settle Tests", () => {
       encodeAdvanceInput({
         msgSender: anyone,
         blockTimestamp: BigInt(baseTime + 6),
-        payload: `0x${Buffer.from(closeCampaignInput).toString("hex")}`,
+        payload: `0x${Buffer.from(closeIssuanceInput).toString("hex")}`,
       }),
       { collect: true },
     );
@@ -843,39 +878,70 @@ describe("Campaign Settle Tests", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
-    // Settle campaign
-    const settleCampaignInput = JSON.stringify({
-      path: "campaign/creator/settle",
+    // Settle issuance
+    const settleIssuanceInput = JSON.stringify({
+      path: "issuance/creator/settle",
       data: {
         id: 1,
       },
     });
 
-    const settleCampaignPayload = encodeErc20Deposit({
+    const settleIssuancePayload = encodeErc20Deposit({
       tokenAddress: TOKEN_ADDRESS,
       sender: CREATOR_ADDRESS,
       amount: 76300n,
-      execLayerData: `0x${Buffer.from(settleCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(settleIssuanceInput).toString("hex")}`,
     });
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime + 9),
-        payload: settleCampaignPayload,
+        payload: settleIssuancePayload,
       }),
       { collect: true },
     );
 
     expect(outputs.length).toBeGreaterThanOrEqual(1);
 
-    const expectedSettleCampaignNoticeOutput = encodeNoticeOutput({
+    // Verify ERC1155 Discharge Certificate (token ID 2) delegate call voucher for investor
+    const safeMintAbi = [
+      {
+        type: "function",
+        name: "safeMint",
+        inputs: [
+          { type: "address", name: "target" },
+          { type: "address", name: "to" },
+          { type: "uint256", name: "id" },
+          { type: "uint256", name: "amount" },
+          { type: "bytes", name: "data" },
+        ],
+      },
+    ] as const;
+
+    const expectedDischargeCertificatePayload = encodeFunctionData({
+      abi: safeMintAbi,
+      functionName: "safeMint",
+      args: [badgeAddress, INVESTOR_01_ADDRESS, 2n, 1n, "0x"],
+    });
+
+    const expectedDischargeCertificateDelegateCallVoucher = encodeDelegateCallVoucherOutput({
+      destination: SAFE_ERC1155_MINT_ADDRESS,
+      payload: expectedDischargeCertificatePayload,
+    });
+
+    const dischargeCertificateVoucherFound = outputs.some(
+      (output) => bytesToHex(output) === expectedDischargeCertificateDelegateCallVoucher,
+    );
+    expect(dischargeCertificateVoucherFound).toBe(true);
+
+    const expectedSettleIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `campaign settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"settled","orders":[{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"settled","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
-      expectedSettleCampaignNoticeOutput,
+      expectedSettleIssuanceNoticeOutput,
     );
   }, 20000);
 
@@ -884,12 +950,12 @@ describe("Campaign Settle Tests", () => {
   });
 });
 
-describe("Campaign with Multiple Investors Tests", () => {
+describe("Issuance with Multiple Investors Tests", () => {
   const machine = createMachine();
 
   const { baseTime, closesAt, maturityAt } = setupTimeValues();
 
-  it("should find campaigns by investor address", async () => {
+  it("should find issuances by investor address", async () => {
     // Setup: create creator user
     const createUserInput = JSON.stringify({
       path: "user/admin/create",
@@ -955,9 +1021,9 @@ describe("Campaign with Multiple Investors Tests", () => {
       );
     }
 
-    // Setup: create campaign
-    const createCampaignInput = JSON.stringify({
-      path: "campaign/creator/create",
+    // Setup: create issuance
+    const createIssuanceInput = JSON.stringify({
+      path: "issuance/creator/create",
       data: {
         title: "test",
         description: "testtesttesttesttest",
@@ -970,18 +1036,18 @@ describe("Campaign with Multiple Investors Tests", () => {
       },
     });
 
-    const campaignErc20DepositPayload = encodeErc20Deposit({
+    const issuanceErc20DepositPayload = encodeErc20Deposit({
       tokenAddress: COLLATERAL,
       sender: CREATOR_ADDRESS,
       amount: 10000n,
-      execLayerData: `0x${Buffer.from(createCampaignInput).toString("hex")}`,
+      execLayerData: `0x${Buffer.from(createIssuanceInput).toString("hex")}`,
     });
 
     machine.advance(
       encodeAdvanceInput({
         msgSender: ERC20_PORTAL_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: campaignErc20DepositPayload,
+        payload: issuanceErc20DepositPayload,
       }),
       { collect: true },
     );
@@ -991,7 +1057,7 @@ describe("Campaign with Multiple Investors Tests", () => {
       const createOrderInput = JSON.stringify({
         path: "order/create",
         data: {
-          campaign_id: 1,
+          issuance_id: 1,
           interest_rate: String(10 - i),
         },
       });
@@ -1013,15 +1079,15 @@ describe("Campaign with Multiple Investors Tests", () => {
       );
     }
 
-    // Find campaigns by investor address
-    const findCampaignsByInvestorInput = JSON.stringify({
-      path: "campaign/investor",
+    // Find issuances by investor address
+    const findIssuancesByInvestorInput = JSON.stringify({
+      path: "issuance/investor",
       data: {
         investor_address: INVESTOR_01_ADDRESS,
       },
     });
 
-    const reports = machine.inspect(Buffer.from(findCampaignsByInvestorInput), {
+    const reports = machine.inspect(Buffer.from(findIssuancesByInvestorInput), {
       collect: true,
     });
 

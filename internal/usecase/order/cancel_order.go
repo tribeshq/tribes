@@ -17,7 +17,7 @@ type CancelOrderInputDTO struct {
 
 type CancelOrderOutputDTO struct {
 	Id           uint                `json:"id"`
-	CampaignId   uint                `json:"campaign_id"`
+	IssuanceId   uint                `json:"issuance_id"`
 	Token        types.Address       `json:"token"`
 	Investor     *user.UserOutputDTO `json:"investor"`
 	Amount       *uint256.Int        `json:"amount"`
@@ -30,14 +30,14 @@ type CancelOrderOutputDTO struct {
 type CancelOrderUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 }
 
-func NewCancelOrderUseCase(userRepo repository.UserRepository, orderRepo repository.OrderRepository, campaignRepo repository.CampaignRepository) *CancelOrderUseCase {
+func NewCancelOrderUseCase(userRepo repository.UserRepository, orderRepo repository.OrderRepository, issuanceRepo repository.IssuanceRepository) *CancelOrderUseCase {
 	return &CancelOrderUseCase{
 		UserRepository:     userRepo,
 		OrderRepository:    orderRepo,
-		CampaignRepository: campaignRepo,
+		IssuanceRepository: issuanceRepo,
 	}
 }
 
@@ -49,12 +49,12 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 	if order.InvestorAddress != types.Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
-	campaign, err := c.CampaignRepository.FindCampaignById(order.CampaignId)
+	issuance, err := c.IssuanceRepository.FindIssuanceById(order.IssuanceId)
 	if err != nil {
 		return nil, err
 	}
-	if campaign.State == entity.CampaignStateClosed {
-		return nil, errors.New("cannot cancel order after Campaign closes")
+	if issuance.State == entity.IssuanceStateClosed {
+		return nil, errors.New("cannot cancel order after Issuance closes")
 	}
 	order.State = entity.OrderStateCancelled
 	res, err := c.OrderRepository.UpdateOrder(order)
@@ -67,8 +67,8 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 	}
 	return &CancelOrderOutputDTO{
 		Id:         res.Id,
-		CampaignId: res.CampaignId,
-		Token:      campaign.Token,
+		IssuanceId: res.IssuanceId,
+		Token:      issuance.Token,
 		Investor: &user.UserOutputDTO{
 			Id:             investor.Id,
 			Role:           string(investor.Role),

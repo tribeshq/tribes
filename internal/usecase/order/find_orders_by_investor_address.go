@@ -40,7 +40,7 @@ func (o *FindOrdersByInvestorAddressUseCase) Execute(input *FindOrdersByInvestor
 		}
 		output[i] = &OrderOutputDTO{
 			Id:         order.Id,
-			CampaignId: order.CampaignId,
+			IssuanceId: order.IssuanceId,
 			Investor: &user.UserOutputDTO{
 				Id:             investor.Id,
 				Role:           string(investor.Role),

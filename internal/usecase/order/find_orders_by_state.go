@@ -6,7 +6,7 @@ import (
 )
 
 type FindOrdersByStateInputDTO struct {
-	CampaignId uint   `json:"campaign_id" validate:"required"`
+	IssuanceId uint   `json:"issuance_id" validate:"required"`
 	State      string `json:"state" validate:"required"`
 }
 
@@ -28,7 +28,7 @@ func NewFindOrdersByStateUseCase(
 }
 
 func (f *FindOrdersByStateUseCase) Execute(input *FindOrdersByStateInputDTO) (FindOrdersByStateOutputDTO, error) {
-	res, err := f.OrderRepository.FindOrdersByState(input.CampaignId, input.State)
+	res, err := f.OrderRepository.FindOrdersByState(input.IssuanceId, input.State)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (f *FindOrdersByStateUseCase) Execute(input *FindOrdersByStateInputDTO) (Fi
 		}
 		output[i] = &OrderOutputDTO{
 			Id:         order.Id,
-			CampaignId: order.CampaignId,
+			IssuanceId: order.IssuanceId,
 			Investor: &user.UserOutputDTO{
 				Id:             investor.Id,
 				Role:           string(investor.Role),

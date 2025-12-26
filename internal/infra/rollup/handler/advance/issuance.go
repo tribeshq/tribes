@@ -10,7 +10,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/configs"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/campaign"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/issuance"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
@@ -18,29 +18,29 @@ import (
 	"github.com/rollmelette/rollmelette"
 )
 
-type CampaignAdvanceHandlers struct {
-	cfg                *configs.RollupConfig
+type IssuanceAdvanceHandlers struct {
+	Config             *configs.RollupConfig
 	OrderRepository    repository.OrderRepository
 	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 }
 
-func NewCampaignAdvanceHandlers(
+func NewIssuanceAdvanceHandlers(
 	cfg *configs.RollupConfig,
 	orderRepo repository.OrderRepository,
 	userRepo repository.UserRepository,
-	campaignRepo repository.CampaignRepository,
-) *CampaignAdvanceHandlers {
-	return &CampaignAdvanceHandlers{
-		cfg:                cfg,
+	issuanceRepo repository.IssuanceRepository,
+) *IssuanceAdvanceHandlers {
+	return &IssuanceAdvanceHandlers{
+		Config:             cfg,
 		OrderRepository:    orderRepo,
 		UserRepository:     userRepo,
-		CampaignRepository: campaignRepo,
+		IssuanceRepository: issuanceRepo,
 	}
 }
 
-func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input campaign.CreateCampaignInputDTO
+func (h *IssuanceAdvanceHandlers) CreateIssuance(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input issuance.CreateIssuanceInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -50,15 +50,15 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	createCampaign := campaign.NewCreateCampaignUseCase(
-		h.cfg,
-		h.CampaignRepository,
+	createIssuance := issuance.NewCreateIssuanceUseCase(
+		h.Config.BadgeFactoryAddress,
+		h.IssuanceRepository,
 		h.UserRepository,
 	)
 
-	res, err := createCampaign.Execute(&input, deposit, metadata)
+	res, err := createIssuance.Execute(&input, deposit, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to create campaign: %w", err)
+		return fmt.Errorf("failed to create issuance: %w", err)
 	}
 
 	abiJson := `[{
@@ -83,7 +83,7 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to pack ABI: %w", err)
 	}
 	env.Voucher(
-		common.Address(h.cfg.BadgeFactoryAddress),
+		common.Address(h.Config.BadgeFactoryAddress),
 		big.NewInt(0),
 		deployBadgePayload,
 	)
@@ -98,17 +98,17 @@ func (h *CampaignAdvanceHandlers) CreateCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to transfer ERC20: %w", err)
 	}
 
-	campaign, err := json.Marshal(res)
+	issuance, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("campaign created - "), campaign...))
+	env.Notice(append([]byte("issuance created - "), issuance...))
 	return nil
 }
 
-func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input campaign.CloseCampaignInputDTO
+func (h *IssuanceAdvanceHandlers) CloseIssuance(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input issuance.CloseIssuanceInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -118,10 +118,10 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	closeCampaign := campaign.NewCloseCampaignUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
-	res, err := closeCampaign.Execute(&input, metadata)
+	closeIssuance := issuance.NewCloseIssuanceUseCase(h.UserRepository, h.IssuanceRepository, h.OrderRepository)
+	res, err := closeIssuance.Execute(&input, metadata)
 	if err != nil && res == nil {
-		return fmt.Errorf("failed to close campaign: %w", err)
+		return fmt.Errorf("failed to close issuance: %w", err)
 	}
 
 	token := common.Address(res.Token)
@@ -140,6 +140,10 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		}
 	}
 
+	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator.Address), res.TotalRaised.ToBig()); err != nil {
+		return fmt.Errorf("failed to transfer total raised: %w", err)
+	}
+
 	abiJSON := `[{
 		"type":"function",
 		"name":"safeMint",
@@ -156,6 +160,7 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 		return fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
+	// Mint Bond Certificates
 	for _, order := range res.Orders {
 		if order.State != string(entity.OrderStateRejected) {
 			safeMintPayload, err := abiInterface.Pack(
@@ -169,25 +174,21 @@ func (h *CampaignAdvanceHandlers) CloseCampaign(env rollmelette.Env, metadata ro
 			if err != nil {
 				return fmt.Errorf("failed to pack ABI: %w", err)
 			}
-			env.DelegateCallVoucher(common.Address(h.cfg.SafeErc1155MintAddress), safeMintPayload)
+			env.DelegateCallVoucher(common.Address(h.Config.SafeErc1155MintAddress), safeMintPayload)
 		}
 	}
 
-	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator.Address), res.TotalRaised.ToBig()); err != nil {
-		return fmt.Errorf("failed to transfer total raised: %w", err)
-	}
-
-	campaign, err := json.Marshal(res)
+	issuance, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte(fmt.Sprintf("campaign %v - ", res.State)), campaign...))
+	env.Notice(append([]byte(fmt.Sprintf("issuance %v - ", res.State)), issuance...))
 	return nil
 }
 
-func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input campaign.SettleCampaignInputDTO
+func (h *IssuanceAdvanceHandlers) SettleIssuance(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input issuance.SettleIssuanceInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -197,19 +198,35 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	settleCampaign := campaign.NewSettleCampaignUseCase(
+	settleIssuance := issuance.NewSettleIssuanceUseCase(
 		h.UserRepository,
-		h.CampaignRepository,
+		h.IssuanceRepository,
 		h.OrderRepository,
 	)
 
-	res, err := settleCampaign.Execute(&input, deposit, metadata)
+	res, err := settleIssuance.Execute(&input, deposit, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to settle campaign: %w", err)
+		return fmt.Errorf("failed to settle issuance: %w", err)
 	}
 
 	contractAddr := common.Address(res.Token)
 	creatorAddr := common.Address(res.Creator.Address)
+
+	abiJSON := `[{
+		"type":"function",
+		"name":"safeMint",
+		"inputs":[
+			{"type":"address"},
+			{"type":"address"},
+			{"type":"uint256"},
+			{"type":"uint256"},
+			{"type":"bytes"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
+	if err != nil {
+		return fmt.Errorf("failed to parse ABI: %w", err)
+	}
 
 	// Process settled orders
 	for _, order := range res.Orders {
@@ -229,20 +246,34 @@ func (h *CampaignAdvanceHandlers) SettleCampaign(env rollmelette.Env, metadata r
 			); err != nil {
 				return fmt.Errorf("failed to transfer settled order: %w", err)
 			}
+
+			// Mint Discharge Certificates
+			safeMintPayload, err := abiInterface.Pack(
+				"safeMint",
+				common.Address(res.BadgeAddress),
+				common.Address(order.Investor.Address),
+				big.NewInt(2),
+				big.NewInt(1),
+				[]byte{},
+			)
+			if err != nil {
+				return fmt.Errorf("failed to pack ABI: %w", err)
+			}
+			env.DelegateCallVoucher(common.Address(h.Config.SafeErc1155MintAddress), safeMintPayload)
 		}
 	}
-
-	campaign, err := json.Marshal(res)
+	
+	issuance, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("campaign settled - "), campaign...))
+	env.Notice(append([]byte("issuance settled - "), issuance...))
 	return nil
 }
 
-func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-	var input campaign.ExecuteCampaignCollateralInputDTO
+func (h *IssuanceAdvanceHandlers) ExecuteIssuanceCollateral(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
+	var input issuance.ExecuteIssuanceCollateralInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
@@ -252,10 +283,10 @@ func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env,
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
 
-	executeCampaignCollateral := campaign.NewExecuteCampaignCollateralUseCase(h.UserRepository, h.CampaignRepository, h.OrderRepository)
-	res, err := executeCampaignCollateral.Execute(&input, metadata)
+	executeIssuanceCollateral := issuance.NewExecuteIssuanceCollateralUseCase(h.UserRepository, h.IssuanceRepository, h.OrderRepository)
+	res, err := executeIssuanceCollateral.Execute(&input, metadata)
 	if err != nil {
-		return fmt.Errorf("failed to execute campaign collateral: %w", err)
+		return fmt.Errorf("failed to execute issuance collateral: %w", err)
 	}
 
 	totalFinalValue := uint256.NewInt(0)
@@ -287,11 +318,11 @@ func (h *CampaignAdvanceHandlers) ExecuteCampaignCollateral(env rollmelette.Env,
 		}
 	}
 
-	campaign, err := json.Marshal(res)
+	issuance, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
 
-	env.Notice(append([]byte("campaign collateral executed - "), campaign...))
+	env.Notice(append([]byte("issuance collateral executed - "), issuance...))
 	return nil
 }

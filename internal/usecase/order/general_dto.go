@@ -7,7 +7,7 @@ import (
 
 type OrderOutputDTO struct {
 	Id           uint                `json:"id"`
-	CampaignId   uint                `json:"campaign_id"`
+	IssuanceId   uint                `json:"issuance_id"`
 	Investor     *user.UserOutputDTO `json:"investor"`
 	Amount       *uint256.Int        `json:"amount"`
 	InterestRate *uint256.Int        `json:"interest_rate"`

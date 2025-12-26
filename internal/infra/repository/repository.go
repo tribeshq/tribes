@@ -5,20 +5,20 @@ import (
 	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
-type CampaignRepository interface {
-	CreateCampaign(campaign *entity.Campaign) (*entity.Campaign, error)
-	FindCampaignsByCreatorAddress(creator types.Address) ([]*entity.Campaign, error)
-	FindCampaignsByInvestorAddress(investor types.Address) ([]*entity.Campaign, error)
-	FindCampaignById(id uint) (*entity.Campaign, error)
-	FindAllCampaigns() ([]*entity.Campaign, error)
-	UpdateCampaign(Campaign *entity.Campaign) (*entity.Campaign, error)
+type IssuanceRepository interface {
+	CreateIssuance(issuance *entity.Issuance) (*entity.Issuance, error)
+	FindIssuancesByCreatorAddress(creator types.Address) ([]*entity.Issuance, error)
+	FindIssuancesByInvestorAddress(investor types.Address) ([]*entity.Issuance, error)
+	FindIssuanceById(id uint) (*entity.Issuance, error)
+	FindAllIssuances() ([]*entity.Issuance, error)
+	UpdateIssuance(Issuance *entity.Issuance) (*entity.Issuance, error)
 }
 
 type OrderRepository interface {
 	CreateOrder(order *entity.Order) (*entity.Order, error)
 	FindOrderById(id uint) (*entity.Order, error)
-	FindOrdersByCampaignId(id uint) ([]*entity.Order, error)
-	FindOrdersByState(campaignId uint, state string) ([]*entity.Order, error)
+	FindOrdersByIssuanceId(id uint) ([]*entity.Order, error)
+	FindOrdersByState(issuanceId uint, state string) ([]*entity.Order, error)
 	FindOrdersByInvestorAddress(investor types.Address) ([]*entity.Order, error)
 	FindAllOrders() ([]*entity.Order, error)
 	UpdateOrder(order *entity.Order) (*entity.Order, error)
@@ -41,7 +41,7 @@ type UserRepository interface {
 }
 
 type Repository interface {
-	CampaignRepository
+	IssuanceRepository
 	OrderRepository
 	SocialAccountRepository
 	UserRepository

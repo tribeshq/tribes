@@ -35,7 +35,7 @@ func (c *FindOrderByIdUseCase) Execute(input *FindOrderByIdInputDTO) (*OrderOutp
 	}
 	return &OrderOutputDTO{
 		Id:         res.Id,
-		CampaignId: res.CampaignId,
+		IssuanceId: res.IssuanceId,
 		Investor: &user.UserOutputDTO{
 			Id:             investor.Id,
 			Role:           string(investor.Role),

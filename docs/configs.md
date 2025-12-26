@@ -66,6 +66,14 @@ Address of the verifier contract, who can verify the social accounts
 * **Default:** `"0x0000000000000000000000000000000000000025"`
 * **Used by:** rollup
 
+## `DATABASE_URL`
+
+SQLite database connection string
+
+* **Type:** `string`
+* **Default:** `"sqlite:///mnt/data/rollup.db"`
+* **Used by:** rollup
+
 ## `MAX_STARTUP_TIME`
 
 Maximum startup time for the rollup service

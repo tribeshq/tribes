@@ -43,16 +43,16 @@ func (h *OrderInspectHandlers) FindOrderById(env rollmelette.EnvInspector, paylo
 	return nil
 }
 
-func (h *OrderInspectHandlers) FindBidsByCampaignId(env rollmelette.EnvInspector, payload []byte) error {
-	var input order.FindOrdersByCampaignIdInputDTO
+func (h *OrderInspectHandlers) FindBidsByIssuanceId(env rollmelette.EnvInspector, payload []byte) error {
+	var input order.FindOrdersByIssuanceIdInputDTO
 	if err := json.Unmarshal(payload, &input); err != nil {
 		return fmt.Errorf("failed to unmarshal input: %w", err)
 	}
 
-	findOrdersByCampaignId := order.NewFindOrdersByCampaignIdUseCase(h.UserRepository, h.OrderRepository)
-	res, err := findOrdersByCampaignId.Execute(&input)
+	findOrdersByIssuanceId := order.NewFindOrdersByIssuanceIdUseCase(h.UserRepository, h.OrderRepository)
+	res, err := findOrdersByIssuanceId.Execute(&input)
 	if err != nil {
-		return fmt.Errorf("failed to find orders by campaign id: %v", err)
+		return fmt.Errorf("failed to find orders by issuance id: %v", err)
 	}
 	orders, err := json.Marshal(res)
 	if err != nil {

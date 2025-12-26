@@ -12,13 +12,13 @@ import (
 )
 
 type CreateOrderInputDTO struct {
-	CampaignId   uint         `json:"campaign_id" validate:"required"`
+	IssuanceId   uint         `json:"issuance_id" validate:"required"`
 	InterestRate *uint256.Int `json:"interest_rate" validate:"required"`
 }
 
 type CreateOrderOutputDTO struct {
 	Id           uint                `json:"id"`
-	CampaignId   uint                `json:"campaign_id"`
+	IssuanceId   uint                `json:"issuance_id"`
 	Investor     *user.UserOutputDTO `json:"investor"`
 	Amount       *uint256.Int        `json:"amount"`
 	InterestRate *uint256.Int        `json:"interest_rate"`
@@ -29,18 +29,18 @@ type CreateOrderOutputDTO struct {
 type CreateOrderUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 }
 
 func NewCreateOrderUseCase(
 	userRepo repository.UserRepository,
 	orderRepo repository.OrderRepository,
-	campaignRepo repository.CampaignRepository,
+	issuanceRepo repository.IssuanceRepository,
 ) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
 		UserRepository:     userRepo,
 		OrderRepository:    orderRepo,
-		CampaignRepository: campaignRepo,
+		IssuanceRepository: issuanceRepo,
 	}
 }
 
@@ -50,25 +50,25 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 		return nil, fmt.Errorf("invalid deposit type provided for order creation: %T", deposit)
 	}
 
-	campaign, err := c.CampaignRepository.FindCampaignById(input.CampaignId)
+	issuance, err := c.IssuanceRepository.FindIssuanceById(input.IssuanceId)
 	if err != nil {
-		return nil, fmt.Errorf("error finding campaign campaigns: %w", err)
+		return nil, fmt.Errorf("error finding issuance issuances: %w", err)
 	}
 
-	if campaign.ClosesAt < metadata.BlockTimestamp {
-		return nil, fmt.Errorf("campaign campaign closed, order cannot be placed")
+	if issuance.ClosesAt < metadata.BlockTimestamp {
+		return nil, fmt.Errorf("issuance issuance closed, order cannot be placed")
 	}
 
-	if types.Address(erc20Deposit.Token) != campaign.Token {
+	if types.Address(erc20Deposit.Token) != issuance.Token {
 		return nil, fmt.Errorf("invalid contract address provided for order creation: %v", erc20Deposit.Token)
 	}
 
-	if input.InterestRate.Gt(campaign.MaxInterestRate) {
-		return nil, fmt.Errorf("order interest rate exceeds active Campaign max interest rate")
+	if input.InterestRate.Gt(issuance.MaxInterestRate) {
+		return nil, fmt.Errorf("order interest rate exceeds active Issuance max interest rate")
 	}
 
 	order, err := entity.NewOrder(
-		campaign.Id,
+		issuance.Id,
 		types.Address(erc20Deposit.Sender),
 		uint256.MustFromBig(erc20Deposit.Value),
 		input.InterestRate,
@@ -90,7 +90,7 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 
 	return &CreateOrderOutputDTO{
 		Id:         res.Id,
-		CampaignId: res.CampaignId,
+		IssuanceId: res.IssuanceId,
 		Investor: &user.UserOutputDTO{
 			Id:             investor.Id,
 			Role:           string(investor.Role),

@@ -1,4 +1,4 @@
-package campaign
+package issuance
 
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
@@ -7,7 +7,7 @@ import (
 	"github.com/holiman/uint256"
 )
 
-type CampaignOutputDTO struct {
+type IssuanceOutputDTO struct {
 	Id                uint                    `json:"id"`
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`

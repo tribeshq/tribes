@@ -29,15 +29,15 @@ contract TestBaseLayerGas is Test {
         paymentToken.mint(address(mockApplication), 1000000 * 10 ** 18);
     }
 
-    function testGasAddInputCloseCampaign() public {
+    function testGasAddInputCloseIssuance() public {
         string memory payload =
-            string(abi.encodePacked('{"path":"campaign/close","data":{"creator":"', _addressToString(creator), '"}}'));
+            string(abi.encodePacked('{"path":"issuance/close","data":{"creator":"', _addressToString(creator), '"}}'));
 
         uint256 gasBefore = gasleft();
         inputBox.addInput(address(mockApplication), bytes(payload));
         uint256 gasUsed = gasBefore - gasleft();
 
-        emit log_named_uint("Gas used (input close campaign):", gasUsed);
+        emit log_named_uint("Gas used (input close issuance):", gasUsed);
 
         assertEq(inputBox.getNumberOfInputs(address(mockApplication)), 1);
     }
@@ -64,11 +64,11 @@ contract TestBaseLayerGas is Test {
         assertEq(paymentToken.balanceOf(address(mockApplication)), initialAppBalance - raisedAmount);
     }
 
-    function testGasCloseCampaignAndWithdraw() public {
+    function testGasCloseIssuanceAndWithdraw() public {
         uint256 raisedAmount = 100000 * 10 ** 18;
 
         string memory closePayload =
-            string(abi.encodePacked('{"path":"campaign/close","data":{"creator":"', _addressToString(creator), '"}}'));
+            string(abi.encodePacked('{"path":"issuance/close","data":{"creator":"', _addressToString(creator), '"}}'));
 
         uint256 gasInput = gasleft();
         inputBox.addInput(address(mockApplication), bytes(closePayload));

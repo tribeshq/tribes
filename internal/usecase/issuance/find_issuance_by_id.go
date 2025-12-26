@@ -1,4 +1,4 @@
-package campaign
+package issuance
 
 import (
 	"fmt"
@@ -8,24 +8,24 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 )
 
-type FindCampaignByIdInputDTO struct {
+type FindIssuanceByIdInputDTO struct {
 	Id uint `json:"id" validate:"required"`
 }
 
-type FindCampaignByIdUseCase struct {
+type FindIssuanceByIdUseCase struct {
 	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 }
 
-func NewFindCampaignByIdUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository) *FindCampaignByIdUseCase {
-	return &FindCampaignByIdUseCase{
+func NewFindIssuanceByIdUseCase(userRepo repository.UserRepository, issuanceRepo repository.IssuanceRepository) *FindIssuanceByIdUseCase {
+	return &FindIssuanceByIdUseCase{
 		UserRepository:     userRepo,
-		CampaignRepository: campaignRepo,
+		IssuanceRepository: issuanceRepo,
 	}
 }
 
-func (f *FindCampaignByIdUseCase) Execute(input *FindCampaignByIdInputDTO) (*CampaignOutputDTO, error) {
-	res, err := f.CampaignRepository.FindCampaignById(input.Id)
+func (f *FindIssuanceByIdUseCase) Execute(input *FindIssuanceByIdInputDTO) (*IssuanceOutputDTO, error) {
+	res, err := f.IssuanceRepository.FindIssuanceById(input.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (f *FindCampaignByIdUseCase) Execute(input *FindCampaignByIdInputDTO) (*Cam
 		}
 		orders[i] = &order.OrderOutputDTO{
 			Id:         o.Id,
-			CampaignId: o.CampaignId,
+			IssuanceId: o.IssuanceId,
 			Investor: &user.UserOutputDTO{
 				Id:             investor.Id,
 				Role:           string(investor.Role),
@@ -57,7 +57,7 @@ func (f *FindCampaignByIdUseCase) Execute(input *FindCampaignByIdInputDTO) (*Cam
 	if err != nil {
 		return nil, fmt.Errorf("error finding creator: %w", err)
 	}
-	return &CampaignOutputDTO{
+	return &IssuanceOutputDTO{
 		Id:          res.Id,
 		Title:       res.Title,
 		Description: res.Description,

@@ -111,8 +111,8 @@ test-contracts: ## Run the contracts tests
 .PHONY: bench
 bench: build ## Run benchmarks
 	$(START_LOG)
-	@forge test --root ./contracts --match-path "test/TestBaseLayerGas.t.sol" -vvv > perf/results/close-campaign-benchmark-base-layer.log 2>&1
-	@pnpm run bench:close-campaign
+	@forge test --root ./contracts --match-path "test/TestBaseLayerGas.t.sol" -vvv > perf/results/close-issuance-benchmark-base-layer.log 2>&1
+	@pnpm run bench:close-issuance
 	@echo "Benchmark completed! Check ./perf/results/ for details"
 	$(END_LOG)
 

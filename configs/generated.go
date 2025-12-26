@@ -25,6 +25,7 @@ const (
 	SAFE_ERC1155_MINT_ADDRESS  = "SAFE_ERC1155_MINT_ADDRESS"
 	VERIFIER_ADDRESS           = "VERIFIER_ADDRESS"
 	VERIFIER_ADDRESS_TEST      = "VERIFIER_ADDRESS_TEST"
+	DATABASE_URL               = "DATABASE_URL"
 	MAX_STARTUP_TIME           = "MAX_STARTUP_TIME"
 )
 
@@ -44,6 +45,8 @@ func SetDefaults() {
 	viper.SetDefault(VERIFIER_ADDRESS, "0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b")
 
 	viper.SetDefault(VERIFIER_ADDRESS_TEST, "0x0000000000000000000000000000000000000025")
+
+	viper.SetDefault(DATABASE_URL, "sqlite:///mnt/data/rollup.db")
 
 	viper.SetDefault(MAX_STARTUP_TIME, "10")
 
@@ -72,6 +75,9 @@ type RollupConfig struct {
 
 	// Address of the verifier contract, who can verify the social accounts
 	VerifierAddressTest Address `mapstructure:"VERIFIER_ADDRESS_TEST"`
+
+	// SQLite database connection string
+	DatabaseUrl string `mapstructure:"DATABASE_URL"`
 
 	// Maximum startup time for the rollup service
 	MaxStartupTime Duration `mapstructure:"MAX_STARTUP_TIME"`
@@ -140,6 +146,13 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("failed to get VERIFIER_ADDRESS_TEST: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("VERIFIER_ADDRESS_TEST is required for the rollup service: %w", err)
+	}
+
+	cfg.DatabaseUrl, err = GetDatabaseUrl()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get DATABASE_URL: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("DATABASE_URL is required for the rollup service: %w", err)
 	}
 
 	cfg.MaxStartupTime, err = GetMaxStartupTime()
@@ -241,6 +254,19 @@ func GetVerifierAddressTest() (Address, error) {
 		return v, nil
 	}
 	return notDefinedAddress(), fmt.Errorf("%s: %w", VERIFIER_ADDRESS_TEST, ErrNotDefined)
+}
+
+// GetDatabaseUrl returns the value for the environment variable DATABASE_URL.
+func GetDatabaseUrl() (string, error) {
+	s := viper.GetString(DATABASE_URL)
+	if s != "" {
+		v, err := toString(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", DATABASE_URL, err)
+		}
+		return v, nil
+	}
+	return notDefinedstring(), fmt.Errorf("%s: %w", DATABASE_URL, ErrNotDefined)
 }
 
 // GetMaxStartupTime returns the value for the environment variable MAX_STARTUP_TIME.

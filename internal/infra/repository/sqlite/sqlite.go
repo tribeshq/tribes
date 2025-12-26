@@ -63,7 +63,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 	}
 
 	if err := db.AutoMigrate(
-		&entity.Campaign{},
+		&entity.Issuance{},
 		&entity.Order{},
 		&entity.User{},
 		&entity.SocialAccount{},

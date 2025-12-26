@@ -9,21 +9,21 @@ import (
 )
 
 var (
-	ErrCampaignNotFound = errors.New("campaign not found")
-	ErrInvalidCampaign  = errors.New("invalid campaign")
+	ErrIssuanceNotFound = errors.New("issuance not found")
+	ErrInvalidIssuance  = errors.New("invalid issuance")
 )
 
-type CampaignState string
+type IssuanceState string
 
 const (
-	CampaignStateClosed             CampaignState = "closed"
-	CampaignStateOngoing            CampaignState = "ongoing"
-	CampaignStateCanceled           CampaignState = "canceled"
-	CampaignStateSettled            CampaignState = "settled"
-	CampaignStateCollateralExecuted CampaignState = "collateral_executed"
+	IssuanceStateClosed             IssuanceState = "closed"
+	IssuanceStateOngoing            IssuanceState = "ongoing"
+	IssuanceStateCanceled           IssuanceState = "canceled"
+	IssuanceStateSettled            IssuanceState = "settled"
+	IssuanceStateCollateralExecuted IssuanceState = "collateral_executed"
 )
 
-type Campaign struct {
+type Issuance struct {
 	Id                uint          `json:"id" gorm:"primaryKey"`
 	Title             string        `json:"title,omitempty" gorm:"not null"`
 	Description       string        `json:"description,omitempty" gorm:"not null"`
@@ -37,16 +37,16 @@ type Campaign struct {
 	MaxInterestRate   *uint256.Int  `json:"max_interest_rate,omitempty" gorm:"types:text;not null"`
 	TotalObligation   *uint256.Int  `json:"total_obligation,omitempty" gorm:"types:text;not null;default:0"`
 	TotalRaised       *uint256.Int  `json:"total_raised,omitempty" gorm:"types:text;not null;default:0"`
-	State             CampaignState `json:"state,omitempty" gorm:"types:text;not null"`
-	Orders            []*Order      `json:"orders,omitempty" gorm:"foreignKey:CampaignId;constraint:OnDelete:CASCADE"`
+	State             IssuanceState `json:"state,omitempty" gorm:"types:text;not null"`
+	Orders            []*Order      `json:"orders,omitempty" gorm:"foreignKey:IssuanceId;constraint:OnDelete:CASCADE"`
 	ClosesAt          int64         `json:"closes_at,omitempty" gorm:"not null"`
 	MaturityAt        int64         `json:"maturity_at,omitempty" gorm:"not null"`
 	CreatedAt         int64         `json:"created_at,omitempty" gorm:"not null"`
 	UpdatedAt         int64         `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewCampaign(title string, description string, promotion string, token types.Address, creatorAddress types.Address, collateralAddress types.Address, collateralAmount *uint256.Int, badgeAddress types.Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Campaign, error) {
-	campaign := &Campaign{
+func NewIssuance(title string, description string, promotion string, token types.Address, creatorAddress types.Address, collateralAddress types.Address, collateralAmount *uint256.Int, badgeAddress types.Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Issuance, error) {
+	issuance := &Issuance{
 		Title:             title,
 		Description:       description,
 		Promotion:         promotion,
@@ -57,57 +57,57 @@ func NewCampaign(title string, description string, promotion string, token types
 		BadgeAddress:      badgeAddress,
 		DebtIssued:        debtIssued,
 		MaxInterestRate:   maxInterestRate,
-		State:             CampaignStateOngoing,
+		State:             IssuanceStateOngoing,
 		Orders:            []*Order{},
 		ClosesAt:          closesAt,
 		MaturityAt:        maturityAt,
 		CreatedAt:         createdAt,
 	}
-	if err := campaign.validate(); err != nil {
+	if err := issuance.validate(); err != nil {
 		return nil, err
 	}
-	return campaign, nil
+	return issuance, nil
 }
 
-func (a *Campaign) validate() error {
+func (a *Issuance) validate() error {
 	if a.Title == "" {
-		return fmt.Errorf("%w: title cannot be empty", ErrInvalidCampaign)
+		return fmt.Errorf("%w: title cannot be empty", ErrInvalidIssuance)
 	}
 	if a.Description == "" {
-		return fmt.Errorf("%w: description cannot be empty", ErrInvalidCampaign)
+		return fmt.Errorf("%w: description cannot be empty", ErrInvalidIssuance)
 	}
 	if a.Promotion == "" {
-		return fmt.Errorf("%w: promotion cannot be empty", ErrInvalidCampaign)
+		return fmt.Errorf("%w: promotion cannot be empty", ErrInvalidIssuance)
 	}
 	if a.Token == (types.Address{}) {
-		return fmt.Errorf("%w: invalid token address", ErrInvalidCampaign)
+		return fmt.Errorf("%w: invalid token address", ErrInvalidIssuance)
 	}
 	if a.CreatorAddress == (types.Address{}) {
-		return fmt.Errorf("%w: invalid creator address", ErrInvalidCampaign)
+		return fmt.Errorf("%w: invalid creator address", ErrInvalidIssuance)
 	}
 	if a.CollateralAddress == (types.Address{}) {
-		return fmt.Errorf("%w: invalid collateral address", ErrInvalidCampaign)
+		return fmt.Errorf("%w: invalid collateral address", ErrInvalidIssuance)
 	}
 	if a.CollateralAmount.Sign() == 0 {
-		return fmt.Errorf("%w: collateral amount cannot be zero", ErrInvalidCampaign)
+		return fmt.Errorf("%w: collateral amount cannot be zero", ErrInvalidIssuance)
 	}
 	if a.BadgeAddress == (types.Address{}) {
-		return fmt.Errorf("%w: invalid badge address", ErrInvalidCampaign)
+		return fmt.Errorf("%w: invalid badge address", ErrInvalidIssuance)
 	}
 	if a.DebtIssued.Sign() == 0 {
-		return fmt.Errorf("%w: debt issued cannot be zero", ErrInvalidCampaign)
+		return fmt.Errorf("%w: debt issued cannot be zero", ErrInvalidIssuance)
 	}
 	if a.MaxInterestRate.Sign() == 0 {
-		return fmt.Errorf("%w: max interest rate cannot be zero", ErrInvalidCampaign)
+		return fmt.Errorf("%w: max interest rate cannot be zero", ErrInvalidIssuance)
 	}
 	if a.CreatedAt == 0 {
-		return fmt.Errorf("%w: creation date is missing", ErrInvalidCampaign)
+		return fmt.Errorf("%w: creation date is missing", ErrInvalidIssuance)
 	}
 	if a.ClosesAt == 0 {
-		return fmt.Errorf("%w: close date is missing", ErrInvalidCampaign)
+		return fmt.Errorf("%w: close date is missing", ErrInvalidIssuance)
 	}
 	if a.MaturityAt == 0 {
-		return fmt.Errorf("%w: maturity date is missing", ErrInvalidCampaign)
+		return fmt.Errorf("%w: maturity date is missing", ErrInvalidIssuance)
 	}
 	return nil
 }

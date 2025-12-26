@@ -14,15 +14,15 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func TestCampaignSuite(t *testing.T) {
-	suite.Run(t, new(CampaignSuite))
+func TestIssuanceSuite(t *testing.T) {
+	suite.Run(t, new(IssuanceSuite))
 }
 
-type CampaignSuite struct {
+type IssuanceSuite struct {
 	DCMRollupSuite
 }
 
-func (s *CampaignSuite) TestCreateCampaign() {
+func (s *IssuanceSuite) TestCreateIssuance() {
 	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -54,16 +54,16 @@ func (s *CampaignSuite) TestCreateCampaign() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -71,10 +71,10 @@ func (s *CampaignSuite) TestCreateCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -88,14 +88,14 @@ func (s *CampaignSuite) TestCreateCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
 }
 
-func (s *CampaignSuite) TestFindAllCampaigns() {
+func (s *IssuanceSuite) TestFindAllIssuances() {
 	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -127,16 +127,16 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -144,10 +144,10 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -161,18 +161,18 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
 
-	findAllCampaignsInput := []byte(`{"path":"campaign"}`)
+	findAllIssuancesInput := []byte(`{"path":"issuance"}`)
 
-	findAllCampaignsOutput := s.Tester.Inspect(findAllCampaignsInput)
-	s.Len(findAllCampaignsOutput.Reports, 1)
+	findAllIssuancesOutput := s.Tester.Inspect(findAllIssuancesInput)
+	s.Len(findAllIssuancesOutput.Reports, 1)
 
-	expectedFindAllCampaignsOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
+	expectedFindAllIssuancesOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -183,10 +183,10 @@ func (s *CampaignSuite) TestFindAllCampaigns() {
 		closesAt,
 		maturityAt,
 	)
-	s.Equal(expectedFindAllCampaignsOutput, string(findAllCampaignsOutput.Reports[0].Payload))
+	s.Equal(expectedFindAllIssuancesOutput, string(findAllIssuancesOutput.Reports[0].Payload))
 }
 
-func (s *CampaignSuite) TestFindCampaignById() {
+func (s *IssuanceSuite) TestFindIssuanceById() {
 	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -218,16 +218,16 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -235,10 +235,10 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -252,18 +252,18 @@ func (s *CampaignSuite) TestFindCampaignById() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
 
-	findCampaignByIdInput := []byte(`{"path":"campaign/id", "data":{"id":1}}`)
+	findIssuanceByIdInput := []byte(`{"path":"issuance/id", "data":{"id":1}}`)
 
-	findCampaignByIdOutput := s.Tester.Inspect(findCampaignByIdInput)
-	s.Len(findCampaignByIdOutput.Reports, 1)
+	findIssuanceByIdOutput := s.Tester.Inspect(findIssuanceByIdInput)
+	s.Len(findIssuanceByIdOutput.Reports, 1)
 
-	expectedFindCampaignByIdOutput := fmt.Sprintf(`{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`,
+	expectedFindIssuanceByIdOutput := fmt.Sprintf(`{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -271,10 +271,10 @@ func (s *CampaignSuite) TestFindCampaignById() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedFindCampaignByIdOutput, string(findCampaignByIdOutput.Reports[0].Payload))
+	s.Equal(expectedFindIssuanceByIdOutput, string(findIssuanceByIdOutput.Reports[0].Payload))
 }
 
-func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
+func (s *IssuanceSuite) TestFindIssuancesByCreatorAddress() {
 	admin, token, creator, factory, verifier, collateral, _, applicationAddress := s.setupCommonAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
 
@@ -306,16 +306,16 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -323,10 +323,10 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -340,18 +340,18 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(2)), common.BytesToHash(saltBytes[:]))
 
-	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
+	findIssuancesByCreatorInput := []byte(fmt.Sprintf(`{"path":"issuance/creator", "data":{"creator":"%s"}}`, creator))
 
-	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
-	s.Len(findCampaignsByCreatorOutput.Reports, 1)
+	findIssuancesByCreatorOutput := s.Tester.Inspect(findIssuancesByCreatorInput)
+	s.Len(findIssuancesByCreatorOutput.Reports, 1)
 
-	expectedFindCampaignsByCreatorAddressOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
+	expectedFindIssuancesByCreatorAddressOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -362,9 +362,9 @@ func (s *CampaignSuite) TestFindCampaignsByCreatorAddress() {
 		closesAt,
 		maturityAt,
 	)
-	s.Equal(expectedFindCampaignsByCreatorAddressOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
+	s.Equal(expectedFindIssuancesByCreatorAddressOutput, string(findIssuancesByCreatorOutput.Reports[0].Payload))
 }
-func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
+func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
@@ -433,16 +433,16 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -450,10 +450,10 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -467,46 +467,46 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
 	time.Sleep(5 * time.Second)
 
 	anyone := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	closeCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/close", "data":{"creator_address":"%s"}}`, creator))
-	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
-	s.Len(closeCampaignOutput.Notices, 1)
+	closeIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/close", "data":{"creator_address":"%s"}}`, creator))
+	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
+	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -521,7 +521,7 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		investor05.Hex(), baseTime, baseTime, closesAt, // Order 5
 		investor01.Hex(), baseTime, baseTime, closesAt, // Order 6 (rejected portion)
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -531,13 +531,13 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
-	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -553,24 +553,24 @@ func (s *CampaignSuite) TestFindCampaignsByInvestorAddress() {
 		investor01.Hex(), baseTime, baseTime, closesAt, // Order 6 (rejected portion)
 		baseTime, closesAt, maturityAt, closesAt)
 
-	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
+	findIssuancesByCreatorInput := []byte(fmt.Sprintf(`{"path":"issuance/creator", "data":{"creator":"%s"}}`, creator))
 
-	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
-	s.Len(findCampaignsByCreatorOutput.Reports, 1)
-	s.Equal(expectedFindCampaignByCreatorOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
+	findIssuancesByCreatorOutput := s.Tester.Inspect(findIssuancesByCreatorInput)
+	s.Len(findIssuancesByCreatorOutput.Reports, 1)
+	s.Equal(expectedFindIssuanceByCreatorOutput, string(findIssuancesByCreatorOutput.Reports[0].Payload))
 
 	// Verify that delegate call vouchers were created for badge minting
-	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
+	s.Len(closeIssuanceOutput.DelegateCallVouchers, 5)
 
 	// Verify delegate call voucher destinations are SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[4].Destination)
 }
 
-func (s *CampaignSuite) TestCloseCampaign() {
+func (s *IssuanceSuite) TestCloseIssuance() {
 	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
@@ -639,16 +639,16 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -656,10 +656,10 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -673,46 +673,46 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
 	time.Sleep(5 * time.Second)
 
 	anyone := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	closeCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/close", "data":{"creator_address":"%s"}}`, creator))
-	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
-	s.Len(closeCampaignOutput.Notices, 1)
+	closeIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/close", "data":{"creator_address":"%s"}}`, creator))
+	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
+	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -727,9 +727,9 @@ func (s *CampaignSuite) TestCloseCampaign() {
 		investor05.Hex(), baseTime, baseTime, closesAt,
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
 
-	// Verify final balances after campaign close
+	// Verify final balances after issuance close
 	// investor01: deposited 60000, partially accepted 59500, rejected 500
 	// investor02: deposited 28000, fully accepted 28000
 	// investor03: deposited 2000, fully accepted 2000
@@ -774,7 +774,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal(`"100000"`, string(erc20BalanceOutput.Reports[0].Payload))
 
 	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
-	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
+	s.Len(closeIssuanceOutput.DelegateCallVouchers, 5)
 
 	abiJSON := `[{
 		"type":"function",
@@ -792,14 +792,14 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[4].Destination)
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor01, unpacked[1])
@@ -808,7 +808,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor02, unpacked[1])
@@ -817,7 +817,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor03, unpacked[1])
@@ -826,7 +826,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor04, unpacked[1])
@@ -835,7 +835,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor05, unpacked[1])
@@ -844,7 +844,7 @@ func (s *CampaignSuite) TestCloseCampaign() {
 	s.Equal([]byte{}, unpacked[4])
 }
 
-func (s *CampaignSuite) TestExecuteCampaignCollateral() {
+func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
@@ -913,16 +913,16 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -930,10 +930,10 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -947,46 +947,46 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
 	time.Sleep(5 * time.Second)
 
 	anyone := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	closeCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/close", "data":{"creator_address":"%s"}}`, creator))
-	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
-	s.Len(closeCampaignOutput.Notices, 1)
+	closeIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/close", "data":{"creator_address":"%s"}}`, creator))
+	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
+	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1001,7 +1001,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		investor05.Hex(), baseTime, baseTime, closesAt,
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -1011,18 +1011,18 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
-	findCampaignByIdInput := []byte(`{"path":"campaign/id", "data":{"id":1}}`)
+	findIssuanceByIdInput := []byte(`{"path":"issuance/id", "data":{"id":1}}`)
 
-	findCampaignByIdOutput := s.Tester.Inspect(findCampaignByIdInput)
-	s.Len(findCampaignByIdOutput.Reports, 1)
+	findIssuanceByIdOutput := s.Tester.Inspect(findIssuanceByIdInput)
+	s.Len(findIssuanceByIdOutput.Reports, 1)
 
-	expectedFindCampaignByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -1038,27 +1038,27 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
 
-	findCampaignsByCreatorInput := []byte(fmt.Sprintf(`{"path":"campaign/creator", "data":{"creator":"%s"}}`, creator))
+	findIssuancesByCreatorInput := []byte(fmt.Sprintf(`{"path":"issuance/creator", "data":{"creator":"%s"}}`, creator))
 
-	findCampaignsByCreatorOutput := s.Tester.Inspect(findCampaignsByCreatorInput)
-	s.Len(findCampaignsByCreatorOutput.Reports, 1)
-	s.Equal(expectedFindCampaignByCreatorOutput, string(findCampaignsByCreatorOutput.Reports[0].Payload))
+	findIssuancesByCreatorOutput := s.Tester.Inspect(findIssuancesByCreatorInput)
+	s.Len(findIssuancesByCreatorOutput.Reports, 1)
+	s.Equal(expectedFindIssuanceByCreatorOutput, string(findIssuancesByCreatorOutput.Reports[0].Payload))
 
 	time.Sleep(6 * time.Second)
 
-	executeCampaignCollateralInput := []byte(`{"path":"campaign/execute-collateral", "data":{"id":1}}`)
-	executeCampaignCollateralOutput := s.Tester.Advance(creator, executeCampaignCollateralInput)
-	s.Len(executeCampaignCollateralOutput.Notices, 1)
+	executeIssuanceCollateralInput := []byte(`{"path":"issuance/execute-collateral", "data":{"id":1}}`)
+	executeIssuanceCollateralOutput := s.Tester.Advance(creator, executeIssuanceCollateralInput)
+	s.Len(executeIssuanceCollateralOutput.Notices, 1)
 
 	updatedAt := baseTime + 11
 
-	expectedExecuteCampaignCollateralOutput := fmt.Sprintf(`campaign collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedExecuteIssuanceCollateralOutput := fmt.Sprintf(`issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1073,9 +1073,9 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 		investor05.Hex(), baseTime, baseTime, updatedAt,
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, updatedAt)
-	s.Equal(expectedExecuteCampaignCollateralOutput, string(executeCampaignCollateralOutput.Notices[0].Payload))
+	s.Equal(expectedExecuteIssuanceCollateralOutput, string(executeIssuanceCollateralOutput.Notices[0].Payload))
 
-	// Verify final balances after campaign collateral execution
+	// Verify final balances after issuance collateral execution
 	// The collateral (10000) is distributed proportionally to accepted orders based on their final value
 	// Total final value = 59500*1.09 + 28000*1.08 + 2000*1.04 + 5000*1.06 + 5500*1.04 = 64855 + 30240 + 2080 + 5300 + 5720 = 108195
 	// investor01: 64855/108195 * 10000 = 5994 (rounded down)
@@ -1126,7 +1126,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
 	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
-	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
+	s.Len(closeIssuanceOutput.DelegateCallVouchers, 5)
 
 	abiJSON := `[{
 		"type":"function",
@@ -1144,14 +1144,14 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Require().NoError(err)
 
 	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[4].Destination)
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor01, unpacked[1])
@@ -1160,7 +1160,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor02, unpacked[1])
@@ -1169,7 +1169,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor03, unpacked[1])
@@ -1178,7 +1178,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor04, unpacked[1])
@@ -1187,7 +1187,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal([]byte{}, unpacked[4])
 
 	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor05, unpacked[1])
@@ -1196,7 +1196,7 @@ func (s *CampaignSuite) TestExecuteCampaignCollateral() {
 	s.Equal([]byte{}, unpacked[4])
 }
 
-func (s *CampaignSuite) TestSettleCampaign() {
+func (s *IssuanceSuite) TestSettleIssuance() {
 	admin, token, creator, factory, verifier, collateral, safeERC1155MintAddress, applicationAddress := s.setupCommonAddresses()
 	investor01, investor02, investor03, investor04, investor05 := s.setupInvestorAddresses()
 	baseTime, closesAt, maturityAt := s.setupTimeValues()
@@ -1265,16 +1265,16 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		crypto.Keccak256(append(s.Bytecode, constructorArgs...)),
 	)
 
-	// create campaign
-	createCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	// create issuance
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
 	))
-	createCampaignOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createCampaignInput)
-	s.Len(createCampaignOutput.Notices, 1)
+	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
+	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateCampaignOutput := fmt.Sprintf(`campaign created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -1282,10 +1282,10 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		collateral.Hex(),
 		badgeAddress.Hex(),
 		baseTime, closesAt, maturityAt)
-	s.Equal(expectedCreateCampaignOutput, string(createCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCreateIssuanceOutput, string(createIssuanceOutput.Notices[0].Payload))
 
-	s.Len(createCampaignOutput.Vouchers, 1)
-	s.Equal(factory, createCampaignOutput.Vouchers[0].Destination)
+	s.Len(createIssuanceOutput.Vouchers, 1)
+	s.Equal(factory, createIssuanceOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
 		"type": "function",
@@ -1299,44 +1299,44 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createCampaignOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newBadge"].Inputs.Unpack(createIssuanceOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"campaign_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
 	time.Sleep(5 * time.Second)
 
 	anyone := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	closeCampaignInput := []byte(fmt.Sprintf(`{"path":"campaign/close", "data":{"creator_address":"%s"}}`, creator))
-	closeCampaignOutput := s.Tester.Advance(anyone, closeCampaignInput)
-	s.Len(closeCampaignOutput.Notices, 1)
+	closeIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/close", "data":{"creator_address":"%s"}}`, creator))
+	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
+	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseCampaignOutput := fmt.Sprintf(`campaign closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1351,7 +1351,77 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		investor05.Hex(), baseTime, baseTime, closesAt,
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, closesAt)
-	s.Equal(expectedCloseCampaignOutput, string(closeCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
+
+	// verify number of vouchers for badge safeERC1155MintAddress delegate calls (closeIssuance - Bond Certificates)
+	s.Len(closeIssuanceOutput.DelegateCallVouchers, 5)
+
+	abiJSON := `[{
+		"type":"function",
+		"name":"safeMint",
+		"inputs":[
+			{"type":"address"},
+			{"type":"address"},
+			{"type":"uint256"},
+			{"type":"uint256"},
+			{"type":"bytes"}
+		]
+	}]`
+
+	abiInterface, err = abi.JSON(strings.NewReader(abiJSON))
+	s.Require().NoError(err)
+
+	// verify delegate call voucher destination is SafeCall contract
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, closeIssuanceOutput.DelegateCallVouchers[4].Destination)
+
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01) - Bond Certificate (token ID 1)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[0].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor01, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2]) // token ID 1 for Bond Certificate
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
+
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02) - Bond Certificate (token ID 1)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[1].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor02, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2]) // token ID 1 for Bond Certificate
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
+
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03) - Bond Certificate (token ID 1)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[2].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor03, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2]) // token ID 1 for Bond Certificate
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
+
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04) - Bond Certificate (token ID 1)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[3].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor04, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2]) // token ID 1 for Bond Certificate
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
+
+	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05) - Bond Certificate (token ID 1)
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeIssuanceOutput.DelegateCallVouchers[4].Payload[4:])
+	s.Require().NoError(err)
+	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
+	s.Equal(investor05, unpacked[1])
+	s.Equal(big.NewInt(1), unpacked[2]) // token ID 1 for Bond Certificate
+	s.Equal(big.NewInt(1), unpacked[3])
+	s.Equal([]byte{}, unpacked[4])
 
 	// Withdraw raised amount
 	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
@@ -1363,19 +1433,19 @@ func (s *CampaignSuite) TestSettleCampaign() {
 
 	time.Sleep(5 * time.Second)
 
-	settleCampaignInput := []byte(`{"path":"campaign/creator/settle", "data":{"id":1}}`)
-	settleCampaignOutput := s.Tester.DepositERC20(token, creator, big.NewInt(108195), settleCampaignInput)
-	s.Len(settleCampaignOutput.Notices, 1)
+	settleIssuanceInput := []byte(`{"path":"issuance/creator/settle", "data":{"id":1}}`)
+	settleIssuanceOutput := s.Tester.DepositERC20(token, creator, big.NewInt(108195), settleIssuanceInput)
+	s.Len(settleIssuanceOutput.Notices, 1)
 
 	settledAt := baseTime + 10
 
-	expectedSettleCampaignOutput := fmt.Sprintf(`campaign settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
-		`{"id":1,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"campaign_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"campaign_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"campaign_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"campaign_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"campaign_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedSettleIssuanceOutput := fmt.Sprintf(`issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1390,15 +1460,15 @@ func (s *CampaignSuite) TestSettleCampaign() {
 		investor05.Hex(), baseTime, baseTime, settledAt,
 		investor01.Hex(), baseTime, baseTime, closesAt,
 		baseTime, closesAt, maturityAt, settledAt)
-	s.Equal(expectedSettleCampaignOutput, string(settleCampaignOutput.Notices[0].Payload))
+	s.Equal(expectedSettleIssuanceOutput, string(settleIssuanceOutput.Notices[0].Payload))
 
-	// Verify final balances after campaign settlement
+	// Verify final balances after issuance settlement
 	// investor01: should receive 59500 + (59500 * 9% = 5355) = 64855
 	// investor02: should receive 28000 + (28000 * 8% = 2240) = 30240
 	// investor03: should receive 2000 + (2000 * 4% = 80) = 2080
 	// investor04: should receive 5000 + (5000 * 6% = 300) = 5300
 	// investor05: should receive 5500 + (5500 * 4% = 220) = 5720
-	// creator: paid 108195 to settle the campaign
+	// creator: paid 108195 to settle the issuance
 
 	// Verify investor01 balance (received 64855 + rejected order amount = 65355)
 	erc20BalanceInput := []byte(fmt.Sprintf(`{"path":"user/balance","data":{"address":"%s","token":"%s"}}`, investor01.Hex(), token.Hex()))
@@ -1436,73 +1506,59 @@ func (s *CampaignSuite) TestSettleCampaign() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
-	s.Len(closeCampaignOutput.DelegateCallVouchers, 5)
+	// Verify settle issuance outputs - ERC1155 Discharge Certificates (token ID 2)
+	// settleIssuanceOutput should have delegate call vouchers for each settled order
+	s.Len(settleIssuanceOutput.DelegateCallVouchers, 5)
 
-	abiJSON := `[{
-		"type":"function",
-		"name":"safeMint",
-		"inputs":[
-			{"type":"address"},
-			{"type":"address"},
-			{"type":"uint256"},
-			{"type":"uint256"},
-			{"type":"bytes"}
-		]
-	}]`
+	// verify delegate call voucher destination is SafeCall contract for settle
+	s.Equal(safeERC1155MintAddress, settleIssuanceOutput.DelegateCallVouchers[0].Destination)
+	s.Equal(safeERC1155MintAddress, settleIssuanceOutput.DelegateCallVouchers[1].Destination)
+	s.Equal(safeERC1155MintAddress, settleIssuanceOutput.DelegateCallVouchers[2].Destination)
+	s.Equal(safeERC1155MintAddress, settleIssuanceOutput.DelegateCallVouchers[3].Destination)
+	s.Equal(safeERC1155MintAddress, settleIssuanceOutput.DelegateCallVouchers[4].Destination)
 
-	abiInterface, err = abi.JSON(strings.NewReader(abiJSON))
-	s.Require().NoError(err)
-
-	// verify delegate call voucher destination is SafeCall contract
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[0].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[1].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[2].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[3].Destination)
-	s.Equal(safeERC1155MintAddress, closeCampaignOutput.DelegateCallVouchers[4].Destination)
-
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor01)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[0].Payload[4:])
+	// verify delegate call voucher payload for Discharge Certificate (investor01) - token ID 2
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(settleIssuanceOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor01, unpacked[1])
-	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(2), unpacked[2]) // token ID 2 for Discharge Certificate
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor02)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[1].Payload[4:])
+	// verify delegate call voucher payload for Discharge Certificate (investor02) - token ID 2
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(settleIssuanceOutput.DelegateCallVouchers[1].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor02, unpacked[1])
-	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(2), unpacked[2]) // token ID 2 for Discharge Certificate
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor03)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[2].Payload[4:])
+	// verify delegate call voucher payload for Discharge Certificate (investor03) - token ID 2
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(settleIssuanceOutput.DelegateCallVouchers[2].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor03, unpacked[1])
-	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(2), unpacked[2]) // token ID 2 for Discharge Certificate
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor04)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[3].Payload[4:])
+	// verify delegate call voucher payload for Discharge Certificate (investor04) - token ID 2
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(settleIssuanceOutput.DelegateCallVouchers[3].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor04, unpacked[1])
-	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(2), unpacked[2]) // token ID 2 for Discharge Certificate
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// verify delegate call voucher payload for badge safeERC1155MintAddress (investor05)
-	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(closeCampaignOutput.DelegateCallVouchers[4].Payload[4:])
+	// verify delegate call voucher payload for Discharge Certificate (investor05) - token ID 2
+	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(settleIssuanceOutput.DelegateCallVouchers[4].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(badgeAddress, unpacked[0]) // target is badgeAddress
 	s.Equal(investor05, unpacked[1])
-	s.Equal(big.NewInt(1), unpacked[2])
+	s.Equal(big.NewInt(2), unpacked[2]) // token ID 2 for Discharge Certificate
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 }

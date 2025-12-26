@@ -1,4 +1,4 @@
-package campaign
+package issuance
 
 import (
 	"fmt"
@@ -13,11 +13,11 @@ import (
 	"github.com/rollmelette/rollmelette"
 )
 
-type CloseCampaignInputDTO struct {
+type CloseIssuanceInputDTO struct {
 	CreatorAddress types.Address `json:"creator_address" validate:"required"`
 }
 
-type CloseCampaignOutputDTO struct {
+type CloseIssuanceOutputDTO struct {
 	Id                uint                    `json:"id"`
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`
@@ -39,64 +39,65 @@ type CloseCampaignOutputDTO struct {
 	UpdatedAt         int64                   `json:"updated_at,omitempty"`
 }
 
-type CloseCampaignUseCase struct {
+type CloseIssuanceUseCase struct {
 	UserRepository     repository.UserRepository
 	OrderRepository    repository.OrderRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 }
 
-func NewCloseCampaignUseCase(userRepo repository.UserRepository, campaignRepo repository.CampaignRepository, orderRepo repository.OrderRepository) *CloseCampaignUseCase {
-	return &CloseCampaignUseCase{
+func NewCloseIssuanceUseCase(userRepo repository.UserRepository, issuanceRepo repository.IssuanceRepository, orderRepo repository.OrderRepository) *CloseIssuanceUseCase {
+	return &CloseIssuanceUseCase{
 		UserRepository:     userRepo,
-		CampaignRepository: campaignRepo,
+		IssuanceRepository: issuanceRepo,
 		OrderRepository:    orderRepo,
 	}
 }
 
-func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata rollmelette.Metadata) (*CloseCampaignOutputDTO, error) {
+func (u *CloseIssuanceUseCase) Execute(input *CloseIssuanceInputDTO, metadata rollmelette.Metadata) (*CloseIssuanceOutputDTO, error) {
 	// -------------------------------------------------------------------------
-	// 1. Find ongoing campaign for the creator
+	// 1. Find ongoing issuance for the creator
 	// -------------------------------------------------------------------------
-	campaigns, err := u.CampaignRepository.FindCampaignsByCreatorAddress(input.CreatorAddress)
+	issuances, err := u.IssuanceRepository.FindIssuancesByCreatorAddress(input.CreatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	var ongoingCampaign *entity.Campaign
-	for _, campaign := range campaigns {
-		if campaign.State == entity.CampaignStateOngoing {
-			ongoingCampaign = campaign
+	var ongoingIssuance *entity.Issuance
+	for _, issuance := range issuances {
+		if issuance.State == entity.IssuanceStateOngoing {
+			ongoingIssuance = issuance
 			break
 		}
 	}
-	if ongoingCampaign == nil {
-		return nil, fmt.Errorf("no ongoing campaign found, cannot close it")
+	if ongoingIssuance == nil {
+		return nil, fmt.Errorf("no ongoing issuance found, cannot close it")
 	}
 
 	// -------------------------------------------------------------------------
-	// 2. Validate campaign expiration
+	// 2. Validate issuance expiration
 	// -------------------------------------------------------------------------
-	if metadata.BlockTimestamp < ongoingCampaign.ClosesAt {
-		return nil, fmt.Errorf("campaign not expired yet, cannot close it")
+	if metadata.BlockTimestamp < ongoingIssuance.ClosesAt {
+		return nil, fmt.Errorf("issuance not expired yet, cannot close it")
 	}
 
 	// -------------------------------------------------------------------------
-	// 3. Fetch and sort campaign orders
+	// 3. Fetch and sort issuance orders
 	// -------------------------------------------------------------------------
-	orders, err := u.OrderRepository.FindOrdersByCampaignId(ongoingCampaign.Id)
+	orders, err := u.OrderRepository.FindOrdersByIssuanceId(ongoingIssuance.Id)
 	if err != nil {
 		return nil, err
 	}
 	sort.Slice(orders, func(i, j int) bool {
-		if orders[i].InterestRate.Cmp(orders[j].InterestRate) == 0 {
+		cmp := orders[i].InterestRate.Cmp(orders[j].InterestRate)
+		if cmp == 0 {
 			return orders[i].Amount.Cmp(orders[j].Amount) > 0
 		}
-		return orders[i].InterestRate.Cmp(orders[j].InterestRate) < 0
+		return cmp < 0
 	})
 
 	// -------------------------------------------------------------------------
 	// 4. Select winning orders and calculate obligations
 	// -------------------------------------------------------------------------
-	debtRemaining := new(uint256.Int).Set(ongoingCampaign.DebtIssued)
+	debtRemaining := new(uint256.Int).Set(ongoingIssuance.DebtIssued)
 	totalCollected := uint256.NewInt(0)
 	totalObligation := uint256.NewInt(0)
 
@@ -131,7 +132,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
 			_, err := u.OrderRepository.CreateOrder(&entity.Order{
-				CampaignId:      order.CampaignId,
+				IssuanceId:      order.IssuanceId,
 				InvestorAddress: order.InvestorAddress,
 				Amount:          rejectedAmount,
 				InterestRate:    order.InterestRate,
@@ -154,10 +155,10 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 5. Check if minimum funding (2/3) was reached
 	// -------------------------------------------------------------------------
-	twoThirds := new(uint256.Int).Mul(ongoingCampaign.DebtIssued, uint256.NewInt(2))
+	twoThirds := new(uint256.Int).Mul(ongoingIssuance.DebtIssued, uint256.NewInt(2))
 	twoThirds.Div(twoThirds, uint256.NewInt(3))
 	if totalCollected.Lt(twoThirds) {
-		// Cancel campaign and reject all orders
+		// Cancel issuance and reject all orders
 		for _, order := range orders {
 			order.State = entity.OrderStateRejected
 			order.UpdatedAt = metadata.BlockTimestamp
@@ -165,22 +166,22 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 				return nil, err
 			}
 		}
-		ongoingCampaign.State = entity.CampaignStateCanceled
-		ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-		if _, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign); err != nil {
+		ongoingIssuance.State = entity.IssuanceStateCanceled
+		ongoingIssuance.UpdatedAt = metadata.BlockTimestamp
+		if _, err := u.IssuanceRepository.UpdateIssuance(ongoingIssuance); err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("campaign canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
+		return nil, fmt.Errorf("issuance canceled due to insufficient funds collected, expected at least 2/3 of the debt issued: %s, got: %s", twoThirds.String(), totalCollected.String())
 	}
 
 	// -------------------------------------------------------------------------
-	// 6. Close campaign and return result
+	// 6. Close issuance and return result
 	// -------------------------------------------------------------------------
-	ongoingCampaign.State = entity.CampaignStateClosed
-	ongoingCampaign.TotalObligation = totalObligation
-	ongoingCampaign.TotalRaised = totalCollected
-	ongoingCampaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := u.CampaignRepository.UpdateCampaign(ongoingCampaign)
+	ongoingIssuance.State = entity.IssuanceStateClosed
+	ongoingIssuance.TotalObligation = totalObligation
+	ongoingIssuance.TotalRaised = totalCollected
+	ongoingIssuance.UpdatedAt = metadata.BlockTimestamp
+	res, err := u.IssuanceRepository.UpdateIssuance(ongoingIssuance)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +199,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		}
 		orderDTOs[i] = &order.OrderOutputDTO{
 			Id:         o.Id,
-			CampaignId: o.CampaignId,
+			IssuanceId: o.IssuanceId,
 			Investor: &user.UserOutputDTO{
 				Id:             investor.Id,
 				Role:           string(investor.Role),
@@ -215,7 +216,7 @@ func (u *CloseCampaignUseCase) Execute(input *CloseCampaignInputDTO, metadata ro
 		}
 	}
 
-	return &CloseCampaignOutputDTO{
+	return &CloseIssuanceOutputDTO{
 		Id:          res.Id,
 		Title:       res.Title,
 		Description: res.Description,

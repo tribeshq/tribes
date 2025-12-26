@@ -16,18 +16,20 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 		// Bind repository interfaces
 		wire.Bind(new(repository.UserRepository), new(repository.Repository)),
 		wire.Bind(new(repository.OrderRepository), new(repository.Repository)),
-		wire.Bind(new(repository.CampaignRepository), new(repository.Repository)),
+		wire.Bind(new(repository.IssuanceRepository), new(repository.Repository)),
 		wire.Bind(new(repository.SocialAccountRepository), new(repository.Repository)),
+
 		// Advance handlers
 		advance.NewOrderAdvanceHandlers,
 		advance.NewUserAdvanceHandlers,
 		advance.NewSocialAccountAdvanceHandlers,
-		advance.NewCampaignAdvanceHandlers,
+		advance.NewIssuanceAdvanceHandlers,
+		
 		// Inspect handlers
 		inspect.NewOrderInspectHandlers,
 		inspect.NewUserInspectHandlers,
 		inspect.NewSocialAccountInspectHandlers,
-		inspect.NewCampaignInspectHandlers,
+		inspect.NewIssuanceInspectHandlers,
 		wire.Struct(new(Handlers), "*"),
 	)
 	return &Handlers{}, nil
@@ -39,11 +41,11 @@ type Handlers struct {
 	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
 	UserAdvanceHandlers     *advance.UserAdvanceHandlers
 	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
-	CampaignAdvanceHandlers *advance.CampaignAdvanceHandlers
+	IssuanceAdvanceHandlers *advance.IssuanceAdvanceHandlers
 
 	// Inspect handlers
 	OrderInspectHandlers    *inspect.OrderInspectHandlers
 	UserInspectHandlers     *inspect.UserInspectHandlers
 	SocialAccountHandlers   *inspect.SocialAccountInspectHandlers
-	CampaignInspectHandlers *inspect.CampaignInspectHandlers
+	IssuanceInspectHandlers *inspect.IssuanceInspectHandlers
 }

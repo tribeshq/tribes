@@ -19,8 +19,8 @@ func TestIntegration(t *testing.T) {
 	t.Run("Order", func(t *testing.T) {
 		suite.Run(t, new(OrderSuite))
 	})
-	t.Run("Campaign", func(t *testing.T) {
-		suite.Run(t, new(CampaignSuite))
+	t.Run("Issuance", func(t *testing.T) {
+		suite.Run(t, new(IssuanceSuite))
 	})
 	t.Run("Emergency", func(t *testing.T) {
 		suite.Run(t, new(EmergencySuite))

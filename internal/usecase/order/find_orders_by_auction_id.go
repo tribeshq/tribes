@@ -5,33 +5,33 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 )
 
-type FindOrdersByCampaignIdInputDTO struct {
-	CampaignId uint `json:"campaign_id" validate:"required"`
+type FindOrdersByIssuanceIdInputDTO struct {
+	IssuanceId uint `json:"issuance_id" validate:"required"`
 }
 
-type FindOrdersByCampaignIdOutputDTO []*OrderOutputDTO
+type FindOrdersByIssuanceIdOutputDTO []*OrderOutputDTO
 
-type FindOrdersByCampaignIdUseCase struct {
+type FindOrdersByIssuanceIdUseCase struct {
 	UserRepository  repository.UserRepository
 	OrderRepository repository.OrderRepository
 }
 
-func NewFindOrdersByCampaignIdUseCase(
+func NewFindOrdersByIssuanceIdUseCase(
 	userRepo repository.UserRepository,
 	orderRepo repository.OrderRepository,
-) *FindOrdersByCampaignIdUseCase {
-	return &FindOrdersByCampaignIdUseCase{
+) *FindOrdersByIssuanceIdUseCase {
+	return &FindOrdersByIssuanceIdUseCase{
 		UserRepository:  userRepo,
 		OrderRepository: orderRepo,
 	}
 }
 
-func (c *FindOrdersByCampaignIdUseCase) Execute(input *FindOrdersByCampaignIdInputDTO) (*FindOrdersByCampaignIdOutputDTO, error) {
-	res, err := c.OrderRepository.FindOrdersByCampaignId(input.CampaignId)
+func (c *FindOrdersByIssuanceIdUseCase) Execute(input *FindOrdersByIssuanceIdInputDTO) (*FindOrdersByIssuanceIdOutputDTO, error) {
+	res, err := c.OrderRepository.FindOrdersByIssuanceId(input.IssuanceId)
 	if err != nil {
 		return nil, err
 	}
-	output := make(FindOrdersByCampaignIdOutputDTO, len(res))
+	output := make(FindOrdersByIssuanceIdOutputDTO, len(res))
 	for i, order := range res {
 		investor, err := c.UserRepository.FindUserByAddress(order.InvestorAddress)
 		if err != nil {
@@ -39,7 +39,7 @@ func (c *FindOrdersByCampaignIdUseCase) Execute(input *FindOrdersByCampaignIdInp
 		}
 		output[i] = &OrderOutputDTO{
 			Id:         order.Id,
-			CampaignId: order.CampaignId,
+			IssuanceId: order.IssuanceId,
 			Investor:     &user.UserOutputDTO{
 				Id: investor.Id,
 				Role: string(investor.Role),

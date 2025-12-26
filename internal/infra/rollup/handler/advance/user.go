@@ -17,7 +17,7 @@ import (
 )
 
 type UserAdvanceHandlers struct {
-	cfg            *configs.RollupConfig
+	Config         *configs.RollupConfig
 	UserRepository repository.UserRepository
 }
 
@@ -26,7 +26,7 @@ func NewUserAdvanceHandlers(
 	userRepo repository.UserRepository,
 ) *UserAdvanceHandlers {
 	return &UserAdvanceHandlers{
-		cfg:            cfg,
+		Config:         cfg,
 		UserRepository: userRepo,
 	}
 }
@@ -164,7 +164,7 @@ func (h *UserAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, metada
 	}
 
 	env.DelegateCallVoucher(
-		h.cfg.EmergencyWithdrawAddress,
+		h.Config.EmergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil
@@ -202,7 +202,7 @@ func (h *UserAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, metada
 	}
 
 	env.DelegateCallVoucher(
-		h.cfg.EmergencyWithdrawAddress,
+		h.Config.EmergencyWithdrawAddress,
 		delegatecallPayload,
 	)
 	return nil

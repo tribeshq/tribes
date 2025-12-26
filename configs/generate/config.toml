@@ -1,9 +1,22 @@
+#
+# Rollup
+#
+
 [rollup.MAX_STARTUP_TIME]
 go-type = "Duration"
 default = "10"
 description = """Maximum startup time for the rollup service"""
 used-by = ["rollup"]
 
+#
+# Database
+#
+
+[database.DATABASE_URL]
+go-type = "string"
+default = "sqlite:///mnt/data/rollup.db"
+description = """SQLite database connection string"""
+used-by = ["rollup"]
 
 #
 # Contracts

@@ -19,20 +19,20 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 	orderAdvanceHandlers := advance.NewOrderAdvanceHandlers(repo, repo, repo)
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(cfg, repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
-	campaignAdvanceHandlers := advance.NewCampaignAdvanceHandlers(cfg, repo, repo, repo)
+	issuanceAdvanceHandlers := advance.NewIssuanceAdvanceHandlers(cfg, repo, repo, repo)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)
-	campaignInspectHandlers := inspect.NewCampaignInspectHandlers(repo, repo)
+	issuanceInspectHandlers := inspect.NewIssuanceInspectHandlers(repo, repo)
 	handlers := &Handlers{
 		OrderAdvanceHandlers:    orderAdvanceHandlers,
 		UserAdvanceHandlers:     userAdvanceHandlers,
 		SocialAccountsHandlers:  socialAccountAdvanceHandlers,
-		CampaignAdvanceHandlers: campaignAdvanceHandlers,
+		IssuanceAdvanceHandlers: issuanceAdvanceHandlers,
 		OrderInspectHandlers:    orderInspectHandlers,
 		UserInspectHandlers:     userInspectHandlers,
 		SocialAccountHandlers:   socialAccountInspectHandlers,
-		CampaignInspectHandlers: campaignInspectHandlers,
+		IssuanceInspectHandlers: issuanceInspectHandlers,
 	}
 	return handlers, nil
 }
@@ -45,11 +45,11 @@ type Handlers struct {
 	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
 	UserAdvanceHandlers     *advance.UserAdvanceHandlers
 	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
-	CampaignAdvanceHandlers *advance.CampaignAdvanceHandlers
+	IssuanceAdvanceHandlers *advance.IssuanceAdvanceHandlers
 
 	// Inspect handlers
 	OrderInspectHandlers    *inspect.OrderInspectHandlers
 	UserInspectHandlers     *inspect.UserInspectHandlers
 	SocialAccountHandlers   *inspect.SocialAccountInspectHandlers
-	CampaignInspectHandlers *inspect.CampaignInspectHandlers
+	IssuanceInspectHandlers *inspect.IssuanceInspectHandlers
 }

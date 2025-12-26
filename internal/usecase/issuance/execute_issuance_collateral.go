@@ -1,4 +1,4 @@
-package campaign
+package issuance
 
 import (
 	"fmt"
@@ -12,11 +12,11 @@ import (
 	"github.com/rollmelette/rollmelette"
 )
 
-type SettleCampaignInputDTO struct {
+type ExecuteIssuanceCollateralInputDTO struct {
 	Id uint `json:"id" validate:"required"`
 }
 
-type SettleCampaignOutputDTO struct {
+type ExecuteIssuanceCollateralOutputDTO struct {
 	Id                uint                    `json:"id"`
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`
@@ -38,47 +38,34 @@ type SettleCampaignOutputDTO struct {
 	UpdatedAt         int64                   `json:"updated_at"`
 }
 
-type SettleCampaignUseCase struct {
+type ExecuteIssuanceCollateralUseCase struct {
 	UserRepository     repository.UserRepository
-	CampaignRepository repository.CampaignRepository
+	IssuanceRepository repository.IssuanceRepository
 	OrderRepository    repository.OrderRepository
 }
 
-func NewSettleCampaignUseCase(
-	UserRepository repository.UserRepository,
-	CampaignRepository repository.CampaignRepository,
-	OrderRepository repository.OrderRepository,
-) *SettleCampaignUseCase {
-	return &SettleCampaignUseCase{
-		UserRepository:     UserRepository,
-		CampaignRepository: CampaignRepository,
-		OrderRepository:    OrderRepository,
+func NewExecuteIssuanceCollateralUseCase(userRepo repository.UserRepository, issuanceRepo repository.IssuanceRepository, orderRepo repository.OrderRepository) *ExecuteIssuanceCollateralUseCase {
+	return &ExecuteIssuanceCollateralUseCase{
+		UserRepository:     userRepo,
+		IssuanceRepository: issuanceRepo,
+		OrderRepository:    orderRepo,
 	}
 }
 
-func (uc *SettleCampaignUseCase) Execute(
-	input *SettleCampaignInputDTO,
-	deposit rollmelette.Deposit,
-	metadata rollmelette.Metadata,
-) (*SettleCampaignOutputDTO, error) {
-	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
-	if !ok {
-		return nil, fmt.Errorf("invalid deposit types: %T", deposit)
-	}
-
-	campaign, err := uc.CampaignRepository.FindCampaignById(input.Id)
+func (uc *ExecuteIssuanceCollateralUseCase) Execute(input *ExecuteIssuanceCollateralInputDTO, metadata rollmelette.Metadata) (*ExecuteIssuanceCollateralOutputDTO, error) {
+	issuance, err := uc.IssuanceRepository.FindIssuanceById(input.Id)
 	if err != nil {
-		return nil, fmt.Errorf("error finding campaign: %w", err)
+		return nil, err
 	}
 
-	if err := uc.Validate(campaign, erc20Deposit, metadata); err != nil {
+	if err := uc.Validate(issuance, metadata); err != nil {
 		return nil, err
 	}
 
 	var ordersToUpdate []*entity.Order
-	for _, order := range campaign.Orders {
+	for _, order := range issuance.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
-			order.State = entity.OrderStateSettled
+			order.State = entity.OrderStateSettledByCollateral
 			order.UpdatedAt = metadata.BlockTimestamp
 			ordersToUpdate = append(ordersToUpdate, order)
 		}
@@ -89,11 +76,12 @@ func (uc *SettleCampaignUseCase) Execute(
 		}
 	}
 
-	campaign.State = entity.CampaignStateSettled
-	campaign.UpdatedAt = metadata.BlockTimestamp
-	res, err := uc.CampaignRepository.UpdateCampaign(campaign)
+	issuance.State = entity.IssuanceStateCollateralExecuted
+	issuance.UpdatedAt = metadata.BlockTimestamp
+
+	res, err := uc.IssuanceRepository.UpdateIssuance(issuance)
 	if err != nil {
-		return nil, fmt.Errorf("error updating campaign: %w", err)
+		return nil, err
 	}
 
 	creator, err := uc.UserRepository.FindUserByAddress(res.CreatorAddress)
@@ -109,7 +97,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		}
 		orderDTOs[i] = &order.OrderOutputDTO{
 			Id:         o.Id,
-			CampaignId: o.CampaignId,
+			IssuanceId: o.IssuanceId,
 			Investor: &user.UserOutputDTO{
 				Id:             investor.Id,
 				Role:           string(investor.Role),
@@ -126,7 +114,7 @@ func (uc *SettleCampaignUseCase) Execute(
 		}
 	}
 
-	return &SettleCampaignOutputDTO{
+	return &ExecuteIssuanceCollateralOutputDTO{
 		Id:          res.Id,
 		Title:       res.Title,
 		Description: res.Description,
@@ -156,29 +144,12 @@ func (uc *SettleCampaignUseCase) Execute(
 	}, nil
 }
 
-func (uc *SettleCampaignUseCase) Validate(
-	Campaign *entity.Campaign,
-	deposit *rollmelette.ERC20Deposit,
-	metadata rollmelette.Metadata,
-) error {
-	if metadata.BlockTimestamp > Campaign.MaturityAt {
-		return fmt.Errorf("the maturity date of the campaign campaign has passed")
+func (uc *ExecuteIssuanceCollateralUseCase) Validate(issuance *entity.Issuance, metadata rollmelette.Metadata) error {
+	if metadata.BlockTimestamp < issuance.MaturityAt {
+		return fmt.Errorf("the maturity date of the issuance issuance has not passed")
 	}
-
-	if Campaign.State == entity.CampaignStateSettled {
-		return fmt.Errorf("campaign campaign already settled")
-	}
-
-	if Campaign.State != entity.CampaignStateClosed {
-		return fmt.Errorf("campaign campaign not closed")
-	}
-
-	if deposit.Value.Cmp(Campaign.TotalObligation.ToBig()) < 0 {
-		return fmt.Errorf("deposit amount is lower than the total obligation")
-	}
-
-	if Campaign.CreatorAddress != types.Address(deposit.Sender) {
-		return fmt.Errorf("only the campaign creator can settle the campaign")
+	if issuance.State != entity.IssuanceStateClosed {
+		return fmt.Errorf("issuance issuance not closed")
 	}
 	return nil
 }

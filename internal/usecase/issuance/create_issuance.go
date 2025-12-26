@@ -1,11 +1,10 @@
-package campaign
+package issuance
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/assets"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/configs"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
@@ -17,7 +16,7 @@ import (
 	"github.com/rollmelette/rollmelette"
 )
 
-type CreateCampaignInputDTO struct {
+type CreateIssuanceInputDTO struct {
 	Title           string        `json:"title" validate:"required,min=3,max=100"`
 	Description     string        `json:"description" validate:"required,min=10,max=1000"`
 	Promotion       string        `json:"promotion" validate:"required,min=5,max=500"`
@@ -28,7 +27,7 @@ type CreateCampaignInputDTO struct {
 	MaturityAt      int64         `json:"maturity_at" validate:"required"`
 }
 
-type CreateCampaignOutputDTO struct {
+type CreateIssuanceOutputDTO struct {
 	Id                uint                `json:"id"`
 	Title             string              `json:"title,omitempty"`
 	Description       string              `json:"description,omitempty"`
@@ -47,25 +46,25 @@ type CreateCampaignOutputDTO struct {
 	MaturityAt        int64               `json:"maturity_at"`
 }
 
-type CreateCampaignUseCase struct {
-	cfg                *configs.RollupConfig
-	CampaignRepository repository.CampaignRepository
-	UserRepository     repository.UserRepository
+type CreateIssuanceUseCase struct {
+	BadgeFactoryAddress common.Address
+	IssuanceRepository  repository.IssuanceRepository
+	UserRepository      repository.UserRepository
 }
 
-func NewCreateCampaignUseCase(
-	cfg *configs.RollupConfig,
-	campaignRepo repository.CampaignRepository,
+func NewCreateIssuanceUseCase(
+	badgeFactoryAddress common.Address,
+	issuanceRepo repository.IssuanceRepository,
 	userRepo repository.UserRepository,
-) *CreateCampaignUseCase {
-	return &CreateCampaignUseCase{
-		cfg:                cfg,
-		CampaignRepository: campaignRepo,
-		UserRepository:     userRepo,
+) *CreateIssuanceUseCase {
+	return &CreateIssuanceUseCase{
+		BadgeFactoryAddress: badgeFactoryAddress,
+		IssuanceRepository:  issuanceRepo,
+		UserRepository:      userRepo,
 	}
 }
 
-func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateCampaignOutputDTO, error) {
+func (c *CreateIssuanceUseCase) Execute(input *CreateIssuanceInputDTO, deposit rollmelette.Deposit, metadata rollmelette.Metadata) (*CreateIssuanceOutputDTO, error) {
 	erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 	if !ok {
 		return nil, fmt.Errorf("invalid deposit types: %T", deposit)
@@ -85,13 +84,13 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		return nil, fmt.Errorf("error getting badge bytecode: %w", err)
 	}
 
-	campaigns, err := c.CampaignRepository.FindCampaignsByCreatorAddress(types.Address(erc20Deposit.Sender))
+	issuances, err := c.IssuanceRepository.FindIssuancesByCreatorAddress(types.Address(erc20Deposit.Sender))
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Campaigns: %w", err)
+		return nil, fmt.Errorf("error retrieving Issuances: %w", err)
 	}
-	for _, campaign := range campaigns {
-		if campaign.State != entity.CampaignStateSettled && campaign.State != entity.CampaignStateCollateralExecuted {
-			return nil, fmt.Errorf("active campaign exists, cannot create a new campaign")
+	for _, issuance := range issuances {
+		if issuance.State != entity.IssuanceStateSettled && issuance.State != entity.IssuanceStateCollateralExecuted {
+			return nil, fmt.Errorf("active issuance exists, cannot create a new issuance")
 		}
 	}
 
@@ -104,12 +103,12 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 	}
 
 	badgeAddress := crypto.CreateAddress2(
-		c.cfg.BadgeFactoryAddress,
+		c.BadgeFactoryAddress,
 		common.HexToHash(strconv.Itoa(metadata.Index)),
 		crypto.Keccak256(append(bytecode, constructorArgs...)),
 	)
 
-	campaign, err := entity.NewCampaign(
+	issuance, err := entity.NewIssuance(
 		input.Title,
 		input.Description,
 		input.Promotion,
@@ -125,20 +124,20 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 		metadata.BlockTimestamp,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Campaign: %w", err)
+		return nil, fmt.Errorf("error creating Issuance: %w", err)
 	}
 
-	createdCampaign, err := c.CampaignRepository.CreateCampaign(campaign)
+	createdIssuance, err := c.IssuanceRepository.CreateIssuance(issuance)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Campaign: %w", err)
+		return nil, fmt.Errorf("error creating Issuance: %w", err)
 	}
 
-	return &CreateCampaignOutputDTO{
-		Id:          createdCampaign.Id,
-		Title:       createdCampaign.Title,
-		Description: createdCampaign.Description,
-		Promotion:   createdCampaign.Promotion,
-		Token:       createdCampaign.Token,
+	return &CreateIssuanceOutputDTO{
+		Id:          createdIssuance.Id,
+		Title:       createdIssuance.Title,
+		Description: createdIssuance.Description,
+		Promotion:   createdIssuance.Promotion,
+		Token:       createdIssuance.Token,
 		Creator: &user.UserOutputDTO{
 			Id:             creator.Id,
 			Role:           string(creator.Role),
@@ -147,39 +146,39 @@ func (c *CreateCampaignUseCase) Execute(input *CreateCampaignInputDTO, deposit r
 			CreatedAt:      creator.CreatedAt,
 			UpdatedAt:      creator.UpdatedAt,
 		},
-		CollateralAddress: createdCampaign.CollateralAddress,
-		CollateralAmount:  createdCampaign.CollateralAmount,
-		BadgeAddress:      createdCampaign.BadgeAddress,
-		DebtIssued:        createdCampaign.DebtIssued,
-		MaxInterestRate:   createdCampaign.MaxInterestRate,
-		Orders:            createdCampaign.Orders,
-		State:             string(createdCampaign.State),
-		ClosesAt:          createdCampaign.ClosesAt,
-		MaturityAt:        createdCampaign.MaturityAt,
-		CreatedAt:         createdCampaign.CreatedAt,
+		CollateralAddress: createdIssuance.CollateralAddress,
+		CollateralAmount:  createdIssuance.CollateralAmount,
+		BadgeAddress:      createdIssuance.BadgeAddress,
+		DebtIssued:        createdIssuance.DebtIssued,
+		MaxInterestRate:   createdIssuance.MaxInterestRate,
+		Orders:            createdIssuance.Orders,
+		State:             string(createdIssuance.State),
+		ClosesAt:          createdIssuance.ClosesAt,
+		MaturityAt:        createdIssuance.MaturityAt,
+		CreatedAt:         createdIssuance.CreatedAt,
 	}, nil
 }
 
-func (c *CreateCampaignUseCase) Validate(
+func (c *CreateIssuanceUseCase) Validate(
 	user *entity.User,
-	input *CreateCampaignInputDTO,
+	input *CreateIssuanceInputDTO,
 	deposit *rollmelette.ERC20Deposit,
 	metadata rollmelette.Metadata,
 ) error {
 	if len(user.SocialAccounts) == 0 {
-		return fmt.Errorf("%w: user has no social accounts, please verify at least one social account", entity.ErrInvalidCampaign)
+		return fmt.Errorf("%w: user has no social accounts, please verify at least one social account", entity.ErrInvalidIssuance)
 	}
 
 	if input.ClosesAt > metadata.BlockTimestamp+180*24*60*60 {
-		return fmt.Errorf("%w: close date cannot be greater than 180 days", entity.ErrInvalidCampaign)
+		return fmt.Errorf("%w: close date cannot be greater than 180 days", entity.ErrInvalidIssuance)
 	}
 
 	if input.ClosesAt > input.MaturityAt {
-		return fmt.Errorf("%w: close date cannot be greater than maturity date", entity.ErrInvalidCampaign)
+		return fmt.Errorf("%w: close date cannot be greater than maturity date", entity.ErrInvalidIssuance)
 	}
 
 	if metadata.BlockTimestamp >= input.ClosesAt {
-		return fmt.Errorf("%w: creation date cannot be greater than or equal to close date", entity.ErrInvalidCampaign)
+		return fmt.Errorf("%w: creation date cannot be greater than or equal to close date", entity.ErrInvalidIssuance)
 	}
 	return nil
 }

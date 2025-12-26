@@ -26,18 +26,18 @@ func (r *SQLiteRepository) FindOrderById(id uint) (*entity.Order, error) {
 	return &order, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByCampaignId(id uint) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByIssuanceId(id uint) ([]*entity.Order, error) {
 	var orders []*entity.Order
-	if err := r.Db.Where("campaign_id = ?", id).Find(&orders).Error; err != nil {
-		return nil, fmt.Errorf("failed to find orders by campaign ID: %w", err)
+	if err := r.Db.Where("issuance_id = ?", id).Find(&orders).Error; err != nil {
+		return nil, fmt.Errorf("failed to find orders by issuance ID: %w", err)
 	}
 	return orders, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByState(campaignId uint, state string) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByState(issuanceId uint, state string) ([]*entity.Order, error) {
 	var orders []*entity.Order
 	if err := r.Db.
-		Where("campaign_id = ? AND state = ?", campaignId, state).
+		Where("issuance_id = ? AND state = ?", issuanceId, state).
 		Find(&orders).Error; err != nil {
 		return nil, fmt.Errorf("failed to find orders by state: %w", err)
 	}
