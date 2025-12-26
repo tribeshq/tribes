@@ -858,12 +858,12 @@ describe("Issuance Settle Tests", () => {
       { collect: true },
     );
 
-    // Withdraw raised amount
+    // Withdraw raised amount (70000 - 5% fee = 66500)
     const withdrawRaisedAmountInput = JSON.stringify({
       path: "user/withdraw",
       data: {
         token: TOKEN_ADDRESS,
-        amount: "70000",
+        amount: "66500",
       },
     });
 
