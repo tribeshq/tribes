@@ -76,7 +76,7 @@ describe("Issuance Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -127,7 +127,7 @@ describe("Issuance Tests", () => {
     // Verify notice for issuance creation
     const expectedCreateIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt}}`,
+        `issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt}}`,
       ),
     });
     expect(bytesToHex(outputs[1])).toBe(expectedCreateIssuanceNoticeOutput);
@@ -180,7 +180,7 @@ describe("Issuance Tests", () => {
         collateral: COLLATERAL.toLowerCase(),
         collateral_amount: "10000",
         badge_address: badgeAddress,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         total_obligation: "0",
         total_raised: "0",
@@ -243,7 +243,7 @@ describe("Issuance Tests", () => {
       collateral: COLLATERAL.toLowerCase(),
       collateral_amount: "10000",
       badge_address: badgeAddress,
-      max_interest_rate: "10",
+      max_interest_rate: "1000",
       debt_issued: "100000",
       total_obligation: "0",
       total_raised: "0",
@@ -306,7 +306,7 @@ describe("Issuance Tests", () => {
         collateral: COLLATERAL.toLowerCase(),
         collateral_amount: "10000",
         badge_address: badgeAddress,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         total_obligation: "0",
         total_raised: "0",
@@ -376,7 +376,7 @@ describe("Issuance Close Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -432,7 +432,7 @@ describe("Issuance Close Tests", () => {
       path: "order/create",
       data: {
         issuance_id: 1,
-        interest_rate: "9",
+        interest_rate: "900",
       },
     });
 
@@ -476,7 +476,7 @@ describe("Issuance Close Tests", () => {
 
     const expectedCloseIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"closed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"accepted","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"76300","total_raised":"70000","state":"closed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"900","state":"accepted","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
@@ -575,7 +575,7 @@ describe("Issuance Execute Collateral Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -632,7 +632,7 @@ describe("Issuance Execute Collateral Tests", () => {
       path: "order/create",
       data: {
         issuance_id: 1,
-        interest_rate: "9",
+        interest_rate: "900",
       },
     });
 
@@ -698,7 +698,7 @@ describe("Issuance Execute Collateral Tests", () => {
 
     const expectedExecuteIssuanceCollateralNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"collateral_executed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled_by_collateral","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"76300","total_raised":"70000","state":"collateral_executed","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"900","state":"settled_by_collateral","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
@@ -762,7 +762,7 @@ describe("Issuance Settle Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -818,7 +818,7 @@ describe("Issuance Settle Tests", () => {
       path: "order/create",
       data: {
         issuance_id: 1,
-        interest_rate: "9",
+        interest_rate: "900",
       },
     });
 
@@ -937,7 +937,7 @@ describe("Issuance Settle Tests", () => {
 
     const expectedSettleIssuanceNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"10","total_obligation":"76300","total_raised":"70000","state":"settled","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"9","state":"settled","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
+        `issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"${TOKEN_ADDRESS.toLowerCase()}","creator":{"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":${baseTime}}],"created_at":${baseTime},"updated_at":0},"collateral":"${COLLATERAL.toLowerCase()}","collateral_amount":"10000","badge_address":"${badgeAddress}","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"76300","total_raised":"70000","state":"settled","orders":[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"70000","interest_rate":"900","state":"settled","created_at":${baseTime},"updated_at":1}],"created_at":${baseTime},"closes_at":${closesAt},"maturity_at":${maturityAt},"updated_at":1}`,
       ),
     });
     expect(bytesToHex(outputs[outputs.length - 1])).toBe(
@@ -1029,7 +1029,7 @@ describe("Issuance with Multiple Investors Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -1058,7 +1058,7 @@ describe("Issuance with Multiple Investors Tests", () => {
         path: "order/create",
         data: {
           issuance_id: 1,
-          interest_rate: String(10 - i),
+          interest_rate: String((10 - i) * 100),
         },
       });
 

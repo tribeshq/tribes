@@ -6,7 +6,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 )
@@ -18,7 +18,7 @@ type CancelOrderInputDTO struct {
 type CancelOrderOutputDTO struct {
 	Id           uint                `json:"id"`
 	IssuanceId   uint                `json:"issuance_id"`
-	Token        types.Address       `json:"token"`
+	Token        Address             `json:"token"`
 	Investor     *user.UserOutputDTO `json:"investor"`
 	Amount       *uint256.Int        `json:"amount"`
 	InterestRate *uint256.Int        `json:"interest_rate"`
@@ -46,7 +46,7 @@ func (c *CancelOrderUseCase) Execute(input *CancelOrderInputDTO, metadata rollme
 	if err != nil {
 		return nil, err
 	}
-	if order.InvestorAddress != types.Address(metadata.MsgSender) {
+	if order.InvestorAddress != Address(metadata.MsgSender) {
 		return nil, errors.New("only the investor can cancel the order")
 	}
 	issuance, err := c.IssuanceRepository.FindIssuanceById(order.IssuanceId)

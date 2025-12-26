@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 )
 
@@ -28,11 +28,11 @@ type Issuance struct {
 	Title             string        `json:"title,omitempty" gorm:"not null"`
 	Description       string        `json:"description,omitempty" gorm:"not null"`
 	Promotion         string        `json:"promotion,omitempty" gorm:"not null"`
-	Token             types.Address `json:"token,omitempty" gorm:"types:text;not null"`
-	CreatorAddress    types.Address `json:"creator_address,omitempty" gorm:"types:text;not null"`
-	CollateralAddress types.Address `json:"collateral_address,omitempty" gorm:"types:text;not null"`
+	Token             Address       `json:"token,omitempty" gorm:"types:text;not null"`
+	CreatorAddress    Address       `json:"creator_address,omitempty" gorm:"types:text;not null"`
+	CollateralAddress Address       `json:"collateral_address,omitempty" gorm:"types:text;not null"`
 	CollateralAmount  *uint256.Int  `json:"collateral_amount,omitempty" gorm:"types:text;not null"`
-	BadgeAddress      types.Address `json:"badge_address,omitempty" gorm:"types:text;not null"`
+	BadgeAddress      Address       `json:"badge_address,omitempty" gorm:"types:text;not null"`
 	DebtIssued        *uint256.Int  `json:"debt_issued,omitempty" gorm:"types:text;not null"`
 	MaxInterestRate   *uint256.Int  `json:"max_interest_rate,omitempty" gorm:"types:text;not null"`
 	TotalObligation   *uint256.Int  `json:"total_obligation,omitempty" gorm:"types:text;not null;default:0"`
@@ -45,7 +45,7 @@ type Issuance struct {
 	UpdatedAt         int64         `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewIssuance(title string, description string, promotion string, token types.Address, creatorAddress types.Address, collateralAddress types.Address, collateralAmount *uint256.Int, badgeAddress types.Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Issuance, error) {
+func NewIssuance(title string, description string, promotion string, token Address, creatorAddress Address, collateralAddress Address, collateralAmount *uint256.Int, badgeAddress Address, debtIssued *uint256.Int, maxInterestRate *uint256.Int, closesAt int64, maturityAt int64, createdAt int64) (*Issuance, error) {
 	issuance := &Issuance{
 		Title:             title,
 		Description:       description,
@@ -79,19 +79,19 @@ func (a *Issuance) validate() error {
 	if a.Promotion == "" {
 		return fmt.Errorf("%w: promotion cannot be empty", ErrInvalidIssuance)
 	}
-	if a.Token == (types.Address{}) {
+	if a.Token == (Address{}) {
 		return fmt.Errorf("%w: invalid token address", ErrInvalidIssuance)
 	}
-	if a.CreatorAddress == (types.Address{}) {
+	if a.CreatorAddress == (Address{}) {
 		return fmt.Errorf("%w: invalid creator address", ErrInvalidIssuance)
 	}
-	if a.CollateralAddress == (types.Address{}) {
+	if a.CollateralAddress == (Address{}) {
 		return fmt.Errorf("%w: invalid collateral address", ErrInvalidIssuance)
 	}
 	if a.CollateralAmount.Sign() == 0 {
 		return fmt.Errorf("%w: collateral amount cannot be zero", ErrInvalidIssuance)
 	}
-	if a.BadgeAddress == (types.Address{}) {
+	if a.BadgeAddress == (Address{}) {
 		return fmt.Errorf("%w: invalid badge address", ErrInvalidIssuance)
 	}
 	if a.DebtIssued.Sign() == 0 {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"gorm.io/gorm"
 )
 
@@ -44,7 +44,7 @@ func (r *SQLiteRepository) FindOrdersByState(issuanceId uint, state string) ([]*
 	return orders, nil
 }
 
-func (r *SQLiteRepository) FindOrdersByInvestorAddress(investor types.Address) ([]*entity.Order, error) {
+func (r *SQLiteRepository) FindOrdersByInvestorAddress(investor Address) ([]*entity.Order, error) {
 	var orders []*entity.Order
 	if err := r.Db.Where("investor_address = ?", investor).Find(&orders).Error; err != nil {
 		return nil, fmt.Errorf("failed to find orders by investor: %w", err)

@@ -3,7 +3,7 @@ package issuance
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 )
 
@@ -12,11 +12,11 @@ type IssuanceOutputDTO struct {
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`
 	Promotion         string                  `json:"promotion,omitempty"`
-	Token             types.Address           `json:"token"`
+	Token             Address                 `json:"token"`
 	Creator           *user.UserOutputDTO     `json:"creator"`
-	CollateralAddress types.Address           `json:"collateral"`
+	CollateralAddress Address                 `json:"collateral"`
 	CollateralAmount  *uint256.Int            `json:"collateral_amount"`
-	BadgeAddress      types.Address           `json:"badge_address"`
+	BadgeAddress      Address                 `json:"badge_address"`
 	DebtIssued        *uint256.Int            `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int            `json:"max_interest_rate"`
 	TotalObligation   *uint256.Int            `json:"total_obligation"`
