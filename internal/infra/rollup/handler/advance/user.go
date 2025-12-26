@@ -8,7 +8,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/rollmelette/rollmelette"
@@ -93,7 +93,7 @@ func (h *UserAdvanceHandlers) ERC20Withdraw(env rollmelette.Env, metadata rollme
 
 	findUserByAddress := user.NewFindUserByAddressUseCase(h.UserRepository)
 	res, err := findUserByAddress.Execute(&user.FindUserByAddressInputDTO{
-		Address: types.Address(metadata.MsgSender),
+		Address: Address(metadata.MsgSender),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to find user: %w", err)

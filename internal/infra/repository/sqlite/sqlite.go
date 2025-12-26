@@ -14,7 +14,7 @@ import (
 
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/configs"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
-	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
 type SQLiteRepository struct {
@@ -73,7 +73,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 
 	configs.SetDefaults()
 
-	var adminAddr, verifierAddr types.Address
+	var adminAddr, verifierAddr Address
 
 	if isMemory {
 		a, err := configs.GetAdminAddressTest()
@@ -82,7 +82,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 		} else if err == configs.ErrNotDefined {
 			return nil, fmt.Errorf("rollup_ADMIN_ADDRESS_TEST is required for the rollup service: %w", err)
 		}
-		adminAddr = types.HexToAddress(a.Hex())
+		adminAddr = HexToAddress(a.Hex())
 
 		v, err := configs.GetVerifierAddressTest()
 		if err != nil && err != configs.ErrNotDefined {
@@ -90,7 +90,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 		} else if err == configs.ErrNotDefined {
 			return nil, fmt.Errorf("rollup_VERIFIER_ADDRESS_TEST is required for the rollup service: %w", err)
 		}
-		verifierAddr = types.HexToAddress(v.Hex())
+		verifierAddr = HexToAddress(v.Hex())
 	} else {
 		a, err := configs.GetAdminAddress()
 		if err != nil && err != configs.ErrNotDefined {
@@ -98,7 +98,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 		} else if err == configs.ErrNotDefined {
 			return nil, fmt.Errorf("rollup_ADMIN_ADDRESS is required for the rollup service: %w", err)
 		}
-		adminAddr = types.HexToAddress(a.Hex())
+		adminAddr = HexToAddress(a.Hex())
 
 		v, err := configs.GetVerifierAddress()
 		if err != nil && err != configs.ErrNotDefined {
@@ -106,7 +106,7 @@ func NewSQLiteRepository(ctx context.Context, conn string) (*SQLiteRepository, e
 		} else if err == configs.ErrNotDefined {
 			return nil, fmt.Errorf("rollup_VERIFIER_ADDRESS is required for the rollup service: %w", err)
 		}
-		verifierAddr = types.HexToAddress(v.Hex())
+		verifierAddr = HexToAddress(v.Hex())
 	}
 
 	baseTime := time.Now().Unix()

@@ -3,14 +3,14 @@ package social_account
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
-	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/rollmelette/rollmelette"
 )
 
 type CreateSocialAccountInputDTO struct {
-	Address  types.Address `json:"address" validate:"required"`
-	Username string        `json:"username" validate:"required"`
-	Platform string        `json:"platform" validate:"required"`
+	Address  Address `json:"address" validate:"required"`
+	Username string  `json:"username" validate:"required"`
+	Platform string  `json:"platform" validate:"required"`
 }
 
 type CreateSocialAccountOutputDTO struct {

@@ -3,11 +3,11 @@ package order
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
 type FindOrdersByInvestorAddressInputDTO struct {
-	InvestorAddress types.Address `json:"investor_address" validate:"required"`
+	InvestorAddress Address `json:"investor_address" validate:"required"`
 }
 
 type FindOrdersByInvestorAddressOutputDTO []*OrderOutputDTO
