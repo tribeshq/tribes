@@ -6,11 +6,11 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
 type FindIssuancesByCreatorAddressInputDTO struct {
-	CreatorAddress types.Address `json:"creator" validate:"required"`
+	CreatorAddress Address `json:"creator" validate:"required"`
 }
 
 type FindIssuancesByCreatorAddressOutputDTO []*IssuanceOutputDTO

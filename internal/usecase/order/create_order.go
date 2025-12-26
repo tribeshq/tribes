@@ -6,7 +6,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 )
@@ -59,7 +59,7 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 		return nil, fmt.Errorf("issuance issuance closed, order cannot be placed")
 	}
 
-	if types.Address(erc20Deposit.Token) != issuance.Token {
+	if Address(erc20Deposit.Token) != issuance.Token {
 		return nil, fmt.Errorf("invalid contract address provided for order creation: %v", erc20Deposit.Token)
 	}
 
@@ -69,9 +69,10 @@ func (c *CreateOrderUseCase) Execute(input *CreateOrderInputDTO, deposit rollmel
 
 	order, err := entity.NewOrder(
 		issuance.Id,
-		types.Address(erc20Deposit.Sender),
+		Address(erc20Deposit.Sender),
 		uint256.MustFromBig(erc20Deposit.Value),
 		input.InterestRate,
+		entity.OrderStatePending,
 		metadata.BlockTimestamp,
 	)
 	if err != nil {

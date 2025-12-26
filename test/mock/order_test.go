@@ -30,7 +30,7 @@ func (s *OrderSuite) TestCreateOrder() {
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -42,11 +42,11 @@ func (s *OrderSuite) TestCreateOrder() {
 	s.Tester.Advance(admin, createInvestorInput)
 
 	// create order
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	expectedCreateOrderOutput := fmt.Sprintf(`order created - {"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d}`,
+	expectedCreateOrderOutput := fmt.Sprintf(`order created - {"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":%d}`,
 		investor01,
 		baseTime,
 		baseTime)
@@ -65,7 +65,7 @@ func (s *OrderSuite) TestFindAllOrders() {
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -80,10 +80,10 @@ func (s *OrderSuite) TestFindAllOrders() {
 	s.Tester.Advance(admin, createInvestorInput)
 
 	// Create orders
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	s.Tester.DepositERC20(token, investor02, big.NewInt(20000), createOrderInput)
 
 	// Find all orders
@@ -91,7 +91,7 @@ func (s *OrderSuite) TestFindAllOrders() {
 	findAllOrdersOutput := s.Tester.Inspect(findAllOrdersInput)
 	s.Len(findAllOrdersOutput.Reports, 1)
 
-	expectedFindAllOrdersOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindAllOrdersOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":%d,"updated_at":0},{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"800","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime,
 		investor02, baseTime, baseTime)
 	s.Equal(expectedFindAllOrdersOutput, string(findAllOrdersOutput.Reports[0].Payload))
@@ -109,7 +109,7 @@ func (s *OrderSuite) TestFindOrderById() {
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -119,7 +119,7 @@ func (s *OrderSuite) TestFindOrderById() {
 	createInvestorInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
 	s.Tester.Advance(admin, createInvestorInput)
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 
 	// Find order by id
@@ -127,7 +127,7 @@ func (s *OrderSuite) TestFindOrderById() {
 	findOrderByIdOutput := s.Tester.Inspect(findOrderByIdInput)
 	s.Len(findOrderByIdOutput.Reports, 1)
 
-	expectedFindOrderByIdOutput := fmt.Sprintf(`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}`,
+	expectedFindOrderByIdOutput := fmt.Sprintf(`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":%d,"updated_at":0}`,
 		investor01, baseTime, baseTime)
 	s.Equal(expectedFindOrderByIdOutput, string(findOrderByIdOutput.Reports[0].Payload))
 }
@@ -144,7 +144,7 @@ func (s *OrderSuite) TestFindOrdersByIssuanceId() {
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -157,10 +157,10 @@ func (s *OrderSuite) TestFindOrdersByIssuanceId() {
 	createInvestorInput = []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor02))
 	s.Tester.Advance(admin, createInvestorInput)
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	s.Tester.DepositERC20(token, investor02, big.NewInt(20000), createOrderInput)
 
 	// Find orders by issuance id
@@ -168,7 +168,7 @@ func (s *OrderSuite) TestFindOrdersByIssuanceId() {
 	findOrdersByIssuanceIdOutput := s.Tester.Inspect(findOrdersByIssuanceIdInput)
 	s.Len(findOrdersByIssuanceIdOutput.Reports, 1)
 
-	expectedFindOrdersByIssuanceIdOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0},{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"8","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindOrdersByIssuanceIdOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":%d,"updated_at":0},{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"20000","interest_rate":"800","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime,
 		investor02, baseTime, baseTime)
 	s.Equal(expectedFindOrdersByIssuanceIdOutput, string(findOrdersByIssuanceIdOutput.Reports[0].Payload))
@@ -186,7 +186,7 @@ func (s *OrderSuite) TestFindOrdersByInvestorAddress() {
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -196,7 +196,7 @@ func (s *OrderSuite) TestFindOrdersByInvestorAddress() {
 	createInvestorInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
 	s.Tester.Advance(admin, createInvestorInput)
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 
 	// Find orders by investor address
@@ -204,7 +204,7 @@ func (s *OrderSuite) TestFindOrdersByInvestorAddress() {
 	findOrdersByInvestorAddressOutput := s.Tester.Inspect(findOrdersByInvestorAddressInput)
 	s.Len(findOrdersByInvestorAddressOutput.Reports, 1)
 
-	expectedFindOrdersByInvestorAddressOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":%d,"updated_at":0}]`,
+	expectedFindOrdersByInvestorAddressOutput := fmt.Sprintf(`[{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":%d,"updated_at":0}]`,
 		investor01, baseTime, baseTime)
 	s.Equal(expectedFindOrdersByInvestorAddressOutput, string(findOrdersByInvestorAddressOutput.Reports[0].Payload))
 }
@@ -221,7 +221,7 @@ func (s *OrderSuite) TestCancelOrder() {
 	createSocialAccountInput := []byte(fmt.Sprintf(`{"path":"social/verifier/create","data":{"address":"%s","username":"test","platform":"twitter"}}`, creator))
 	s.Tester.Advance(verifier, createSocialAccountInput)
 
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -231,7 +231,7 @@ func (s *OrderSuite) TestCancelOrder() {
 	createInvestorInput := []byte(fmt.Sprintf(`{"path":"user/admin/create","data":{"address":"%s","role":"investor"}}`, investor01))
 	s.Tester.Advance(admin, createInvestorInput)
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	s.Tester.DepositERC20(token, investor01, big.NewInt(10000), createOrderInput)
 
 	// Cancel order
@@ -239,7 +239,7 @@ func (s *OrderSuite) TestCancelOrder() {
 	cancelOrderOutput := s.Tester.Advance(investor01, cancelOrderInput)
 	s.Len(cancelOrderOutput.Notices, 1)
 
-	expectedCancelOrderOutput := fmt.Sprintf(`order canceled - {"id":1,"issuance_id":1,"token":"%s","investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"9","state":"canceled","created_at":%d,"updated_at":%d}`,
+	expectedCancelOrderOutput := fmt.Sprintf(`order canceled - {"id":1,"issuance_id":1,"token":"%s","investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"10000","interest_rate":"900","state":"canceled","created_at":%d,"updated_at":%d}`,
 		token, investor01, baseTime, baseTime, baseTime)
 	s.Equal(expectedCancelOrderOutput, string(cancelOrderOutput.Notices[0].Payload))
 }

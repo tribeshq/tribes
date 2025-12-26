@@ -19,6 +19,13 @@ import (
 	"github.com/rollmelette/rollmelette"
 )
 
+// BasisPointsDivisor is the divisor used for basis point calculations.
+// 10000 basis points = 100%, so 1 basis point = 0.01%.
+// Example: 900 basis points = 9%, 950 basis points = 9.5%
+var (
+	BasisPointsDivisor = uint256.NewInt(10000)
+)
+
 type IssuanceAdvanceHandlers struct {
 	Config             *configs.RollupConfig
 	OrderRepository    repository.OrderRepository
@@ -262,9 +269,9 @@ func (h *IssuanceAdvanceHandlers) SettleIssuance(env rollmelette.Env, metadata r
 	// Process settled orders
 	for _, order := range res.Orders {
 		if order.State == string(entity.OrderStateSettled) {
-			// Calculate interest for this order
+			// Calculate interest for this order using basis points
 			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
-			interest.Div(interest, uint256.NewInt(100))
+			interest.Div(interest, BasisPointsDivisor)
 
 			// Calculate total payment
 			totalPayment := new(uint256.Int).Add(order.Amount, interest)
@@ -293,7 +300,7 @@ func (h *IssuanceAdvanceHandlers) SettleIssuance(env rollmelette.Env, metadata r
 			env.DelegateCallVoucher(common.Address(h.Config.SafeErc1155MintAddress), safeMintPayload)
 		}
 	}
-	
+
 	issuance, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
@@ -324,8 +331,9 @@ func (h *IssuanceAdvanceHandlers) ExecuteIssuanceCollateral(env rollmelette.Env,
 	orderFinalValues := make(map[uint]*uint256.Int)
 	for _, order := range res.Orders {
 		if order.State == string(entity.OrderStateSettledByCollateral) {
+			// Calculate interest using basis points
 			interest := new(uint256.Int).Mul(order.Amount, order.InterestRate)
-			interest.Div(interest, uint256.NewInt(100))
+			interest.Div(interest, BasisPointsDivisor)
 			finalValue := new(uint256.Int).Add(order.Amount, interest)
 			orderFinalValues[order.Id] = finalValue
 			totalFinalValue.Add(totalFinalValue, finalValue)

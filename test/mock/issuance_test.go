@@ -55,7 +55,7 @@ func (s *IssuanceSuite) TestCreateIssuance() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -63,7 +63,7 @@ func (s *IssuanceSuite) TestCreateIssuance() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -128,7 +128,7 @@ func (s *IssuanceSuite) TestFindAllIssuances() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -136,7 +136,7 @@ func (s *IssuanceSuite) TestFindAllIssuances() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -172,7 +172,7 @@ func (s *IssuanceSuite) TestFindAllIssuances() {
 	findAllIssuancesOutput := s.Tester.Inspect(findAllIssuancesInput)
 	s.Len(findAllIssuancesOutput.Reports, 1)
 
-	expectedFindAllIssuancesOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
+	expectedFindAllIssuancesOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -219,7 +219,7 @@ func (s *IssuanceSuite) TestFindIssuanceById() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -227,7 +227,7 @@ func (s *IssuanceSuite) TestFindIssuanceById() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -263,7 +263,7 @@ func (s *IssuanceSuite) TestFindIssuanceById() {
 	findIssuanceByIdOutput := s.Tester.Inspect(findIssuanceByIdInput)
 	s.Len(findIssuanceByIdOutput.Reports, 1)
 
-	expectedFindIssuanceByIdOutput := fmt.Sprintf(`{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`,
+	expectedFindIssuanceByIdOutput := fmt.Sprintf(`{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -307,7 +307,7 @@ func (s *IssuanceSuite) TestFindIssuancesByCreatorAddress() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -315,7 +315,7 @@ func (s *IssuanceSuite) TestFindIssuancesByCreatorAddress() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -351,7 +351,7 @@ func (s *IssuanceSuite) TestFindIssuancesByCreatorAddress() {
 	findIssuancesByCreatorOutput := s.Tester.Inspect(findIssuancesByCreatorInput)
 	s.Len(findIssuancesByCreatorOutput.Reports, 1)
 
-	expectedFindIssuancesByCreatorAddressOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
+	expectedFindIssuancesByCreatorAddressOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"0","total_raised":"0","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":0}]`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -434,7 +434,7 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -442,7 +442,7 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -473,23 +473,23 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"600"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
@@ -500,13 +500,13 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
 	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -531,13 +531,13 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 95000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
-	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -640,7 +640,7 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -648,7 +648,7 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -679,23 +679,23 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"600"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
@@ -706,13 +706,13 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
 	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -920,7 +920,7 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -928,7 +928,7 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -959,23 +959,23 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(7)), common.BytesToHash(saltBytes[:]))
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"600"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
@@ -986,13 +986,13 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
 	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1022,13 +1022,13 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 	findIssuanceByIdOutput := s.Tester.Inspect(findIssuanceByIdInput)
 	s.Len(findIssuanceByIdOutput.Reports, 1)
 
-	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}]`,
 		token.Hex(),
 		creator.Hex(),
@@ -1058,13 +1058,13 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 
 	updatedAt := baseTime + 11
 
-	expectedExecuteIssuanceCollateralOutput := fmt.Sprintf(`issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedExecuteIssuanceCollateralOutput := fmt.Sprintf(`issuance collateral executed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"collateral_executed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"settled_by_collateral","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1272,7 +1272,7 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	)
 
 	// create issuance
-	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"10","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
+	createIssuanceInput := []byte(fmt.Sprintf(`{"path":"issuance/creator/create","data":{"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","max_interest_rate":"1000","debt_issued":"100000","closes_at":%d,"maturity_at":%d}}`,
 		token,
 		closesAt,
 		maturityAt,
@@ -1280,7 +1280,7 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	createIssuanceOutput := s.Tester.DepositERC20(collateral, creator, big.NewInt(10000), createIssuanceInput)
 	s.Len(createIssuanceOutput.Notices, 1)
 
-	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
+	expectedCreateIssuanceOutput := fmt.Sprintf(`issuance created - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","state":"ongoing","orders":[],"created_at":%d,"closes_at":%d,"maturity_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
 		baseTime,
@@ -1309,23 +1309,23 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	s.Require().NoError(err)
 	s.Equal(applicationAddress, unpacked[0])
 
-	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"9"}}`)
+	createOrderInput := []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"900"}}`)
 	createOrderOutput := s.Tester.DepositERC20(token, investor01, big.NewInt(60000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"8"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"800"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor02, big.NewInt(28000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor03, big.NewInt(2000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"6"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"600"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor04, big.NewInt(5000), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
-	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"4"}}`)
+	createOrderInput = []byte(`{"path": "order/create", "data": {"issuance_id":1,"interest_rate":"400"}}`)
 	createOrderOutput = s.Tester.DepositERC20(token, investor05, big.NewInt(5500), createOrderInput)
 	s.Len(createOrderOutput.Notices, 1)
 
@@ -1336,13 +1336,13 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	closeIssuanceOutput := s.Tester.Advance(anyone, closeIssuanceInput)
 	s.Len(closeIssuanceOutput.Notices, 1)
 
-	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"accepted","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedCloseIssuanceOutput := fmt.Sprintf(`issuance closed - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"partially_accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"accepted","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
@@ -1445,13 +1445,13 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 
 	settledAt := baseTime + 10
 
-	expectedSettleIssuanceOutput := fmt.Sprintf(`issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
-		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"9","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"8","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"6","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"4","state":"settled","created_at":%d,"updated_at":%d},`+
-		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"9","state":"rejected","created_at":%d,"updated_at":%d}],`+
+	expectedSettleIssuanceOutput := fmt.Sprintf(`issuance settled - {"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"1000","total_obligation":"108195","total_raised":"100000","state":"settled","orders":[`+
+		`{"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"59500","interest_rate":"900","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":2,"issuance_id":1,"investor":{"id":5,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"28000","interest_rate":"800","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":3,"issuance_id":1,"investor":{"id":6,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"2000","interest_rate":"400","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":4,"issuance_id":1,"investor":{"id":7,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5000","interest_rate":"600","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":5,"issuance_id":1,"investor":{"id":8,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"5500","interest_rate":"400","state":"settled","created_at":%d,"updated_at":%d},`+
+		`{"id":6,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"%s","social_accounts":[],"created_at":%d,"updated_at":0},"amount":"500","interest_rate":"900","state":"rejected","created_at":%d,"updated_at":%d}],`+
 		`"created_at":%d,"closes_at":%d,"maturity_at":%d,"updated_at":%d}`,
 		token.Hex(),
 		creator.Hex(),
