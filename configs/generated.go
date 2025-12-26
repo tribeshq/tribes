@@ -26,6 +26,7 @@ const (
 	VERIFIER_ADDRESS           = "VERIFIER_ADDRESS"
 	VERIFIER_ADDRESS_TEST      = "VERIFIER_ADDRESS_TEST"
 	DATABASE_URL               = "DATABASE_URL"
+	ISSUANCE_FEE               = "ISSUANCE_FEE"
 	MAX_STARTUP_TIME           = "MAX_STARTUP_TIME"
 )
 
@@ -47,6 +48,8 @@ func SetDefaults() {
 	viper.SetDefault(VERIFIER_ADDRESS_TEST, "0x0000000000000000000000000000000000000025")
 
 	viper.SetDefault(DATABASE_URL, "sqlite:///mnt/data/rollup.db")
+
+	viper.SetDefault(ISSUANCE_FEE, "500")
 
 	viper.SetDefault(MAX_STARTUP_TIME, "10")
 
@@ -78,6 +81,9 @@ type RollupConfig struct {
 
 	// SQLite database connection string
 	DatabaseUrl string `mapstructure:"DATABASE_URL"`
+
+	// Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)
+	IssuanceFee uint64 `mapstructure:"ISSUANCE_FEE"`
 
 	// Maximum startup time for the rollup service
 	MaxStartupTime Duration `mapstructure:"MAX_STARTUP_TIME"`
@@ -153,6 +159,13 @@ func LoadRollupConfig() (*RollupConfig, error) {
 		return nil, fmt.Errorf("failed to get DATABASE_URL: %w", err)
 	} else if err == ErrNotDefined {
 		return nil, fmt.Errorf("DATABASE_URL is required for the rollup service: %w", err)
+	}
+
+	cfg.IssuanceFee, err = GetIssuanceFee()
+	if err != nil && err != ErrNotDefined {
+		return nil, fmt.Errorf("failed to get ISSUANCE_FEE: %w", err)
+	} else if err == ErrNotDefined {
+		return nil, fmt.Errorf("ISSUANCE_FEE is required for the rollup service: %w", err)
 	}
 
 	cfg.MaxStartupTime, err = GetMaxStartupTime()
@@ -267,6 +280,19 @@ func GetDatabaseUrl() (string, error) {
 		return v, nil
 	}
 	return notDefinedstring(), fmt.Errorf("%s: %w", DATABASE_URL, ErrNotDefined)
+}
+
+// GetIssuanceFee returns the value for the environment variable ISSUANCE_FEE.
+func GetIssuanceFee() (uint64, error) {
+	s := viper.GetString(ISSUANCE_FEE)
+	if s != "" {
+		v, err := toUint64(s)
+		if err != nil {
+			return v, fmt.Errorf("failed to parse %s: %w", ISSUANCE_FEE, err)
+		}
+		return v, nil
+	}
+	return notDefineduint64(), fmt.Errorf("%s: %w", ISSUANCE_FEE, ErrNotDefined)
 }
 
 // GetMaxStartupTime returns the value for the environment variable MAX_STARTUP_TIME.

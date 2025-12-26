@@ -523,12 +523,12 @@ func (s *IssuanceSuite) TestFindIssuancesByInvestorAddress() {
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
 
-	// Withdraw raised amount
-	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
+	// Withdraw raised amount (creator receives 95% of total raised = 95000, 5% goes to admin as fee)
+	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"95000"}}`, token.Hex()))
 	withdrawRaisedAmountOutput := s.Tester.Advance(creator, withdrawRaisedAmountInput)
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
-	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
+	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 95000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	expectedFindIssuanceByCreatorOutput := fmt.Sprintf(`[{"id":1,"title":"test","description":"testtesttesttesttest","promotion":"testtesttesttesttest","token":"%s","creator":{"id":3,"role":"creator","address":"%s","social_accounts":[{"id":1,"user_id":3,"username":"test","platform":"twitter","created_at":%d}],"created_at":%d,"updated_at":0},"collateral":"%s","collateral_amount":"10000","badge_address":"%s","debt_issued":"100000","max_interest_rate":"10","total_obligation":"108195","total_raised":"100000","state":"closed","orders":[`+
@@ -735,7 +735,7 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	// investor03: deposited 2000, fully accepted 2000
 	// investor04: deposited 5000, fully accepted 5000
 	// investor05: deposited 5500, fully accepted 5500
-	// creator: deposited 10000 collateral, received 100000 from investors
+	// creator: deposited 10000 collateral, received 95000 from investors (5% fee to admin)
 
 	// Verify investor01 balance (60000 - 59500 = 500 rejected should be returned)
 	erc20BalanceInput := []byte(fmt.Sprintf(`{"path":"user/balance","data":{"address":"%s","token":"%s"}}`, investor01.Hex(), token.Hex()))
@@ -767,11 +767,17 @@ func (s *IssuanceSuite) TestCloseIssuance() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"0"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// Verify creator balance (should have received 100000 from investors)
+	// Verify creator balance (should have received 95% of 100000 = 95000 from investors, 5% goes to admin as fee)
 	erc20BalanceInput = []byte(fmt.Sprintf(`{"path":"user/balance","data":{"address":"%s","token":"%s"}}`, creator.Hex(), token.Hex()))
 	erc20BalanceOutput = s.Tester.Inspect(erc20BalanceInput)
 	s.Len(erc20BalanceOutput.Reports, 1)
-	s.Equal(`"100000"`, string(erc20BalanceOutput.Reports[0].Payload))
+	s.Equal(`"95000"`, string(erc20BalanceOutput.Reports[0].Payload))
+
+	// Verify admin balance (should have received 5% of 100000 = 5000 as fee)
+	erc20BalanceInput = []byte(fmt.Sprintf(`{"path":"user/balance","data":{"address":"%s","token":"%s"}}`, admin.Hex(), token.Hex()))
+	erc20BalanceOutput = s.Tester.Inspect(erc20BalanceInput)
+	s.Len(erc20BalanceOutput.Reports, 1)
+	s.Equal(`"5000"`, string(erc20BalanceOutput.Reports[0].Payload))
 
 	// verify number of vouchers for badge safeERC1155MintAddress delegate calls
 	s.Len(closeIssuanceOutput.DelegateCallVouchers, 5)
@@ -1003,12 +1009,12 @@ func (s *IssuanceSuite) TestExecuteIssuanceCollateral() {
 		baseTime, closesAt, maturityAt, closesAt)
 	s.Equal(expectedCloseIssuanceOutput, string(closeIssuanceOutput.Notices[0].Payload))
 
-	// Withdraw raised amount
-	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
+	// Withdraw raised amount (creator receives 95% of total raised = 95000, 5% goes to admin as fee)
+	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"95000"}}`, token.Hex()))
 	withdrawRaisedAmountOutput := s.Tester.Advance(creator, withdrawRaisedAmountInput)
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
-	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
+	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 95000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	findIssuanceByIdInput := []byte(`{"path":"issuance/id", "data":{"id":1}}`)
@@ -1423,12 +1429,12 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	s.Equal(big.NewInt(1), unpacked[3])
 	s.Equal([]byte{}, unpacked[4])
 
-	// Withdraw raised amount
-	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"100000"}}`, token.Hex()))
+	// Withdraw raised amount (creator receives 95% of total raised = 95000, 5% goes to admin as fee)
+	withdrawRaisedAmountInput := []byte(fmt.Sprintf(`{"path":"user/withdraw","data":{"token":"%s","amount":"95000"}}`, token.Hex()))
 	withdrawRaisedAmountOutput := s.Tester.Advance(creator, withdrawRaisedAmountInput)
 	s.Len(withdrawRaisedAmountOutput.Notices, 1)
 
-	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 100000, user: %s`, token.Hex(), creator.Hex())
+	expectedWithdrawRaisedAmountOutput := fmt.Sprintf(`ERC20 withdrawn - token: %s, amount: 95000, user: %s`, token.Hex(), creator.Hex())
 	s.Equal(expectedWithdrawRaisedAmountOutput, string(withdrawRaisedAmountOutput.Notices[0].Payload))
 
 	time.Sleep(5 * time.Second)
@@ -1500,7 +1506,7 @@ func (s *IssuanceSuite) TestSettleIssuance() {
 	s.Len(erc20BalanceOutput.Reports, 1)
 	s.Equal(`"5720"`, string(erc20BalanceOutput.Reports[0].Payload))
 
-	// Verify creator balance (had 100000, paid 108195, so should be -8195)
+	// Verify creator balance (had 95000 after fee, paid 108195, so should be 0 as he deposited additional amount)
 	erc20BalanceInput = []byte(fmt.Sprintf(`{"path":"user/balance","data":{"address":"%s","token":"%s"}}`, creator.Hex(), token.Hex()))
 	erc20BalanceOutput = s.Tester.Inspect(erc20BalanceInput)
 	s.Len(erc20BalanceOutput.Reports, 1)

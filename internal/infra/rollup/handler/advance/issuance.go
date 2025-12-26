@@ -11,6 +11,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/issuance"
+	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-playground/validator/v10"
@@ -140,8 +141,38 @@ func (h *IssuanceAdvanceHandlers) CloseIssuance(env rollmelette.Env, metadata ro
 		}
 	}
 
-	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator.Address), res.TotalRaised.ToBig()); err != nil {
-		return fmt.Errorf("failed to transfer total raised: %w", err)
+	findAdminUseCase := user.NewFindUsersByRoleUseCase(h.UserRepository)
+	admins, err := findAdminUseCase.Execute(&user.FindUserByRoleInputDTO{Role: "admin"})
+	if err != nil {
+		return fmt.Errorf("failed to find admin user: %w", err)
+	}
+	if len(admins) == 0 {
+		return fmt.Errorf("no admin user found to receive fee")
+	}
+	adminUser := admins[0]
+
+	// Calculate fee distribution: fee goes to admin, rest goes to creator
+	// IssuanceFee is in basis points (e.g., 500 = 5%, 250 = 2.5%)
+	feeBasisPoints := uint256.NewInt(h.Config.IssuanceFee)
+	basisPointsDivisor := uint256.NewInt(10000)
+
+	// Calculate admin fee: (totalRaised * feeBasisPoints) / 10000
+	adminFee := new(uint256.Int).Mul(res.TotalRaised, feeBasisPoints)
+	adminFee.Div(adminFee, basisPointsDivisor)
+
+	// Calculate creator amount: totalRaised - adminFee
+	creatorAmount := new(uint256.Int).Sub(res.TotalRaised, adminFee)
+
+	// Transfer fee to admin
+	if adminFee.Sign() > 0 {
+		if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(adminUser.Address), adminFee.ToBig()); err != nil {
+			return fmt.Errorf("failed to transfer fee to admin: %w", err)
+		}
+	}
+
+	// Transfer remaining amount to creator
+	if err := env.ERC20Transfer(token, env.AppAddress(), common.Address(res.Creator.Address), creatorAmount.ToBig()); err != nil {
+		return fmt.Errorf("failed to transfer amount to creator: %w", err)
 	}
 
 	abiJSON := `[{

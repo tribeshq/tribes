@@ -8,6 +8,12 @@ default = "10"
 description = """Maximum startup time for the rollup service"""
 used-by = ["rollup"]
 
+[rollup.ISSUANCE_FEE]
+go-type = "uint64"
+default = "500"
+description = """Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)"""
+used-by = ["rollup"]
+
 #
 # Database
 #

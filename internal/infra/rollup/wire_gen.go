@@ -20,19 +20,21 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 	userAdvanceHandlers := advance.NewUserAdvanceHandlers(cfg, repo)
 	socialAccountAdvanceHandlers := advance.NewSocialAccountAdvanceHandlers(repo, repo)
 	issuanceAdvanceHandlers := advance.NewIssuanceAdvanceHandlers(cfg, repo, repo, repo)
+	emergencyAdvanceHandlers := advance.NewEmergencyAdvanceHandlers(cfg)
 	orderInspectHandlers := inspect.NewOrderInspectHandlers(repo, repo)
 	userInspectHandlers := inspect.NewUserInspectHandlers(repo)
 	socialAccountInspectHandlers := inspect.NewSocialAccountInspectHandlers(repo)
 	issuanceInspectHandlers := inspect.NewIssuanceInspectHandlers(repo, repo)
 	handlers := &Handlers{
-		OrderAdvanceHandlers:    orderAdvanceHandlers,
-		UserAdvanceHandlers:     userAdvanceHandlers,
-		SocialAccountsHandlers:  socialAccountAdvanceHandlers,
-		IssuanceAdvanceHandlers: issuanceAdvanceHandlers,
-		OrderInspectHandlers:    orderInspectHandlers,
-		UserInspectHandlers:     userInspectHandlers,
-		SocialAccountHandlers:   socialAccountInspectHandlers,
-		IssuanceInspectHandlers: issuanceInspectHandlers,
+		OrderAdvanceHandlers:     orderAdvanceHandlers,
+		UserAdvanceHandlers:      userAdvanceHandlers,
+		SocialAccountsHandlers:   socialAccountAdvanceHandlers,
+		IssuanceAdvanceHandlers:  issuanceAdvanceHandlers,
+		EmergencyAdvanceHandlers: emergencyAdvanceHandlers,
+		OrderInspectHandlers:     orderInspectHandlers,
+		UserInspectHandlers:      userInspectHandlers,
+		SocialAccountHandlers:    socialAccountInspectHandlers,
+		IssuanceInspectHandlers:  issuanceInspectHandlers,
 	}
 	return handlers, nil
 }
@@ -42,10 +44,11 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 // Handlers contains all handler dependencies
 type Handlers struct {
 	// Advance handlers
-	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
-	UserAdvanceHandlers     *advance.UserAdvanceHandlers
-	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
-	IssuanceAdvanceHandlers *advance.IssuanceAdvanceHandlers
+	OrderAdvanceHandlers     *advance.OrderAdvanceHandlers
+	UserAdvanceHandlers      *advance.UserAdvanceHandlers
+	SocialAccountsHandlers   *advance.SocialAccountAdvanceHandlers
+	IssuanceAdvanceHandlers  *advance.IssuanceAdvanceHandlers
+	EmergencyAdvanceHandlers *advance.EmergencyAdvanceHandlers
 
 	// Inspect handlers
 	OrderInspectHandlers    *inspect.OrderInspectHandlers

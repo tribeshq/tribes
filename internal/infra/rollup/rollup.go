@@ -66,8 +66,8 @@ func Create(c *CreateInfo) *router.Router {
 		// restricted operations
 		adminUserGroup.HandleAdvance("create", handlers.UserAdvanceHandlers.CreateUser)
 		adminUserGroup.HandleAdvance("delete", handlers.UserAdvanceHandlers.DeleteUser)
-		adminUserGroup.HandleAdvance("emergency-erc20-withdraw", handlers.UserAdvanceHandlers.EmergencyERC20Withdraw)
-		adminUserGroup.HandleAdvance("emergency-ether-withdraw", handlers.UserAdvanceHandlers.EmergencyEtherWithdraw)
+		adminUserGroup.HandleAdvance("emergency-erc20-withdraw", handlers.EmergencyAdvanceHandlers.EmergencyERC20Withdraw)
+		adminUserGroup.HandleAdvance("emergency-ether-withdraw", handlers.EmergencyAdvanceHandlers.EmergencyEtherWithdraw)
 
 		// Public operations
 		userGroup.HandleInspect("", handlers.UserInspectHandlers.FindAllUsers)

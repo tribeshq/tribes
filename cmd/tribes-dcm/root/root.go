@@ -27,13 +27,14 @@ var (
 	badgeFactoryAddress    string
 	emergencyWithdrawAddr  string
 	safeErc1155MintAddress string
+	issuanceFee            int
 	cfg                    *configs.RollupConfig
 )
 
 var Cmd = &cobra.Command{
 	Use:   "tribes-" + CMD_NAME,
-	Short: "Runs Debt Capital Market as rollup",
-	Long:  `A Linux-powered EVM rollup serving as a Debt Capital Market for the creator economy`,
+	Short: "A Linux-powered EVM rollup as a Debit Capital Market",
+	Long:  `Tokenized debt issuance through reverse auction mechanism with collateralization`,
 	Run:   run,
 }
 
@@ -61,6 +62,9 @@ func init() {
 
 	Cmd.Flags().StringVar(&safeErc1155MintAddress, "safe-erc1155-mint-address", "", "Address for safe ERC1155 minting")
 	cobra.CheckErr(viper.BindPFlag(configs.SAFE_ERC1155_MINT_ADDRESS, Cmd.Flags().Lookup("safe-erc1155-mint-address")))
+
+	Cmd.Flags().IntVar(&issuanceFee, "issuance-fee", 500, "Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)")
+	cobra.CheckErr(viper.BindPFlag(configs.ISSUANCE_FEE, Cmd.Flags().Lookup("issuance-fee")))
 
 	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		var err error

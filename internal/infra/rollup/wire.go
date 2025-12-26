@@ -24,7 +24,8 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 		advance.NewUserAdvanceHandlers,
 		advance.NewSocialAccountAdvanceHandlers,
 		advance.NewIssuanceAdvanceHandlers,
-		
+		advance.NewEmergencyAdvanceHandlers,
+
 		// Inspect handlers
 		inspect.NewOrderInspectHandlers,
 		inspect.NewUserInspectHandlers,
@@ -38,10 +39,11 @@ func NewHandlers(repo repository.Repository, cfg *configs.RollupConfig) (*Handle
 // Handlers contains all handler dependencies
 type Handlers struct {
 	// Advance handlers
-	OrderAdvanceHandlers    *advance.OrderAdvanceHandlers
-	UserAdvanceHandlers     *advance.UserAdvanceHandlers
-	SocialAccountsHandlers  *advance.SocialAccountAdvanceHandlers
-	IssuanceAdvanceHandlers *advance.IssuanceAdvanceHandlers
+	OrderAdvanceHandlers     *advance.OrderAdvanceHandlers
+	UserAdvanceHandlers      *advance.UserAdvanceHandlers
+	SocialAccountsHandlers   *advance.SocialAccountAdvanceHandlers
+	IssuanceAdvanceHandlers  *advance.IssuanceAdvanceHandlers
+	EmergencyAdvanceHandlers *advance.EmergencyAdvanceHandlers
 
 	// Inspect handlers
 	OrderInspectHandlers    *inspect.OrderInspectHandlers

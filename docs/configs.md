@@ -74,6 +74,14 @@ SQLite database connection string
 * **Default:** `"sqlite:///mnt/data/rollup.db"`
 * **Used by:** rollup
 
+## `ISSUANCE_FEE`
+
+Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)
+
+* **Type:** `uint64`
+* **Default:** `"500"`
+* **Used by:** rollup
+
 ## `MAX_STARTUP_TIME`
 
 Maximum startup time for the rollup service
