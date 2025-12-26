@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
 var (
@@ -24,13 +24,13 @@ const (
 type User struct {
 	Id             uint             `json:"id" gorm:"primaryKey"`
 	Role           UserRole         `json:"role,omitempty" gorm:"not null"`
-	Address        types.Address    `json:"address,omitempty" gorm:"types:text;uniqueIndex;not null"`
+	Address        Address          `json:"address,omitempty" gorm:"types:text;uniqueIndex;not null"`
 	SocialAccounts []*SocialAccount `json:"social_accounts,omitempty" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 	CreatedAt      int64            `json:"created_at,omitempty" gorm:"not null"`
 	UpdatedAt      int64            `json:"updated_at,omitempty" gorm:"default:0"`
 }
 
-func NewUser(role string, address types.Address, createdAt int64) (*User, error) {
+func NewUser(role string, address Address, createdAt int64) (*User, error) {
 	user := &User{
 		Role:           UserRole(role),
 		SocialAccounts: []*SocialAccount{},
@@ -50,7 +50,7 @@ func (u *User) validate() error {
 	if u.Role != UserRoleAdmin && u.Role != UserRoleCreator && u.Role != UserRoleInvestor && u.Role != UserRoleVerifier {
 		return fmt.Errorf("%w: invalid role", ErrInvalidUser)
 	}
-	if u.Address == (types.Address{}) {
+	if u.Address == (Address{}) {
 		return fmt.Errorf("%w: address cannot be empty", ErrInvalidUser)
 	}
 	if u.CreatedAt == 0 {

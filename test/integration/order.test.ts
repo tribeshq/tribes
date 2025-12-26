@@ -69,7 +69,7 @@ describe("Order Tests", () => {
         description: "testtesttesttesttest",
         promotion: "testtesttesttesttest",
         token: TOKEN_ADDRESS,
-        max_interest_rate: "10",
+        max_interest_rate: "1000",
         debt_issued: "100000",
         closes_at: closesAt,
         maturity_at: maturityAt,
@@ -117,7 +117,7 @@ describe("Order Tests", () => {
       path: "order/create",
       data: {
         issuance_id: 1,
-        interest_rate: "9",
+        interest_rate: "900",
       },
     });
 
@@ -141,7 +141,7 @@ describe("Order Tests", () => {
 
     const expectedCreateOrderNoticeOutput = encodeNoticeOutput({
       payload: stringToHex(
-        `order created - {"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"10000","interest_rate":"9","state":"pending","created_at":${baseTime}}`,
+        `order created - {"id":1,"issuance_id":1,"investor":{"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime},"updated_at":0},"amount":"10000","interest_rate":"900","state":"pending","created_at":${baseTime}}`,
       ),
     });
     expect(bytesToHex(outputs[0])).toBe(expectedCreateOrderNoticeOutput);
@@ -173,7 +173,7 @@ describe("Order Tests", () => {
           updated_at: 0,
         },
         amount: "10000",
-        interest_rate: "9",
+        interest_rate: "900",
         created_at: baseTime,
         updated_at: 0,
       },
@@ -209,7 +209,7 @@ describe("Order Tests", () => {
         updated_at: 0,
       },
       amount: "10000",
-      interest_rate: "9",
+      interest_rate: "900",
       created_at: baseTime,
       updated_at: 0,
     };
@@ -245,7 +245,7 @@ describe("Order Tests", () => {
           updated_at: 0,
         },
         amount: "10000",
-        interest_rate: "9",
+        interest_rate: "900",
         created_at: baseTime,
         updated_at: 0,
       },
@@ -282,7 +282,7 @@ describe("Order Tests", () => {
           updated_at: 0,
         },
         amount: "10000",
-        interest_rate: "9",
+        interest_rate: "900",
         created_at: baseTime,
         updated_at: 0,
       },

@@ -8,13 +8,20 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 )
 
+// BasisPointsDivisor is the divisor used for basis point calculations.
+// 10000 basis points = 100%, so 1 basis point = 0.01%.
+// Example: 900 basis points = 9%, 950 basis points = 9.5%
+var (
+	BasisPointsDivisor = uint256.NewInt(10000)
+)
+
 type CloseIssuanceInputDTO struct {
-	CreatorAddress types.Address `json:"creator_address" validate:"required"`
+	CreatorAddress Address `json:"creator_address" validate:"required"`
 }
 
 type CloseIssuanceOutputDTO struct {
@@ -22,11 +29,11 @@ type CloseIssuanceOutputDTO struct {
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`
 	Promotion         string                  `json:"promotion,omitempty"`
-	Token             types.Address           `json:"token,omitempty"`
+	Token             Address                 `json:"token,omitempty"`
 	Creator           *user.UserOutputDTO     `json:"creator,omitempty"`
-	CollateralAddress types.Address           `json:"collateral,omitempty"`
+	CollateralAddress Address                 `json:"collateral,omitempty"`
 	CollateralAmount  *uint256.Int            `json:"collateral_amount,omitempty"`
-	BadgeAddress      types.Address           `json:"badge_address,omitempty"`
+	BadgeAddress      Address                 `json:"badge_address,omitempty"`
 	DebtIssued        *uint256.Int            `json:"debt_issued,omitempty"`
 	MaxInterestRate   *uint256.Int            `json:"max_interest_rate,omitempty"`
 	TotalObligation   *uint256.Int            `json:"total_obligation,omitempty"`
@@ -57,19 +64,9 @@ func (u *CloseIssuanceUseCase) Execute(input *CloseIssuanceInputDTO, metadata ro
 	// -------------------------------------------------------------------------
 	// 1. Find ongoing issuance for the creator
 	// -------------------------------------------------------------------------
-	issuances, err := u.IssuanceRepository.FindIssuancesByCreatorAddress(input.CreatorAddress)
+	ongoingIssuance, err := u.IssuanceRepository.FindOngoingIssuanceByCreatorAddress(input.CreatorAddress)
 	if err != nil {
-		return nil, err
-	}
-	var ongoingIssuance *entity.Issuance
-	for _, issuance := range issuances {
-		if issuance.State == entity.IssuanceStateOngoing {
-			ongoingIssuance = issuance
-			break
-		}
-	}
-	if ongoingIssuance == nil {
-		return nil, fmt.Errorf("no ongoing issuance found, cannot close it")
+		return nil, fmt.Errorf("no ongoing issuance found, cannot close it: %w", err)
 	}
 
 	// -------------------------------------------------------------------------
@@ -117,8 +114,9 @@ func (u *CloseIssuanceUseCase) Execute(input *CloseIssuanceInputDTO, metadata ro
 		if debtRemaining.Lt(order.Amount) {
 			acceptAmount = new(uint256.Int).Set(debtRemaining)
 		}
+		// Calculate interest using basis points
 		interest := new(uint256.Int).Mul(acceptAmount, order.InterestRate)
-		interest.Div(interest, uint256.NewInt(100))
+		interest.Div(interest, BasisPointsDivisor)
 
 		orderObligation := new(uint256.Int).Add(acceptAmount, interest)
 		totalCollected.Add(totalCollected, acceptAmount)
@@ -131,15 +129,19 @@ func (u *CloseIssuanceUseCase) Execute(input *CloseIssuanceInputDTO, metadata ro
 			order.State = entity.OrderStatePartiallyAccepted
 			// Create rejected order for the surplus
 			rejectedAmount := new(uint256.Int).Sub(order.Amount, acceptAmount)
-			_, err := u.OrderRepository.CreateOrder(&entity.Order{
-				IssuanceId:      order.IssuanceId,
-				InvestorAddress: order.InvestorAddress,
-				Amount:          rejectedAmount,
-				InterestRate:    order.InterestRate,
-				State:           entity.OrderStateRejected,
-				CreatedAt:       order.CreatedAt,
-				UpdatedAt:       metadata.BlockTimestamp,
-			})
+			rejectedOrder, err := entity.NewOrder(
+				order.IssuanceId,
+				order.InvestorAddress,
+				rejectedAmount,
+				order.InterestRate,
+				entity.OrderStateRejected,
+				order.CreatedAt,
+			)
+			if err != nil {
+				return nil, err
+			}
+			rejectedOrder.UpdatedAt = metadata.BlockTimestamp
+			_, err = u.OrderRepository.CreateOrder(rejectedOrder)
 			if err != nil {
 				return nil, err
 			}

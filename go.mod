@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/wire v0.6.0
 	github.com/holiman/uint256 v1.3.2
-	github.com/rollmelette/rollmelette v0.0.0-20251226042236-fcdb709c5635
+	github.com/rollmelette/rollmelette v0.1.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0

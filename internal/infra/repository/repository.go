@@ -2,13 +2,14 @@ package repository
 
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
-	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 )
 
 type IssuanceRepository interface {
 	CreateIssuance(issuance *entity.Issuance) (*entity.Issuance, error)
-	FindIssuancesByCreatorAddress(creator types.Address) ([]*entity.Issuance, error)
-	FindIssuancesByInvestorAddress(investor types.Address) ([]*entity.Issuance, error)
+	FindIssuancesByCreatorAddress(creator Address) ([]*entity.Issuance, error)
+	FindOngoingIssuanceByCreatorAddress(creator Address) (*entity.Issuance, error)
+	FindIssuancesByInvestorAddress(investor Address) ([]*entity.Issuance, error)
 	FindIssuanceById(id uint) (*entity.Issuance, error)
 	FindAllIssuances() ([]*entity.Issuance, error)
 	UpdateIssuance(Issuance *entity.Issuance) (*entity.Issuance, error)
@@ -19,7 +20,7 @@ type OrderRepository interface {
 	FindOrderById(id uint) (*entity.Order, error)
 	FindOrdersByIssuanceId(id uint) ([]*entity.Order, error)
 	FindOrdersByState(issuanceId uint, state string) ([]*entity.Order, error)
-	FindOrdersByInvestorAddress(investor types.Address) ([]*entity.Order, error)
+	FindOrdersByInvestorAddress(investor Address) ([]*entity.Order, error)
 	FindAllOrders() ([]*entity.Order, error)
 	UpdateOrder(order *entity.Order) (*entity.Order, error)
 	DeleteOrder(id uint) error
@@ -35,9 +36,9 @@ type SocialAccountRepository interface {
 type UserRepository interface {
 	CreateUser(user *entity.User) (*entity.User, error)
 	FindUsersByRole(role string) ([]*entity.User, error)
-	FindUserByAddress(address types.Address) (*entity.User, error)
+	FindUserByAddress(address Address) (*entity.User, error)
 	FindAllUsers() ([]*entity.User, error)
-	DeleteUser(address types.Address) error
+	DeleteUser(address Address) error
 }
 
 type Repository interface {

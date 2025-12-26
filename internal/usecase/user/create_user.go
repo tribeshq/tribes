@@ -3,20 +3,20 @@ package user
 import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 )
 
 type CreateUserInputDTO struct {
-	Role    string        `json:"role" validate:"required"`
-	Address types.Address `json:"address" validate:"required"`
+	Role    string  `json:"role" validate:"required"`
+	Address Address `json:"address" validate:"required"`
 }
 
 type CreateUserOutputDTO struct {
 	Id              uint                    `json:"id"`
 	Role            string                  `json:"role"`
-	Address         types.Address           `json:"address"`
+	Address         Address                 `json:"address"`
 	SocialAccounts  []*entity.SocialAccount `json:"social_accounts"`
 	InvestmentLimit *uint256.Int            `json:"investment_limit,omitempty" gorm:"type:bigint"`
 	CreatedAt       int64                   `json:"created_at"`

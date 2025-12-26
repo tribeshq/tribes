@@ -43,9 +43,11 @@ func init() {
 	Cmd.Flags().IntVar(&maxStartupTime, "max-startup-time", 10, "Maximum startup time in seconds")
 	cobra.CheckErr(viper.BindPFlag(configs.MAX_STARTUP_TIME, Cmd.Flags().Lookup("max-startup-time")))
 
-	// Database flags
 	Cmd.Flags().StringVar(&databaseUrl, "database-url", "sqlite:///mnt/data/rollup.db", "SQLite database connection string")
 	cobra.CheckErr(viper.BindPFlag(configs.DATABASE_URL, Cmd.Flags().Lookup("database-url")))
+
+	Cmd.Flags().IntVar(&issuanceFee, "issuance-fee", 500, "Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)")
+	cobra.CheckErr(viper.BindPFlag(configs.ISSUANCE_FEE, Cmd.Flags().Lookup("issuance-fee")))
 
 	// Contracts flags
 	Cmd.Flags().StringVar(&adminAddress, "admin-address", "", "Address of the admin user")
@@ -62,9 +64,6 @@ func init() {
 
 	Cmd.Flags().StringVar(&safeErc1155MintAddress, "safe-erc1155-mint-address", "", "Address for safe ERC1155 minting")
 	cobra.CheckErr(viper.BindPFlag(configs.SAFE_ERC1155_MINT_ADDRESS, Cmd.Flags().Lookup("safe-erc1155-mint-address")))
-
-	Cmd.Flags().IntVar(&issuanceFee, "issuance-fee", 500, "Issuance fee in basis points (e.g., 500 = 5%, 250 = 2.5%, 1000 = 10%)")
-	cobra.CheckErr(viper.BindPFlag(configs.ISSUANCE_FEE, Cmd.Flags().Lookup("issuance-fee")))
 
 	Cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		var err error

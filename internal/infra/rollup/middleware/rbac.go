@@ -6,7 +6,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/router"
-	types "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rollmelette/rollmelette"
 )
@@ -28,14 +28,14 @@ func (f *RBACFactory) Create(roles []string) router.Middleware {
 		switch h := handler.(type) {
 		case router.AdvanceHandlerFunc:
 			return router.AdvanceHandlerFunc(func(env rollmelette.Env, metadata rollmelette.Metadata, deposit rollmelette.Deposit, payload []byte) error {
-				var address types.Address
+				var address Address
 
 				// Get the sender address from either ERC20 deposit or metadata
 				erc20Deposit, ok := deposit.(*rollmelette.ERC20Deposit)
 				if ok {
-					address = types.Address(erc20Deposit.Sender)
+					address = Address(erc20Deposit.Sender)
 				} else {
-					address = types.Address(metadata.MsgSender)
+					address = Address(metadata.MsgSender)
 				}
 
 				// Find user and check roles

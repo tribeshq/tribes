@@ -4,7 +4,7 @@ DO NOT EDIT.
 -->
 
 <!-- markdownlint-disable line_length -->
-# rollup Rollup Configuration
+# Rollup Configuration
 
 This file documents the configuration options.
 
