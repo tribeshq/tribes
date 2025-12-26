@@ -8,7 +8,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/domain/entity"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -17,14 +17,14 @@ import (
 )
 
 type CreateIssuanceInputDTO struct {
-	Title           string        `json:"title" validate:"required,min=3,max=100"`
-	Description     string        `json:"description" validate:"required,min=10,max=1000"`
-	Promotion       string        `json:"promotion" validate:"required,min=5,max=500"`
-	Token           types.Address `json:"token" validate:"required"`
-	DebtIssued      *uint256.Int  `json:"debt_issued" validate:"required"`
-	MaxInterestRate *uint256.Int  `json:"max_interest_rate" validate:"required"`
-	ClosesAt        int64         `json:"closes_at" validate:"required"`
-	MaturityAt      int64         `json:"maturity_at" validate:"required"`
+	Title           string       `json:"title" validate:"required,min=3,max=100"`
+	Description     string       `json:"description" validate:"required,min=10,max=1000"`
+	Promotion       string       `json:"promotion" validate:"required,min=5,max=500"`
+	Token           Address      `json:"token" validate:"required"`
+	DebtIssued      *uint256.Int `json:"debt_issued" validate:"required"`
+	MaxInterestRate *uint256.Int `json:"max_interest_rate" validate:"required"`
+	ClosesAt        int64        `json:"closes_at" validate:"required"`
+	MaturityAt      int64        `json:"maturity_at" validate:"required"`
 }
 
 type CreateIssuanceOutputDTO struct {
@@ -32,11 +32,11 @@ type CreateIssuanceOutputDTO struct {
 	Title             string              `json:"title,omitempty"`
 	Description       string              `json:"description,omitempty"`
 	Promotion         string              `json:"promotion,omitempty"`
-	Token             types.Address       `json:"token,omitempty"`
+	Token             Address             `json:"token,omitempty"`
 	Creator           *user.UserOutputDTO `json:"creator,omitempty"`
-	CollateralAddress types.Address       `json:"collateral,omitempty"`
+	CollateralAddress Address             `json:"collateral,omitempty"`
 	CollateralAmount  *uint256.Int        `json:"collateral_amount,omitempty"`
-	BadgeAddress      types.Address       `json:"badge_address,omitempty"`
+	BadgeAddress      Address             `json:"badge_address,omitempty"`
 	DebtIssued        *uint256.Int        `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int        `json:"max_interest_rate"`
 	State             string              `json:"state"`
@@ -70,7 +70,7 @@ func (c *CreateIssuanceUseCase) Execute(input *CreateIssuanceInputDTO, deposit r
 		return nil, fmt.Errorf("invalid deposit types: %T", deposit)
 	}
 
-	creator, err := c.UserRepository.FindUserByAddress(types.Address(erc20Deposit.Sender))
+	creator, err := c.UserRepository.FindUserByAddress(Address(erc20Deposit.Sender))
 	if err != nil {
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
@@ -84,13 +84,13 @@ func (c *CreateIssuanceUseCase) Execute(input *CreateIssuanceInputDTO, deposit r
 		return nil, fmt.Errorf("error getting badge bytecode: %w", err)
 	}
 
-	issuances, err := c.IssuanceRepository.FindIssuancesByCreatorAddress(types.Address(erc20Deposit.Sender))
+	issuances, err := c.IssuanceRepository.FindIssuancesByCreatorAddress(Address(erc20Deposit.Sender))
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Issuances: %w", err)
+		return nil, fmt.Errorf("error retrieving issuances: %w", err)
 	}
 	for _, issuance := range issuances {
-		if issuance.State != entity.IssuanceStateSettled && issuance.State != entity.IssuanceStateCollateralExecuted {
-			return nil, fmt.Errorf("active issuance exists, cannot create a new issuance")
+		if issuance.State == entity.IssuanceStateOngoing || issuance.State == entity.IssuanceStateClosed {
+			return nil, fmt.Errorf("cannot create a new issuance: creator has an active issuance (id: %d, state: %s)", issuance.Id, issuance.State)
 		}
 	}
 
@@ -113,10 +113,10 @@ func (c *CreateIssuanceUseCase) Execute(input *CreateIssuanceInputDTO, deposit r
 		input.Description,
 		input.Promotion,
 		input.Token,
-		types.Address(erc20Deposit.Sender),
-		types.Address(erc20Deposit.Token),
+		Address(erc20Deposit.Sender),
+		Address(erc20Deposit.Token),
 		uint256.MustFromBig(erc20Deposit.Value),
-		types.Address(badgeAddress),
+		Address(badgeAddress),
 		input.DebtIssued,
 		input.MaxInterestRate,
 		input.ClosesAt,

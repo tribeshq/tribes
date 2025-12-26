@@ -7,7 +7,7 @@ import (
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/infra/repository"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/order"
 	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/internal/usecase/user"
-	"github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
+	. "github.com/2025-2A-T20-G91-INTERNO/src/rollup/pkg/types"
 	"github.com/holiman/uint256"
 	"github.com/rollmelette/rollmelette"
 )
@@ -21,11 +21,11 @@ type SettleIssuanceOutputDTO struct {
 	Title             string                  `json:"title,omitempty"`
 	Description       string                  `json:"description,omitempty"`
 	Promotion         string                  `json:"promotion,omitempty"`
-	Token             types.Address           `json:"token"`
+	Token             Address                 `json:"token"`
 	Creator           *user.UserOutputDTO     `json:"creator"`
-	CollateralAddress types.Address           `json:"collateral"`
+	CollateralAddress Address                 `json:"collateral"`
 	CollateralAmount  *uint256.Int            `json:"collateral_amount"`
-	BadgeAddress      types.Address           `json:"badge_address"`
+	BadgeAddress      Address                 `json:"badge_address"`
 	DebtIssued        *uint256.Int            `json:"debt_issued"`
 	MaxInterestRate   *uint256.Int            `json:"max_interest_rate"`
 	TotalObligation   *uint256.Int            `json:"total_obligation"`
@@ -75,22 +75,19 @@ func (uc *SettleIssuanceUseCase) Execute(
 		return nil, err
 	}
 
-	var ordersToUpdate []*entity.Order
 	for _, order := range issuance.Orders {
 		if order.State == entity.OrderStateAccepted || order.State == entity.OrderStatePartiallyAccepted {
 			order.State = entity.OrderStateSettled
 			order.UpdatedAt = metadata.BlockTimestamp
-			ordersToUpdate = append(ordersToUpdate, order)
-		}
-	}
-	for _, order := range ordersToUpdate {
-		if _, err := uc.OrderRepository.UpdateOrder(order); err != nil {
-			return nil, fmt.Errorf("error updating order: %w", err)
+			if _, err := uc.OrderRepository.UpdateOrder(order); err != nil {
+				return nil, fmt.Errorf("error updating order: %w", err)
+			}
 		}
 	}
 
 	issuance.State = entity.IssuanceStateSettled
 	issuance.UpdatedAt = metadata.BlockTimestamp
+	
 	res, err := uc.IssuanceRepository.UpdateIssuance(issuance)
 	if err != nil {
 		return nil, fmt.Errorf("error updating issuance: %w", err)
@@ -177,7 +174,7 @@ func (uc *SettleIssuanceUseCase) Validate(
 		return fmt.Errorf("deposit amount is lower than the total obligation")
 	}
 
-	if Issuance.CreatorAddress != types.Address(deposit.Sender) {
+	if Issuance.CreatorAddress != Address(deposit.Sender) {
 		return fmt.Errorf("only the issuance creator can settle the issuance")
 	}
 	return nil
