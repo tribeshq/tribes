@@ -7,6 +7,7 @@ export const createMachine = () => {
     runtimeConfig: { skip_root_hash_check: true },
   })
 }
+
 export const computeBadgeAddress = (factory: Address, salt: Hex, appContract: Address): Address => {
   const bytecode = badgeArtifact.bytecode as Hex
   const constructorArgs = encodeAbiParameters([{ type: 'address' }], [appContract])
