@@ -121,7 +121,7 @@ fmt: ## Format all code (Contracts + Backend)
 	$(START_LOG)
 	@gofmt -w .
 	@forge fmt --root ./contracts
-	@pnpm exec prettier --log-level silent --write "**/*.ts"
+	@pnpm format
 	@echo "Formatting completed"
 	$(END_LOG)
 

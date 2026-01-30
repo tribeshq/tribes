@@ -39,7 +39,8 @@ contract EmergencyWithdrawTest is Test {
         uint256 initialBalance = token.balanceOf(address(mockApplication));
         uint256 recipientInitialBalance = token.balanceOf(recipient);
 
-        bytes memory encodedWithdrawTx = abi.encodeCall(SafeEmergencyWithdraw.safeEmergencyERC20Withdraw, (token, recipient));
+        bytes memory encodedWithdrawTx =
+            abi.encodeCall(SafeEmergencyWithdraw.safeEmergencyERC20Withdraw, (token, recipient));
         bytes memory delegateCallVoucher =
             abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeEmergencyWithdraw), encodedWithdrawTx));
 
@@ -66,7 +67,8 @@ contract EmergencyWithdrawTest is Test {
     }
 
     function test_EmergencyERC20WithdrawWithZeroBalance() public {
-        bytes memory encodedWithdrawTx = abi.encodeCall(SafeEmergencyWithdraw.safeEmergencyERC20Withdraw, (token, recipient));
+        bytes memory encodedWithdrawTx =
+            abi.encodeCall(SafeEmergencyWithdraw.safeEmergencyERC20Withdraw, (token, recipient));
         bytes memory delegateCallVoucher =
             abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeEmergencyWithdraw), encodedWithdrawTx));
         mockApplication.executeOutput(delegateCallVoucher);
