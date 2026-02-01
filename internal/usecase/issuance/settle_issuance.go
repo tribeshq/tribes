@@ -87,7 +87,7 @@ func (uc *SettleIssuanceUseCase) Execute(
 
 	issuance.State = entity.IssuanceStateSettled
 	issuance.UpdatedAt = metadata.BlockTimestamp
-	
+
 	res, err := uc.IssuanceRepository.UpdateIssuance(issuance)
 	if err != nil {
 		return nil, fmt.Errorf("error updating issuance: %w", err)

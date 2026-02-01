@@ -40,13 +40,13 @@ func (c *FindOrdersByIssuanceIdUseCase) Execute(input *FindOrdersByIssuanceIdInp
 		output[i] = &OrderOutputDTO{
 			Id:         order.Id,
 			IssuanceId: order.IssuanceId,
-			Investor:     &user.UserOutputDTO{
-				Id: investor.Id,
-				Role: string(investor.Role),
-				Address: investor.Address,
+			Investor: &user.UserOutputDTO{
+				Id:             investor.Id,
+				Role:           string(investor.Role),
+				Address:        investor.Address,
 				SocialAccounts: investor.SocialAccounts,
-				CreatedAt: investor.CreatedAt,
-				UpdatedAt: investor.UpdatedAt,
+				CreatedAt:      investor.CreatedAt,
+				UpdatedAt:      investor.UpdatedAt,
 			},
 			Amount:       order.Amount,
 			InterestRate: order.InterestRate,

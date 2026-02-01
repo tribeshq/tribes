@@ -4,17 +4,17 @@ pragma solidity ^0.8.27;
 
 import {Script} from "forge-std-1.9.7/src/Script.sol";
 import {console} from "forge-std-1.9.7/src/console.sol";
-import {EmergencyWithdraw} from "../src/delegatecall/EmergencyWithdraw.sol";
+import {SafeEmergencyWithdraw} from "../src/delegatecall/SafeEmergencyWithdraw.sol";
 
 contract DeployEmergency is Script {
-    EmergencyWithdraw public emergencyWithdraw;
+    SafeEmergencyWithdraw public emergencyWithdraw;
 
     function run() external {
         console.log("Starting emergency contracts deployment on chain ID:", block.chainid);
 
         vm.startBroadcast();
         console.log("Deploying Emergency Withdraw...");
-        emergencyWithdraw = new EmergencyWithdraw();
+        emergencyWithdraw = new SafeEmergencyWithdraw();
         console.log("Emergency Withdraw deployed to:", address(emergencyWithdraw));
         vm.stopBroadcast();
 

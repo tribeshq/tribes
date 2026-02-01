@@ -31,7 +31,7 @@ func (s *EmergencySuite) TestEmergencyERC20Withdraw() {
 	// Verify the delegate call voucher payload
 	abiJSON := `[{
 		"type":"function",
-		"name":"emergencyERC20Withdraw",
+		"name":"safeEmergencyERC20Withdraw",
 		"inputs":[
 			{"type":"address"},
 			{"type":"address"}
@@ -40,7 +40,7 @@ func (s *EmergencySuite) TestEmergencyERC20Withdraw() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["emergencyERC20Withdraw"].Inputs.Unpack(emergencyERC20WithdrawOutput.DelegateCallVouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["safeEmergencyERC20Withdraw"].Inputs.Unpack(emergencyERC20WithdrawOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(token, unpacked[0].(common.Address))
 	s.Equal(to, unpacked[1].(common.Address))
@@ -58,7 +58,7 @@ func (s *EmergencySuite) TestEmergencyEtherWithdraw() {
 	// Verify the delegate call voucher payload
 	abiJSON := `[{
 		"type":"function",
-		"name":"emergencyETHWithdraw",
+		"name":"safeEmergencyETHWithdraw",
 		"inputs":[
 			{"type":"address"}
 		]
@@ -66,7 +66,7 @@ func (s *EmergencySuite) TestEmergencyEtherWithdraw() {
 	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
-	unpacked, err := abiInterface.Methods["emergencyETHWithdraw"].Inputs.Unpack(emergencyEtherWithdrawOutput.DelegateCallVouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["safeEmergencyETHWithdraw"].Inputs.Unpack(emergencyEtherWithdrawOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(to, unpacked[0].(common.Address))
 }

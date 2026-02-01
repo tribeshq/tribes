@@ -3,7 +3,7 @@ name: Build and Test
 on:
   push:
     tags:
-      - "*"
+      - '*'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -100,7 +100,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Cartesi CLI
-        run: pnpm install -g @cartesi/cli@2.0.0-alpha.20
+        run: pnpm install -g @cartesi/cli@2.0.0-alpha.26
 
       - name: Install Solidity dependencies
         run: forge soldeer install

@@ -10,7 +10,7 @@ interface IERC1155Mintable {
 contract SafeERC1155Mint {
     error NotAContract(address target);
 
-    function mint(IERC1155Mintable nft, address to, uint256 id, uint256 amount, bytes memory data) public {
+    function safeMint(IERC1155Mintable nft, address to, uint256 id, uint256 amount, bytes memory data) public {
         if (address(nft).code.length == 0) {
             revert NotAContract(address(nft));
         }
@@ -18,7 +18,7 @@ contract SafeERC1155Mint {
         nft.mint(to, id, amount, data);
     }
 
-    function mintBatch(
+    function safeMintBatch(
         IERC1155Mintable nft,
         address to,
         uint256[] memory ids,

@@ -35,7 +35,7 @@ func (h *EmergencyAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, m
 
 	abiJSON := `[{
 		"type":"function",
-		"name":"emergencyERC20Withdraw",
+		"name":"safeEmergencyERC20Withdraw",
 		"inputs":[
 			{"type":"address"},
 			{"type":"address"}
@@ -47,7 +47,7 @@ func (h *EmergencyAdvanceHandlers) EmergencyERC20Withdraw(env rollmelette.Env, m
 	}
 
 	delegatecallPayload, err := abiInterface.Pack(
-		"emergencyERC20Withdraw",
+		"safeEmergencyERC20Withdraw",
 		input.Token,
 		input.To,
 	)
@@ -75,7 +75,7 @@ func (h *EmergencyAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, m
 
 	abiJSON := `[{
 		"type":"function",
-		"name":"emergencyETHWithdraw",
+		"name":"safeEmergencyETHWithdraw",
 		"inputs":[
 			{"type":"address"}
 		]
@@ -86,7 +86,7 @@ func (h *EmergencyAdvanceHandlers) EmergencyEtherWithdraw(env rollmelette.Env, m
 	}
 
 	delegatecallPayload, err := abiInterface.Pack(
-		"emergencyETHWithdraw",
+		"safeEmergencyETHWithdraw",
 		input.To,
 	)
 	if err != nil {

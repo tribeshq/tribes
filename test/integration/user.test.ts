@@ -1,92 +1,94 @@
-import { bytesToHex, stringToHex } from "viem";
-import { afterAll, describe, expect, it } from "vitest";
-import { encodeAdvanceInput, encodeNoticeOutput } from "./encoder";
-import {
-  createMachine,
-  ADMIN_ADDRESS,
-  VERIFIER_ADDRESS,
-  CREATOR_ADDRESS,
-  INVESTOR_01_ADDRESS,
-} from "./helpers";
+import { bytesToHex, getAddress, stringToHex } from 'viem'
+import { afterAll, describe, expect, it } from 'vitest'
+import { encodeAdvanceInput, encodeNoticeOutput } from './encoder'
+import { createMachine } from './helpers'
 
-describe("User Tests", () => {
-  const machine = createMachine();
+const ADMIN_ADDRESS = getAddress('0xD554153658E8D466428Fa48487f5aba18dF5E628')
 
-  it("should create creator user", () => {
-    const baseTime = Math.floor(Date.now() / 1000);
+const VERIFIER_ADDRESS = getAddress('0xc2D8eb4a934AEc7268E414a3Fa3D20E0572d714b')
+
+const CREATOR_ADDRESS = getAddress('0x0000000000000000000000000000000000000007')
+
+const INVESTOR_01_ADDRESS = getAddress('0x0000000000000000000000000000000000000001')
+
+describe('User Tests', () => {
+  const machine = createMachine()
+
+  it('should create creator user', () => {
+    const baseTime = Math.floor(Date.now() / 1000)
 
     const createUserInput = JSON.stringify({
-      path: "user/admin/create",
+      path: 'user/admin/create',
       data: {
         address: CREATOR_ADDRESS,
-        role: "creator",
+        role: 'creator',
       },
-    });
+    })
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: ADMIN_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(createUserInput).toString("hex")}`,
+        payload: `0x${Buffer.from(createUserInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
-    expect(outputs.length).toBe(1);
+    expect(outputs.length).toBe(1)
 
-    const expectedNoticePayload = `user created - {"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[],"created_at":${baseTime}}`;
+    const expectedNoticePayload = `user created - {"id":3,"role":"creator","address":"${CREATOR_ADDRESS}","social_accounts":[],"created_at":${baseTime}}`
     const expectedOutput = encodeNoticeOutput({
       payload: stringToHex(expectedNoticePayload),
-    });
-    expect(bytesToHex(outputs[0])).toBe(expectedOutput);
-  });
+    })
+    expect(bytesToHex(outputs[0])).toBe(expectedOutput)
+  })
 
-  it("should create investor user", () => {
-    const baseTime = Math.floor(Date.now() / 1000);
+  it('should create investor user', () => {
+    const baseTime = Math.floor(Date.now() / 1000)
 
     const createUserInput = JSON.stringify({
-      path: "user/admin/create",
+      path: 'user/admin/create',
       data: {
         address: INVESTOR_01_ADDRESS,
-        role: "investor",
+        role: 'investor',
       },
-    });
+    })
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: ADMIN_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(createUserInput).toString("hex")}`,
+        payload: `0x${Buffer.from(createUserInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
-    expect(outputs.length).toBe(1);
+    expect(outputs.length).toBe(1)
 
-    const expectedNoticePayload = `user created - {"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime}}`;
+    const expectedNoticePayload = `user created - {"id":4,"role":"investor","address":"${INVESTOR_01_ADDRESS}","social_accounts":[],"created_at":${baseTime}}`
     const expectedOutput = encodeNoticeOutput({
       payload: stringToHex(expectedNoticePayload),
-    });
-    expect(bytesToHex(outputs[0])).toBe(expectedOutput);
-  });
+    })
+    expect(bytesToHex(outputs[0])).toBe(expectedOutput)
+  })
 
-  it("should find all users", () => {
-    const baseTime = Math.floor(Date.now() / 1000);
+  it('should find all users', () => {
+    const baseTime = Math.floor(Date.now() / 1000)
 
     const findAllUsersInput = JSON.stringify({
-      path: "user",
-    });
+      path: 'user',
+    })
 
     const reports = machine.inspect(Buffer.from(findAllUsersInput), {
       collect: true,
-    });
+    })
 
-    expect(reports.length).toBe(1);
-    const output = JSON.parse(Buffer.from(reports[0]).toString("utf-8"));
+    expect(reports.length).toBe(1)
+    const output = JSON.parse(Buffer.from(reports[0]).toString('utf-8'))
     const expectedOutput = [
       {
         id: 1,
-        role: "admin",
+        role: 'admin',
         address: ADMIN_ADDRESS,
         social_accounts: [],
         created_at: 0,
@@ -94,7 +96,7 @@ describe("User Tests", () => {
       },
       {
         id: 2,
-        role: "verifier",
+        role: 'verifier',
         address: VERIFIER_ADDRESS,
         social_accounts: [],
         created_at: 0,
@@ -102,7 +104,7 @@ describe("User Tests", () => {
       },
       {
         id: 3,
-        role: "creator",
+        role: 'creator',
         address: CREATOR_ADDRESS,
         social_accounts: [],
         created_at: baseTime,
@@ -110,72 +112,72 @@ describe("User Tests", () => {
       },
       {
         id: 4,
-        role: "investor",
+        role: 'investor',
         address: INVESTOR_01_ADDRESS,
         social_accounts: [],
         created_at: baseTime,
         updated_at: 0,
       },
-    ];
-    expect(output).toEqual(expectedOutput);
-  });
+    ]
+    expect(output).toEqual(expectedOutput)
+  })
 
-  it("should find user by address", () => {
-    const baseTime = Math.floor(Date.now() / 1000);
+  it('should find user by address', () => {
+    const baseTime = Math.floor(Date.now() / 1000)
 
     const findUserByAddressInput = JSON.stringify({
-      path: "user/address",
+      path: 'user/address',
       data: {
         address: CREATOR_ADDRESS,
       },
-    });
+    })
 
     const reports = machine.inspect(Buffer.from(findUserByAddressInput), {
       collect: true,
-    });
+    })
 
-    expect(reports.length).toBe(1);
-    const output = JSON.parse(Buffer.from(reports[0]).toString("utf-8"));
+    expect(reports.length).toBe(1)
+    const output = JSON.parse(Buffer.from(reports[0]).toString('utf-8'))
     const expectedOutput = {
       id: 3,
-      role: "creator",
+      role: 'creator',
       address: CREATOR_ADDRESS,
       social_accounts: [],
       created_at: baseTime,
       updated_at: 0,
-    };
-    expect(output).toEqual(expectedOutput);
-  });
+    }
+    expect(output).toEqual(expectedOutput)
+  })
 
-  it("should delete user", () => {
-    const baseTime = Math.floor(Date.now() / 1000);
+  it('should delete user', () => {
+    const baseTime = Math.floor(Date.now() / 1000)
 
     const deleteUserInput = JSON.stringify({
-      path: "user/admin/delete",
+      path: 'user/admin/delete',
       data: {
         address: INVESTOR_01_ADDRESS,
       },
-    });
+    })
 
     const { outputs } = machine.advance(
       encodeAdvanceInput({
         msgSender: ADMIN_ADDRESS,
         blockTimestamp: BigInt(baseTime),
-        payload: `0x${Buffer.from(deleteUserInput).toString("hex")}`,
+        payload: `0x${Buffer.from(deleteUserInput).toString('hex')}`,
       }),
-      { collect: true },
-    );
+      { collect: true }
+    )
 
-    expect(outputs.length).toBe(1);
+    expect(outputs.length).toBe(1)
 
-    const expectedNoticePayload = `user deleted - {"address":"${INVESTOR_01_ADDRESS}"}`;
+    const expectedNoticePayload = `user deleted - {"address":"${INVESTOR_01_ADDRESS}"}`
     const expectedOutput = encodeNoticeOutput({
       payload: stringToHex(expectedNoticePayload),
-    });
-    expect(bytesToHex(outputs[0])).toBe(expectedOutput);
-  });
+    })
+    expect(bytesToHex(outputs[0])).toBe(expectedOutput)
+  })
 
   afterAll(() => {
-    machine.shutdown();
-  });
-});
+    machine.shutdown()
+  })
+})

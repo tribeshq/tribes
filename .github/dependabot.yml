@@ -1,11 +1,11 @@
 version: 2
 updates:
-  - package-ecosystem: "docker"
+  - package-ecosystem: 'docker'
     directories:
-      - "src/cartesi"
+      - 'src/cartesi'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     open-pull-requests-limit: 10
     labels:
-      - "dependencies"
-      - "docker" 
+      - 'dependencies'
+      - 'docker'
